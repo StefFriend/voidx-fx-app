@@ -12,7 +12,6 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -24,7 +23,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
-import android.os.ParcelUuid
 import android.util.Base64
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
@@ -170,10 +168,17 @@ class MainActivity : Activity() {
     }
 
     /* ---------------- ricerca e collegamento ---------------- */
+    private val seen = HashSet<String>()
     private val scanCb = object : ScanCallback() {
+        @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             h.post {
                 if (!scanning) return@post
+                val rec = result.scanRecord
+                val name = rec?.deviceName ?: try { result.device.name } catch (e: SecurityException) { null }
+                val hasSvc = rec?.serviceUuids?.any { it.uuid == SVC } == true
+                if (seen.add(result.device.address)) status(ST_BUSY, "ricerca VoidX-FX… (" + seen.size + " dispositivi Bluetooth visti)")
+                if (!hasSvc && name != "VoidX-FX") return@post
                 stopScan()
                 connect(result.device)
             }
@@ -186,13 +191,18 @@ class MainActivity : Activity() {
         if (gatt != null || scanning) return
         val sc = adapter?.bluetoothLeScanner ?: run { status(ST_OFF, "Bluetooth non disponibile"); return }
         scanning = true
+        seen.clear()
         status(ST_BUSY, "ricerca VoidX-FX…")
-        val f = ScanFilter.Builder().setServiceUuid(ParcelUuid(SVC)).build()
+        /* nessun filtro hardware (su alcuni telefoni con gli UUID a 128 bit non scatta): si controlla qui */
         val s = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
-        try { sc.startScan(listOf(f), s, scanCb) } catch (e: SecurityException) { scanning = false; status(ST_OFF, "permessi Bluetooth negati"); return }
+        try { sc.startScan(null, s, scanCb) } catch (e: SecurityException) { scanning = false; status(ST_OFF, "permessi Bluetooth negati"); return }
         h.postDelayed({
-            if (scanning) { stopScan(); status(ST_OFF, "VoidX-FX non trovato (connessione Bluetooth attiva sulla scheda?)") }
-        }, 12000)
+            if (scanning) {
+                stopScan()
+                status(ST_OFF, if (seen.isEmpty()) "nessun dispositivo Bluetooth visto: attiva la Posizione del telefono e riprova"
+                               else "VoidX-FX non trovato tra " + seen.size + " dispositivi (sulla scheda: Connessione = Bluetooth?)")
+            }
+        }, 15000)
     }
 
     @SuppressLint("MissingPermission")
