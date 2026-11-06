@@ -95,6 +95,7 @@ select{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--li
 <footer>
   <button id="save">Salva preset</button>
   <button id="calib" title="Misura il costo reale di ogni modello con l'ampli acceso (circa 2 minuti: l'audio cambia durante la misura)">Calibra DSP</button>
+  <button id="eng" title="Motore dell'ampli NAM: CoyoPedal (Full e Lite) oppure VX (A2-Lite nativa, molto piu' leggero). Il pedale si riavvia.">Motore: –</button>
   <span id="stat"></span>
 </footer>
 <div id="toast"></div>
@@ -540,6 +541,7 @@ async function poll(){
     const dm = $('#dspm'); dm.innerHTML = 'DSP <b>' + s.dsp + '%</b>'; dm.classList.toggle('hot', s.dsp > 95);
     if (s.cap && (s.cap.act !== capAct || s.cap.st !== capSt)) loadCaps();
     if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; renderPresets(); }
+    if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; $('#eng').textContent = 'Motore: ' + (engCur ? 'VX' : 'CoyoPedal'); }
     if (s.midi !== undefined && (s.midi !== midiCount || (MD && (MD.ped !== s.ped || MD.learn >= 0)))) { midiCount = s.midi; loadMidi(); }
     $('#stat').textContent = 'core ' + Math.round(s.c0 / 6.66) + '% / ' + Math.round(s.c1 / 6.66) + '%' + (s.err ? ' · err ' + s.err : '');
     if (saveWait && s.save !== -1){ saveWait = false; $('#save').textContent = s.save ? 'Salvato ✓' : 'Errore salvataggio'; setTimeout(() => $('#save').textContent = 'Salva preset', 1500); }
@@ -550,6 +552,14 @@ async function poll(){
 }
 
 $('#mute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
+let engCur = -1;
+$('#eng').onclick = async () => {
+  const to = engCur === 1 ? 0 : 1;
+  const msg = to ? "Passare al motore VX? Esegue la A2-Lite della cattura (le catture solo Full non si caricano). Il pedale si riavvia; al primo uso di ogni cattura la calibrazione dura circa 12 s."
+                 : "Tornare al motore CoyoPedal (Full)? Il pedale si riavvia.";
+  if (!confirm(msg)) return;
+  try { await fetch('/api/engine?e=' + to); toast('Riavvio con il motore ' + (to ? 'VX' : 'CoyoPedal') + '...'); } catch(e) {}
+};
 $('#calib').onclick = async () => {
   if (!confirm("Calibrazione DSP: per circa 2 minuti gli effetti si accendono uno alla volta. Abbassa il volume. Procedere?")) return;
   try { await fetch('/api/calib'); toast('Calibrazione avviata: circa 2 minuti'); } catch(e) {}
