@@ -239,7 +239,9 @@ class MainActivity : Activity() {
         override fun onConnectionStateChange(g: BluetoothGatt, st: Int, newState: Int) {
             h.post {
                 if (newState == BluetoothProfile.STATE_CONNECTED && st == BluetoothGatt.GATT_SUCCESS) {
-                    g.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
+                    /* niente priorita' alta: con scambi ogni 7,5 ms il Bluetooth della scheda ruba cache all'audio.
+                       La scheda chiede 30-50 ms, piu' che sufficienti per i controlli. */
+                    g.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_BALANCED)
                     if (!g.requestMtu(247)) g.discoverServices()
                 } else {
                     closeGatt()

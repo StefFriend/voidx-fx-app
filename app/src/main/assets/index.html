@@ -546,7 +546,7 @@ async function poll(){
   } catch(e){
     if (++fails > 2){ $('#dot').classList.remove('ok'); $('#ctext').textContent = 'disconnesso'; }
   }
-  setTimeout(poll, APP ? 400 : 250);
+  setTimeout(poll, APP ? 1000 : 250);
 }
 
 $('#mute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
