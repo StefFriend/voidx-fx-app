@@ -161,10 +161,14 @@ function setCtl(c, p, v){
   if (c.el.type === 'checkbox'){ c.el.checked = v > 0.5; if (c.card) c.card.classList.toggle('off', !(v > 0.5)); }
   else if (c.el.tagName === 'SELECT'){ c.el.value = Math.round(v); }
   else { c.el.value = v; if (c.val) c.val.textContent = fmt(p, v); }
+  relabel(p.k, v);
 }
 
+let LDEP = {};
+function fhz(v){ return v < 1000 ? Math.round(v) + ' Hz' : (Math.round(v / 100) % 10 ? (Math.round(v / 100) / 10).toFixed(1) : Math.round(v / 1000)) + ' kHz'; }
+function relabel(k, v){ (LDEP[k] || []).forEach(sp => { sp.textContent = fhz(v); }); }
 function build(){
-  const box = $('#cards'); box.innerHTML = ''; ctl = {};
+  const box = $('#cards'); box.innerHTML = ''; ctl = {}; LDEP = {};
   G.forEach((grp, g) => {
     const ps = P.filter(p => p.g === g);
     const card = document.createElement('section'); card.className = 'card'; card.dataset.g = g; card.dataset.blk = grp.blk;
@@ -215,13 +219,14 @@ function build(){
       const r = document.createElement('div'); r.className = 'row';
       r.innerHTML = '<div class="lab"><span></span><b></b></div><input type="range">';
       r.querySelector('span').textContent = p.l;
+      if (p.lf) (LDEP[p.lf] = LDEP[p.lf] || []).push(r.querySelector('span'));   /* EQ: etichetta = frequenza */
       const inp = r.querySelector('input'), val = r.querySelector('b');
       inp.min = p.min; inp.max = p.max; inp.step = p.step; inp.value = p.v; val.textContent = fmt(p, p.v);
       const start = () => { dragging = p.k; };
       const end = () => { setTimeout(() => { if (dragging === p.k) dragging = null; }, 400); };
       inp.addEventListener('pointerdown', start); inp.addEventListener('touchstart', start, {passive:true});
       inp.addEventListener('pointerup', end); inp.addEventListener('touchend', end); inp.addEventListener('change', end);
-      inp.oninput = () => { p.v = +inp.value; val.textContent = fmt(p, p.v); send(p.k, p.v); };
+      inp.oninput = () => { p.v = +inp.value; val.textContent = fmt(p, p.v); relabel(p.k, p.v); send(p.k, p.v); };
       ctl[p.k] = { p, el: inp, val };
       card.appendChild(r);
     });
