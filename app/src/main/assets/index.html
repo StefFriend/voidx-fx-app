@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>VX Amp</title>
+<style>
+:root{--bg:#0e1116;--card:#171b22;--line:#262c36;--fg:#e8ebf0;--mut:#8a93a3;--acc:#3fb6ff;--on:#35d07f;--warn:#ff5d5d;--meter:#2a313c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:2;background:rgba(14,17,22,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 16px 8px}
+.top{display:flex;align-items:center;gap:10px}
+h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.3px;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--warn);display:inline-block;margin-right:6px}
+.dot.ok{background:var(--on)}
+#conn{color:var(--mut);font-size:12px}
+button{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-height:40px}
+button:active{transform:translateY(1px)}
+#mute.on{background:var(--warn);border-color:var(--warn);color:#fff}
+.meters{display:grid;grid-template-columns:auto 1fr 52px;gap:6px 8px;align-items:center;margin-top:8px;font-size:12px;color:var(--mut)}
+.bar{height:8px;background:linear-gradient(90deg,var(--on) 0 70%,#f3c33b 70% 88%,var(--warn) 88%);border-radius:4px;overflow:hidden}
+.bar i{display:block;float:right;height:100%;width:100%;background:var(--meter);transition:width .12s}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+main{padding:12px 16px 96px;max-width:640px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.card.off .row{opacity:.45}
+.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.head h2{font-size:15px;margin:0;font-weight:600;letter-spacing:.4px}
+.row{padding:8px 0 4px}
+.lab{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:2px}
+.lab b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;height:34px;margin:0;background:transparent;-webkit-appearance:none;appearance:none}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--meter)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--meter)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:var(--acc);border:3px solid var(--card)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--acc);border:3px solid var(--card)}
+.sw{position:relative;width:52px;height:30px;flex:none}
+.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:#2b323d;border-radius:15px;transition:.15s}
+.sw span:before{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#cfd5de;transition:.15s}
+.sw input:checked+span{background:var(--on)}
+.sw input:checked+span:before{transform:translateX(22px);background:#fff}
+.inline{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+.note{font-size:12px;color:var(--mut);margin-top:2px}
+footer{position:fixed;left:0;right:0;bottom:0;background:rgba(14,17,22,.96);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center}
+#save{flex:1;background:var(--acc);border-color:var(--acc);color:#04131e;font-weight:650}
+#stat{font-size:12px;color:var(--mut);min-width:110px;text-align:right}
+.caps{margin:6px 0 4px}
+.capr{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:#1b2029;cursor:pointer}
+.capr.act{border-color:var(--acc);background:#132331}
+.capr .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.capr .no{color:var(--mut);font-size:12px;width:18px;flex:none}
+.tag{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 5px;flex:none}
+.capr .del{min-height:30px;padding:2px 9px;font-size:13px;flex:none}
+.upl{display:flex;gap:8px;align-items:center;margin-top:8px}
+.upl label{flex:1;text-align:center;border:1px dashed #3a4350;border-radius:10px;padding:10px;color:var(--fg);cursor:pointer}
+.upl input{display:none}
+#capst{font-size:12px;color:var(--mut);margin-top:6px;min-height:16px}
+#capst.err{color:var(--warn)}
+select{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--line);border-radius:9px;padding:6px 8px;min-height:36px;max-width:60%}
+.sel{display:flex;align-items:center;justify-content:space-between;padding:6px 0;gap:10px;font-size:13px;color:var(--mut)}
+#dspm{font-size:12px;color:var(--mut);margin-left:auto}
+#dspm b{color:var(--fg)}
+#dspm.hot b{color:var(--warn)}
+#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:#3a1f22;border:1px solid var(--warn);color:#ffd9d9;padding:8px 14px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:5}
+#toast.on{opacity:1}
+.pset{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.pset button{min-height:44px;padding:4px 6px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pset button.act{background:#132331;border-color:var(--acc);color:#fff}
+.pset button.empty{color:#556}
+.mrow{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.mrow .msg{font-weight:600}
+.mrow .ctl{display:flex;flex-wrap:wrap;gap:6px;grid-column:1/3}
+.mrow select,.mrow input{font:inherit;font-size:13px;color:var(--fg);background:#232a35;border:1px solid var(--line);border-radius:8px;padding:4px 6px;min-height:34px;max-width:100%}
+.mrow input{width:70px}
+.mrow button{min-height:34px;padding:2px 10px;font-size:13px}
+.learn{background:#3a2f12!important;border-color:#f3c33b!important}
+#bt{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>VX Amp</h1><span id="dspm">DSP <b>–</b></span>
+    <span id="conn"><span class="dot" id="dot"></span><span id="ctext">connessione…</span></span>
+    <button id="bt">Collega</button>
+    <button id="mute">Mute</button>
+  </div>
+  <div class="meters">
+    <span>IN</span><div class="bar"><i id="min"></i></div><span class="num" id="nin">–</span>
+    <span>OUT</span><div class="bar"><i id="mout"></i></div><span class="num" id="nout">–</span>
+  </div>
+</header>
+<main id="cards"></main>
+<footer>
+  <button id="save">Salva preset</button>
+  <button id="calib" title="Misura il costo reale di ogni modello con l'ampli acceso (circa 2 minuti: l'audio cambia durante la misura)">Calibra DSP</button>
+  <span id="stat"></span>
+</footer>
+<div id="toast"></div>
+<script>
+/* ---------- trasporto: nella app Android le stesse richieste passano dal Bluetooth (ponte VXBridge) ---------- */
+const APP = !!window.VXBridge;
+if (APP){
+  const waits = {}; let rid = 1;
+  const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
+  window.vxResp = (id, status, text) => { const w = waits[id]; if (!w) return; delete waits[id]; clearTimeout(w.t); w.ok({ ok: status < 400, status, json: async () => JSON.parse(text), text: async () => text }); };
+  window.vxFail = (id, why) => { const w = waits[id]; if (!w) return; delete waits[id]; clearTimeout(w.t); w.ko(new Error(why)); };
+  window.fetch = async (url, opts) => {
+    let body = '';
+    if (opts && opts.body){
+      const b = opts.body;
+      const u8 = b instanceof Uint8Array ? b : b instanceof ArrayBuffer ? new Uint8Array(b) : new Uint8Array(await b.arrayBuffer());
+      body = b64(u8);
+    }
+    const id = rid++;
+    return new Promise((ok, ko) => {
+      waits[id] = { ok, ko, t: setTimeout(() => window.vxFail(id, 'timeout'), body ? 90000 : 8000) };
+      VXBridge.request(id, String(url), body);
+    });
+  };
+  window.vxStatus = (st, txt) => {
+    $('#dot').classList.toggle('ok', st === 2);
+    $('#ctext').textContent = txt;
+    $('#bt').style.display = st === 0 ? 'inline-block' : 'none';
+    if (st === 2 && !P.length) init();
+  };
+}
+const $ = s => document.querySelector(s);
+let P = [], G = [], ctl = {}, dragging = null, pending = {}, timer = null;
+
+function fmt(p, v){
+  if (p.n) return p.n[Math.round(v)] ?? '?';
+  if (p.max === 1 && p.min === 0 && p.step === 1) return v > 0.5 ? 'ON' : 'off';
+  return (p.step < 1 ? v.toFixed(1) : Math.round(v)) + (p.u === ':1' ? ':1' : ' ' + p.u);
+}
+function isToggle(p){ return !p.n && p.min === 0 && p.max === 1 && p.step === 1; }
+let toastT = null;
+function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2600); }
+
+function send(k, v){
+  pending[k] = v;
+  if (timer) return;
+  timer = setTimeout(flush, 60);               /* al massimo ~16 richieste al secondo */
+}
+async function flush(){
+  timer = null;
+  const items = Object.entries(pending); pending = {};
+  for (const [k, v] of items){
+    try {
+      const r = await (await fetch('/api/set?k=' + encodeURIComponent(k) + '&v=' + v)).json();
+      const p = P.find(q => q.k === k);
+      if (r.err){ toast(r.err); if (p){ p.v = r.v; const c = ctl[k]; if (c) setCtl(c, p, r.v); } }
+      if (p && (p.t === 'model')) await reload();          /* altro modello: altre manopole */
+    } catch(e) {}
+  }
+}
+
+function setCtl(c, p, v){
+  if (c.el.type === 'checkbox'){ c.el.checked = v > 0.5; if (c.card) c.card.classList.toggle('off', !(v > 0.5)); }
+  else if (c.el.tagName === 'SELECT'){ c.el.value = Math.round(v); }
+  else { c.el.value = v; if (c.val) c.val.textContent = fmt(p, v); }
+}
+
+function build(){
+  const box = $('#cards'); box.innerHTML = ''; ctl = {};
+  G.forEach((grp, g) => {
+    const ps = P.filter(p => p.g === g);
+    const card = document.createElement('section'); card.className = 'card'; card.dataset.g = g; card.dataset.blk = grp.blk;
+    const head = document.createElement('div'); head.className = 'head';
+    head.innerHTML = '<h2></h2>'; head.querySelector('h2').textContent = grp.name;
+    const tog = ps.find(p => p.t === 'on' || p.k === 'amp.on');
+    if (tog){
+      const lab = document.createElement('label'); lab.className = 'sw';
+      lab.innerHTML = '<input type="checkbox"><span></span>';
+      const inp = lab.querySelector('input');
+      inp.onchange = () => { tog.v = inp.checked ? 1 : 0; card.classList.toggle('off', !inp.checked); send(tog.k, tog.v); };
+      ctl[tog.k] = { p: tog, el: inp, card };
+      head.appendChild(lab);
+    }
+    card.appendChild(head);
+    ps.forEach(p => {
+      if (p === tog) return;
+      if (p.k === 'amp.cap'){ card.appendChild(capBox()); return; }
+      if (p.k === 'ir.slot'){ card.appendChild(irBox()); return; }
+      if (p.n){                                   /* scelta a nomi: modello, posizione, blocco */
+        const r = document.createElement('div'); r.className = 'sel';
+        r.innerHTML = '<span></span><select></select>';
+        r.querySelector('span').textContent = p.l;
+        const sel = r.querySelector('select');
+        p.n.forEach((nm, j) => { const o = document.createElement('option'); o.value = j; o.textContent = nm; sel.appendChild(o); });
+        sel.value = Math.round(p.v);
+        sel.onchange = () => {
+          if (p.k === 'wifi.on' && !confirm(APP ? 'Cambiando connessione la app perde il collegamento Bluetooth. Continuare?' : 'Cambiando connessione perdi questa pagina (con il Bluetooth si usa la app). Continuare?')) { sel.value = Math.round(p.v); return; }
+          p.v = +sel.value; send(p.k, p.v);
+        };
+        ctl[p.k] = { p, el: sel };
+        card.appendChild(r);
+        return;
+      }
+      if (isToggle(p)){                            /* es. WiFi */
+        const r = document.createElement('div'); r.className = 'inline';
+        r.innerHTML = '<span></span><label class="sw"><input type="checkbox"><span></span></label>';
+        r.querySelector('span').textContent = p.l;
+        const inp = r.querySelector('input');
+        inp.onchange = () => {
+          if (p.k === 'wifi.on' && !inp.checked && !confirm('Spegnendo il WiFi perdi questa pagina. Riaccendilo dal menu della scheda. Continuare?')) { inp.checked = true; return; }
+          p.v = inp.checked ? 1 : 0; send(p.k, p.v);
+        };
+        ctl[p.k] = { p, el: inp };
+        card.appendChild(r);
+        return;
+      }
+      const r = document.createElement('div'); r.className = 'row';
+      r.innerHTML = '<div class="lab"><span></span><b></b></div><input type="range">';
+      r.querySelector('span').textContent = p.l;
+      const inp = r.querySelector('input'), val = r.querySelector('b');
+      inp.min = p.min; inp.max = p.max; inp.step = p.step; inp.value = p.v; val.textContent = fmt(p, p.v);
+      const start = () => { dragging = p.k; };
+      const end = () => { setTimeout(() => { if (dragging === p.k) dragging = null; }, 400); };
+      inp.addEventListener('pointerdown', start); inp.addEventListener('touchstart', start, {passive:true});
+      inp.addEventListener('pointerup', end); inp.addEventListener('touchend', end); inp.addEventListener('change', end);
+      inp.oninput = () => { p.v = +inp.value; val.textContent = fmt(p, p.v); send(p.k, p.v); };
+      ctl[p.k] = { p, el: inp, val };
+      card.appendChild(r);
+    });
+    if (grp.blk === 'glob') { const n = document.createElement('div'); n.className = 'note'; n.textContent = 'In gain = guadagno analogico del convertitore. Blocco = campioni per elaborazione: 64 e 128 alleggeriscono il DSP ma aggiungono latenza.'; card.appendChild(n); }
+    box.appendChild(card);
+  });
+  box.insertBefore(presetCard(), box.firstChild);
+  box.appendChild(midiCard());
+  loadPresets(); loadMidi();
+  sync(P.map(p => p.v));
+}
+
+/* ---------- preset numerati ---------- */
+let PS = [], psCur = -1;
+function presetCard(){
+  const c = document.createElement('section'); c.className = 'card';
+  c.innerHTML = '<div class="head"><h2>PRESET</h2><button id="psave">Salva qui…</button></div><div class="pset" id="pset"></div><div class="note">Tocca per richiamare. "Salva qui…" salva le impostazioni correnti nello slot scelto. Dalla pedaliera: Program Change 1–16, oppure A+B / C+D (precedente / successivo).</div>';
+  c.querySelector('#psave').onclick = async () => {
+    const s = prompt('Numero dello slot (1-16):', psCur >= 0 ? psCur + 1 : 1); if (!s) return;
+    const i = (+s) - 1; if (!(i >= 0 && i < 16)) return;
+    const n = prompt('Nome del preset:', PS[i] ? PS[i].name : ''); if (n === null) return;
+    try { const d = await (await fetch('/api/psave?s=' + i + '&n=' + encodeURIComponent(n.slice(0, 15)))).json(); if (d.err) toast(d.err); else { PS = d.slots; psCur = d.cur; renderPresets(); toast('Salvato in P' + (i + 1)); } } catch(e) {}
+  };
+  return c;
+}
+function renderPresets(){
+  const b = $('#pset'); if (!b) return; b.innerHTML = '';
+  for (let i = 0; i < 16; i++){
+    const p = PS[i], e = document.createElement('button');
+    e.textContent = (i + 1) + ' ' + (p ? p.name : '–');
+    e.className = (p ? '' : 'empty') + (i === psCur ? ' act' : '');
+    e.onclick = async () => { if (!p) return; try { const d = await (await fetch('/api/pload?s=' + i)).json(); if (d.err) toast(d.err); } catch(x) {} };
+    e.oncontextmenu = async ev => { ev.preventDefault(); if (p && confirm('Eliminare il preset ' + (i + 1) + ' "' + p.name + '"?')) { const d = await (await fetch('/api/pdel?s=' + i)).json(); PS = d.slots; renderPresets(); } };
+    b.appendChild(e);
+  }
+}
+async function loadPresets(){ try { const d = await (await fetch('/api/presets', {cache:'no-store'})).json(); PS = d.slots; psCur = d.cur; renderPresets(); } catch(e) {} }
+
+/* ---------- pedaliera MIDI ---------- */
+let MD = null, midiCount = -1;
+const MTYPE = ['CC', 'PC', 'Nota'], MMODE = ['a ogni pressione', 'segue (>=64 acceso)', 'continuo (pedale)', 'qualsiasi valore'];
+const MACT = ['Blocco on/off', 'Parametro', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Tap tempo delay'];
+const PSTATE = ['disattivata', 'ricerca…', 'collegamento…', 'collegata'];
+function midiCard(){
+  const c = document.createElement('section'); c.className = 'card'; c.id = 'midicard';
+  c.innerHTML = '<div class="head"><h2>PEDALIERA MIDI</h2><label class="sw"><input type="checkbox" id="pen"><span></span></label></div>' +
+    '<div class="inline"><span id="pst">–</span><button id="pscan">Cerca</button></div><div class="note" id="plast"></div><div id="mlist"></div>' +
+    '<div class="upl"><button id="madd">+ Associazione</button><button id="mdef">Default Chocolate</button></div>' +
+    '<div class="note">Funziona con la connessione Bluetooth. Chocolate in modo "Manufacturer Control": A, B, C, D = CC 20–23. "Impara" assegna il prossimo tasto premuto.</div>';
+  c.querySelector('#pen').onchange = ev => api('/api/pedal?en=' + (ev.target.checked ? 1 : 0));
+  c.querySelector('#pscan').onclick = () => api('/api/pedal?scan=1');
+  c.querySelector('#mdef').onclick = () => { if (confirm('Ripristinare le associazioni predefinite per il Chocolate?')) api('/api/mididef'); };
+  c.querySelector('#madd').onclick = () => { const i = MD.map.findIndex(m => !m); if (i < 0) return toast('Tabella piena'); api('/api/midiset?i=' + i + '&t=0&n=0&m=0&a=0&k=drv'); };
+  return c;
+}
+async function api(u){ try { const d = await (await fetch(u)).json(); if (d.err) toast(d.err); else if (d.map) { MD = d; renderMidi(); } return d; } catch(e) {} }
+async function loadMidi(){ await api('/api/midi'); }
+function renderMidi(){
+  if (!MD || !$('#mlist')) return;
+  $('#pen').checked = !!MD.pen;
+  const conn = (P.find(p => p.k === 'wifi.on') || {}).v;
+  $('#pst').textContent = 'Pedaliera: ' + (!MD.pen ? 'disattivata' : conn !== 2 ? 'serve la connessione Bluetooth' : PSTATE[MD.ped]) + (MD.ped === 3 && MD.pname ? ' (' + MD.pname + ')' : '');
+  $('#plast').textContent = MD.last ? 'Ultimo messaggio: ' + MD.last : '';
+  const L = $('#mlist'); L.innerHTML = '';
+  const blks = G.filter(g => g.blk !== 'glob' && g.blk !== 'amp').map(g => [g.blk, g.name]);
+  MD.map.forEach((m, i) => {
+    if (!m) return;
+    const r = document.createElement('div'); r.className = 'mrow';
+    const what = m.t === 1 ? (m.n === 255 ? 'PC (qualsiasi)' : 'PC ' + (m.n + 1)) : MTYPE[m.t] + ' ' + m.n;
+    r.innerHTML = '<span class="msg"></span><span><button class="lrn">Impara</button> <button class="del">×</button></span><div class="ctl"></div>';
+    r.querySelector('.msg').textContent = what + (m.c ? ' · can. ' + m.c : '');
+    const lrn = r.querySelector('.lrn'); if (MD.learn === i) { lrn.classList.add('learn'); lrn.textContent = 'Premi un tasto…'; }
+    lrn.onclick = () => api('/api/midilearn?i=' + (MD.learn === i ? -1 : i));
+    r.querySelector('.del').onclick = () => api('/api/mididel?i=' + i);
+    const C = r.querySelector('.ctl');
+    const mk = (opts, val, key) => { const s = document.createElement('select'); opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; s.appendChild(o); }); s.value = val; s.onchange = () => api('/api/midiset?i=' + i + '&' + key + '=' + encodeURIComponent(s.value)); C.appendChild(s); return s; };
+    mk(MTYPE.map((t, j) => [j, t]), m.t, 't');
+    if (m.t !== 1) { const n = document.createElement('input'); n.type = 'number'; n.min = 0; n.max = 127; n.value = m.n; n.onchange = () => api('/api/midiset?i=' + i + '&n=' + n.value); C.appendChild(n); }
+    if (m.t !== 1) mk(MMODE.map((t, j) => [j, t]), m.m, 'm');
+    mk(MACT.map((t, j) => [j, t]), m.a, 'a');
+    if (m.a === 0) mk(blks, m.k, 'k');
+    if (m.a === 1) {
+      mk(P.filter(p => p.t === 'knob' || p.t === 'glob').map(p => [p.k, (G[p.g] ? G[p.g].name + ' · ' : '') + p.l]), m.k, 'k');
+      if (m.m !== 2) { const v = document.createElement('input'); v.type = 'number'; v.step = 'any'; v.value = m.v; v.title = 'valore da richiamare'; v.onchange = () => api('/api/midiset?i=' + i + '&v=' + v.value); C.appendChild(v); }
+    }
+    if (m.a === 2 && !(m.t === 1 && m.n === 255)) mk([...Array(16).keys()].map(j => [j, 'P' + (j + 1)]), m.v, 'v');
+    L.appendChild(r);
+  });
+}
+
+function sync(vals){
+  P.forEach((p, i) => {
+    const c = ctl[p.k]; if (!c || dragging === p.k || p.k in pending) return;
+    const v = vals[i]; if (v === undefined) return; p.v = v;
+    setCtl(c, p, v);
+  });
+}
+
+function meter(id, nid, db){
+  const pct = Math.max(0, Math.min(100, (db + 60) / 60 * 100));
+  $(id).style.width = (100 - pct) + '%';
+  $(nid).textContent = db <= -119 ? '–∞' : db.toFixed(0) + ' dB';
+}
+
+async function reload(){
+  try { const d = await (await fetch('/api/params', {cache:'no-store'})).json(); G = d.groups; P = d.params; build(); } catch(e) {}
+}
+
+/* ---------- catture NAM ---------- */
+const KS=[6,6,6,6,6,6,6,6,6,6,6,6,6,6,15,15,6,6,6,6,6,6,6], DS=[1,3,7,17,41,101,239,1,3,7,17,41,101,239,1,13,1,3,7,17,41,101,239];
+let CAPS = null, capAct = -1, capSt = 0;
+function nw(C){ let n = C; for (const k of KS) n += k*C*C + 3*C + C*C; return n + 16*C + 2; }
+function a2C(cfg){
+  const L = cfg && (cfg.layers || cfg.layer_arrays);
+  if (!Array.isArray(L) || L.length !== 1) return 0;
+  const l = L[0];
+  if (JSON.stringify(l.kernel_sizes) !== JSON.stringify(KS) || JSON.stringify(l.dilations) !== JSON.stringify(DS)) return 0;
+  const acts = Array.isArray(l.activation) ? l.activation : [l.activation];
+  if (acts.some(a => !a || a.type !== 'LeakyReLU' || Math.abs((a.negative_slope ?? 0) - 0.01) > 1e-9)) return 0;
+  if ((l.gating_mode || []).some(g => g !== 'none')) return 0;
+  if (!l.head || l.head.kernel_size !== 16 || !(l.layer1x1 && l.layer1x1.active) || (l.head1x1 && l.head1x1.active)) return 0;
+  const C = l.channels;
+  return (C === 3 || C === 8) && (l.bottleneck ?? C) === C ? C : 0;
+}
+const CRCT = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++){ let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[i] = c >>> 0; } return t; })();
+function crc32(u){ let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRCT[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+/* .nam (JSON) -> blob VXN1 con i pesi A2 Lite e/o Full */
+function namToVxn(d, fname){
+  if ((d.sample_rate || 48000) !== 48000) throw new Error('cattura a ' + d.sample_rate + ' Hz: servono 48 kHz');
+  const subs = d.architecture === 'SlimmableContainer' ? (d.config.submodels || []).map(s => s.model) : [d];
+  let lite = null, full = null;
+  for (const m of subs){
+    if (!m || m.architecture !== 'WaveNet') continue;
+    const C = a2C(m.config); if (!C) continue;
+    if (m.weights.length !== nw(C)) throw new Error('numero di pesi inatteso');
+    if (C === 3) lite = m.weights; else full = m.weights;
+  }
+  if (!lite && !full) throw new Error('non e\' una cattura A2 (Full o Lite): scegli la versione A2 della cattura');
+  const md = d.metadata || {}, nl = lite ? lite.length : 0, nf = full ? full.length : 0;
+  const buf = new ArrayBuffer(128 + 4 * (nl + nf)), dv = new DataView(buf), u8 = new Uint8Array(buf);
+  const W = new Float32Array(buf, 128); if (lite) W.set(lite, 0); if (full) W.set(full, nl);
+  u8.set([86, 88, 78, 49], 0);                                   /* "VXN1" */
+  dv.setUint32(4, 128, true); dv.setUint32(8, nl, true); dv.setUint32(12, nf, true);
+  dv.setFloat32(16, 48000, true);
+  dv.setFloat32(20, md.input_level_dbu ?? NaN, true); dv.setFloat32(24, md.output_level_dbu ?? NaN, true);
+  dv.setUint32(28, /cab/.test(md.gear_type || '') ? 1 : 0, true);
+  let nm = new TextEncoder().encode(fname.replace(/\.nam$/i, '').trim() || md.name || 'cattura');
+  while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/�$/, ''));
+  u8.set(nm, 32);
+  dv.setUint32(96, crc32(new Uint8Array(buf, 128)), true);
+  return { blob: buf, lite: !!lite, full: !!full };
+}
+function capStatus(t, err){ const e = $('#capst'); if (!e) return; e.textContent = t; e.classList.toggle('err', !!err); }
+function capBox(){
+  const box = document.createElement('div'); box.className = 'caps';
+  box.innerHTML = '<div id="caplist"></div><div class="upl"><label>+ Carica cattura .nam<input type="file" id="capfile" accept=".nam,application/json"></label></div><div id="capst"></div>';
+  box.querySelector('#capfile').onchange = async ev => {
+    const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+    try {
+      capStatus('Converto ' + f.name + '…');
+      const r = namToVxn(JSON.parse(await f.text()), f.name);
+      let sl = CAPS ? CAPS.findIndex(c => !c) : 0;
+      if (sl < 0){
+        if (capAct < 0 || !confirm('Archivio pieno: sostituire la cattura selezionata?')) { capStatus('Archivio pieno: elimina una cattura', 1); return; }
+        sl = capAct;
+      }
+      capStatus('Invio alla scheda (' + Math.round(r.blob.byteLength / 1024) + ' KB, ' + (r.full ? 'Full' : '') + (r.full && r.lite ? ' + ' : '') + (r.lite ? 'Lite' : '') + ')…');
+      const res = await (await fetch('/api/cap?s=' + sl, { method: 'POST', body: r.blob })).json();
+      if (!res.ok) throw new Error(res.err || 'errore');
+      await loadCaps(); selectCap(sl);
+    } catch(e){ capStatus('Errore: ' + e.message, 1); }
+  };
+  loadCaps();
+  return box;
+}
+function selectCap(i){
+  const p = P.find(q => q.k === 'amp.cap'); if (p) p.v = i;
+  capAct = -2; renderCaps(i);
+  capStatus('Caricamento della cattura nel motore (circa 4 s)…');
+  send('amp.cap', i);
+}
+function renderCaps(sel){
+  const L = $('#caplist'); if (!L || !CAPS) return;
+  L.innerHTML = '';
+  let n = 0;
+  CAPS.forEach((c, i) => {
+    if (!c) return; n++;
+    const r = document.createElement('div'); r.className = 'capr' + (i === sel ? ' act' : '');
+    r.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="nm"></span>' + (c.full ? '<span class="tag">Full</span>' : '<span class="tag">Lite</span>') + (c.cab ? '<span class="tag">cab</span>' : '');
+    r.querySelector('.nm').textContent = c.name;
+    if (i !== sel){
+      const d = document.createElement('button'); d.className = 'del'; d.textContent = '✕'; d.title = 'Elimina';
+      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Eliminare "' + c.name + '"?')) return; await fetch('/api/capdel?s=' + i); loadCaps(); };
+      r.appendChild(d);
+    }
+    r.onclick = () => { if (i !== sel) selectCap(i); };
+    L.appendChild(r);
+  });
+  if (!n) L.innerHTML = '<div class="note">Nessuna cattura in memoria.</div>';
+}
+async function loadCaps(){
+  try {
+    const d = await (await fetch('/api/caps', {cache:'no-store'})).json();
+    CAPS = d.slots; capAct = d.active; capSt = d.st;
+    renderCaps(d.active);
+    capStatus(d.st === 1 ? 'Caricamento…' : d.st === 2 ? d.msg : (d.active >= 0 ? (d.lite ? 'In uso (Lite)' : 'In uso (Full)') : 'Nessuna cattura attiva'), d.st === 2);
+  } catch(e){}
+}
+
+
+/* ---------- IR del cabinet ---------- */
+let IRS = null;
+function parseWav(buf){
+  const dv = new DataView(buf), tag = o => String.fromCharCode(dv.getUint8(o), dv.getUint8(o+1), dv.getUint8(o+2), dv.getUint8(o+3));
+  if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE') throw new Error('non e\' un file WAV');
+  let o = 12, fmt = null, data = null;
+  while (o + 8 <= buf.byteLength){
+    const id = tag(o), sz = dv.getUint32(o + 4, true);
+    if (id === 'fmt '){ let f = dv.getUint16(o + 8, true); if (f === 0xFFFE) f = dv.getUint16(o + 32, true);
+      fmt = { f, ch: dv.getUint16(o + 10, true), sr: dv.getUint32(o + 12, true), bits: dv.getUint16(o + 22, true) }; }
+    if (id === 'data') data = { off: o + 8, len: Math.min(sz, buf.byteLength - o - 8) };
+    o += 8 + sz + (sz & 1);
+  }
+  if (!fmt || !data) throw new Error('WAV senza formato o dati');
+  const bps = fmt.bits / 8, frame = bps * fmt.ch, n = Math.floor(data.len / frame), x = new Float32Array(n);
+  for (let i = 0; i < n; i++){
+    const q = data.off + i * frame;                      /* solo il primo canale */
+    if (fmt.f === 3 && fmt.bits === 32) x[i] = dv.getFloat32(q, true);
+    else if (fmt.f === 1 && fmt.bits === 16) x[i] = dv.getInt16(q, true) / 32768;
+    else if (fmt.f === 1 && fmt.bits === 24) x[i] = ((dv.getUint8(q) | dv.getUint8(q+1) << 8 | dv.getInt8(q+2) << 16)) / 8388608;
+    else if (fmt.f === 1 && fmt.bits === 32) x[i] = dv.getInt32(q, true) / 2147483648;
+    else throw new Error('formato WAV non supportato (' + fmt.f + '/' + fmt.bits + ' bit)');
+  }
+  return { x, sr: fmt.sr };
+}
+function resample48(x, sr, maxOut){
+  if (sr === 48000) return x.slice(0, maxOut);
+  const ratio = 48000 / sr, fc = Math.min(1, ratio), Z = 24, n = Math.min(maxOut, Math.floor(x.length * ratio)), y = new Float32Array(n);
+  for (let i = 0; i < n; i++){
+    const t = i / ratio, c = Math.floor(t); let a = 0;
+    for (let j = c - Z + 1; j <= c + Z; j++){
+      if (j < 0 || j >= x.length) continue;
+      const d = t - j, u = Math.PI * d * fc, s = d === 0 ? 1 : Math.sin(u) / u, w = 0.5 * (1 + Math.cos(Math.PI * d / Z));
+      a += x[j] * s * fc * w;
+    }
+    y[i] = a;
+  }
+  return y;
+}
+function irToVxi(x, name){
+  let e = 0; for (const v of x) e += v * v;
+  if (e <= 0) throw new Error('IR vuoto');
+  const g = 1 / Math.sqrt(e), n = x.length;            /* energia unitaria: IR diversi suonano allo stesso volume */
+  const buf = new ArrayBuffer(128 + 4 * n), dv = new DataView(buf), u8 = new Uint8Array(buf), W = new Float32Array(buf, 128);
+  for (let i = 0; i < n; i++) W[i] = x[i] * g;
+  u8.set([86, 88, 73, 49], 0);                         /* "VXI1" */
+  dv.setUint32(4, 128, true); dv.setUint32(8, n, true); dv.setFloat32(12, 48000, true); dv.setFloat32(16, g, true);
+  let nm = new TextEncoder().encode(name.replace(/\.wav$/i, '').trim() || 'IR');
+  while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/�$/, ''));
+  u8.set(nm, 32);
+  dv.setUint32(96, crc32(new Uint8Array(buf, 128)), true);
+  return buf;
+}
+function irStatus(t, err){ const e = $('#irst'); if (!e) return; e.textContent = t; e.classList.toggle('err', !!err); }
+function irBox(){
+  const box = document.createElement('div'); box.className = 'caps';
+  box.innerHTML = '<div id="irlist"></div><div class="upl"><label>+ Carica IR .wav<input type="file" id="irfile" accept=".wav,audio/wav"></label></div><div id="irst"></div>';
+  box.querySelector('#irfile').onchange = async ev => {
+    const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+    try {
+      irStatus('Converto ' + f.name + '…');
+      const w = parseWav(await f.arrayBuffer());
+      const x = resample48(w.x, w.sr, 2048);
+      const blob = irToVxi(x, f.name);
+      let sl = IRS ? IRS.findIndex(c => !c) : 0;
+      if (sl < 0){ irStatus('Archivio IR pieno: elimina un IR', 1); return; }
+      irStatus('Invio (' + x.length + ' campioni' + (w.sr !== 48000 ? ', ricampionato da ' + w.sr + ' Hz' : '') + ')…');
+      const res = await (await fetch('/api/ir?s=' + sl, { method: 'POST', body: blob })).json();
+      if (!res.ok) throw new Error(res.err || 'errore');
+      send('ir.slot', sl); await loadIrs(sl);
+    } catch(e){ irStatus('Errore: ' + e.message, 1); }
+  };
+  loadIrs();
+  return box;
+}
+function renderIrs(sel){
+  const L = $('#irlist'); if (!L || !IRS) return;
+  L.innerHTML = ''; let n = 0;
+  IRS.forEach((c, i) => {
+    if (!c) return; n++;
+    const r = document.createElement('div'); r.className = 'capr' + (i === sel ? ' act' : '');
+    r.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="nm"></span><span class="tag">' + c.n + '</span>';
+    r.querySelector('.nm').textContent = c.name;
+    if (i !== sel){
+      const d = document.createElement('button'); d.className = 'del'; d.textContent = '✕';
+      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Eliminare "' + c.name + '"?')) return; await fetch('/api/irdel?s=' + i); loadIrs(); };
+      r.appendChild(d);
+    }
+    r.onclick = () => { if (i !== sel){ send('ir.slot', i); renderIrs(i); } };
+    L.appendChild(r);
+  });
+  if (!n) L.innerHTML = '<div class="note">Nessun IR in memoria. Carica un file .wav (verra\' ricampionato a 48 kHz e accorciato a 2048 campioni).</div>';
+}
+async function loadIrs(sel){
+  try { const d = await (await fetch('/api/irs', {cache:'no-store'})).json(); IRS = d.slots; renderIrs(sel ?? d.active); irStatus(d.msg ? 'In uso: ' + d.msg : ''); } catch(e){}
+}
+
+let saveWait = false, fails = 0;
+async function poll(){
+  try {
+    const s = await (await fetch('/api/state', {cache:'no-store'})).json();
+    fails = 0;
+    $('#dot').classList.add('ok'); $('#ctext').textContent = 'connesso';
+    meter('#min', '#nin', s.in); meter('#mout', '#nout', s.out);
+    $('#mute').classList.toggle('on', !!s.mute); $('#mute').textContent = s.mute ? 'MUTE' : 'Mute';
+    if (s.np !== P.length) { await reload(); } else sync(s.v);
+    const dm = $('#dspm'); dm.innerHTML = 'DSP <b>' + s.dsp + '%</b>'; dm.classList.toggle('hot', s.dsp > 95);
+    if (s.cap && (s.cap.act !== capAct || s.cap.st !== capSt)) loadCaps();
+    if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; renderPresets(); }
+    if (s.midi !== undefined && (s.midi !== midiCount || (MD && (MD.ped !== s.ped || MD.learn >= 0)))) { midiCount = s.midi; loadMidi(); }
+    $('#stat').textContent = 'core ' + Math.round(s.c0 / 6.66) + '% / ' + Math.round(s.c1 / 6.66) + '%' + (s.err ? ' · err ' + s.err : '');
+    if (saveWait && s.save !== -1){ saveWait = false; $('#save').textContent = s.save ? 'Salvato ✓' : 'Errore salvataggio'; setTimeout(() => $('#save').textContent = 'Salva preset', 1500); }
+  } catch(e){
+    if (++fails > 2){ $('#dot').classList.remove('ok'); $('#ctext').textContent = 'disconnesso'; }
+  }
+  setTimeout(poll, APP ? 400 : 250);
+}
+
+$('#mute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
+$('#calib').onclick = async () => {
+  if (!confirm("Calibrazione DSP: per circa 2 minuti gli effetti si accendono uno alla volta. Abbassa il volume. Procedere?")) return;
+  try { await fetch('/api/calib'); toast('Calibrazione avviata: circa 2 minuti'); } catch(e) {}
+};
+$('#save').onclick = async () => { saveWait = true; $('#save').textContent = 'Salvataggio…'; try { await fetch('/api/save'); } catch(e) {} };
+
+let started = false;
+async function init(){
+  if (started) return; started = true;
+  for (;;){
+    try { const d = await (await fetch('/api/params', {cache:'no-store'})).json(); G = d.groups; P = d.params; build(); break; }
+    catch(e){ await new Promise(r => setTimeout(r, 1000)); }
+  }
+  poll();
+}
+if (APP) { $('#bt').onclick = () => VXBridge.connect(); VXBridge.ready(); } else init();
+</script>
+</body>
+</html>
