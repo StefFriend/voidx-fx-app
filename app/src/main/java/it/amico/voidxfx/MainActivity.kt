@@ -94,7 +94,7 @@ class MainActivity : Activity() {
                 fileCb?.onReceiveValue(null)
                 fileCb = cb
                 val i = Intent(Intent.ACTION_GET_CONTENT).apply { addCategory(Intent.CATEGORY_OPENABLE); type = "*/*" }
-                return try { startActivityForResult(Intent.createChooser(i, "Scegli il file"), REQ_FILE); true } catch (e: Exception) { fileCb = null; false }
+                return try { startActivityForResult(Intent.createChooser(i, "Choose a file"), REQ_FILE); true } catch (e: Exception) { fileCb = null; false }
             }
         }
         web.addJavascriptInterface(Bridge(), "VXBridge")
@@ -133,7 +133,7 @@ class MainActivity : Activity() {
             System.arraycopy(head, 0, data, 0, head.size)
             System.arraycopy(body, 0, data, head.size, body.size)
             h.post {
-                if (state != ST_READY) { fail(id, "non collegato"); return@post }
+                if (state != ST_READY) { fail(id, "not connected"); return@post }
                 queue.add(Req(id, data, if (body.isNotEmpty()) 90000L else 8000L))
                 pump()
             }
@@ -153,7 +153,7 @@ class MainActivity : Activity() {
         val missing = perms().filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (missing.isNotEmpty()) { requestPermissions(missing.toTypedArray(), REQ_PERM); return }
         if (adapter?.isEnabled != true) {
-            status(ST_OFF, "Bluetooth spento")
+            status(ST_OFF, "Bluetooth is off")
             try { startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)) } catch (e: SecurityException) { }
             return
         }
@@ -163,7 +163,7 @@ class MainActivity : Activity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQ_PERM) {
             if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) ensurePermsAndConnect()
-            else status(ST_OFF, "permessi Bluetooth negati")
+            else status(ST_OFF, "Bluetooth permissions denied")
         }
     }
 
@@ -177,30 +177,30 @@ class MainActivity : Activity() {
                 val rec = result.scanRecord
                 val name = rec?.deviceName ?: try { result.device.name } catch (e: SecurityException) { null }
                 val hasSvc = rec?.serviceUuids?.any { it.uuid == SVC } == true
-                if (seen.add(result.device.address)) status(ST_BUSY, "ricerca VoidX-FX… (" + seen.size + " dispositivi Bluetooth visti)")
+                if (seen.add(result.device.address)) status(ST_BUSY, "searching for VoidX-FX… (" + seen.size + " Bluetooth devices seen)")
                 if (!hasSvc && name != "VoidX-FX") return@post
                 stopScan()
                 connect(result.device)
             }
         }
-        override fun onScanFailed(errorCode: Int) { h.post { scanning = false; status(ST_OFF, "ricerca fallita ($errorCode)") } }
+        override fun onScanFailed(errorCode: Int) { h.post { scanning = false; status(ST_OFF, "scan failed ($errorCode)") } }
     }
 
     @SuppressLint("MissingPermission")
     private fun startScan() {
         if (gatt != null || scanning) return
-        val sc = adapter?.bluetoothLeScanner ?: run { status(ST_OFF, "Bluetooth non disponibile"); return }
+        val sc = adapter?.bluetoothLeScanner ?: run { status(ST_OFF, "Bluetooth not available"); return }
         scanning = true
         seen.clear()
-        status(ST_BUSY, "ricerca VoidX-FX…")
+        status(ST_BUSY, "searching for VoidX-FX…")
         /* nessun filtro hardware (su alcuni telefoni con gli UUID a 128 bit non scatta): si controlla qui */
         val s = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
-        try { sc.startScan(null, s, scanCb) } catch (e: SecurityException) { scanning = false; status(ST_OFF, "permessi Bluetooth negati"); return }
+        try { sc.startScan(null, s, scanCb) } catch (e: SecurityException) { scanning = false; status(ST_OFF, "Bluetooth permissions denied"); return }
         h.postDelayed({
             if (scanning) {
                 stopScan()
-                status(ST_OFF, if (seen.isEmpty()) "nessun dispositivo Bluetooth visto: attiva la Posizione del telefono e riprova"
-                               else "VoidX-FX non trovato tra " + seen.size + " dispositivi (sulla scheda: Connessione = Bluetooth?)")
+                status(ST_OFF, if (seen.isEmpty()) "no Bluetooth devices seen: turn on the phone's Location and retry"
+                               else "VoidX-FX not found among " + seen.size + " devices (on the pedal: Wireless = Bluetooth?)")
             }
         }, 15000)
     }
@@ -214,7 +214,7 @@ class MainActivity : Activity() {
 
     @SuppressLint("MissingPermission")
     private fun connect(d: BluetoothDevice) {
-        status(ST_BUSY, "collegamento…")
+        status(ST_BUSY, "connecting…")
         gatt = d.connectGatt(this, false, gattCb, BluetoothDevice.TRANSPORT_LE)
     }
 
@@ -245,8 +245,8 @@ class MainActivity : Activity() {
                     if (!g.requestMtu(247)) g.discoverServices()
                 } else {
                     closeGatt()
-                    dropAll("collegamento perso")
-                    status(ST_OFF, "scollegato")
+                    dropAll("connection lost")
+                    status(ST_OFF, "disconnected")
                     if (wantConnected) h.postDelayed({ startScan() }, 2000)
                 }
             }
@@ -261,7 +261,7 @@ class MainActivity : Activity() {
                 val s = g.getService(SVC)
                 val r = s?.getCharacteristic(RX)
                 val t = s?.getCharacteristic(TX)
-                if (r == null || t == null) { status(ST_OFF, "servizio VoidX assente"); closeGatt(); return@post }
+                if (r == null || t == null) { status(ST_OFF, "VoidX service missing"); closeGatt(); return@post }
                 rx = r
                 g.setCharacteristicNotification(t, true)
                 val d = t.getDescriptor(CCCD)
@@ -272,12 +272,12 @@ class MainActivity : Activity() {
         override fun onDescriptorWrite(g: BluetoothGatt, d: BluetoothGattDescriptor, st: Int) {
             h.post {
                 if (st == BluetoothGatt.GATT_SUCCESS) { status(ST_READY, "Bluetooth: " + (g.device.name ?: "VoidX-FX")); pump() }
-                else status(ST_OFF, "notifiche non attivate ($st)")
+                else status(ST_OFF, "notifications not enabled ($st)")
             }
         }
         override fun onCharacteristicWrite(g: BluetoothGatt, c: BluetoothGattCharacteristic, st: Int) {
             h.post {
-                if (st != BluetoothGatt.GATT_SUCCESS) { cur?.let { fail(it.id, "scrittura fallita") }; cur = null; pump(); return@post }
+                if (st != BluetoothGatt.GATT_SUCCESS) { cur?.let { fail(it.id, "write failed") }; cur = null; pump(); return@post }
                 chunkIdx++
                 writeNext()
             }

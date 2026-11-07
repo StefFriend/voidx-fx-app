@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -82,8 +82,8 @@ select{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--li
 <header>
   <div class="top">
     <h1>VX Amp</h1><span id="dspm">DSP <b>–</b></span>
-    <span id="conn"><span class="dot" id="dot"></span><span id="ctext">connessione…</span></span>
-    <button id="bt">Collega</button>
+    <span id="conn"><span class="dot" id="dot"></span><span id="ctext">connecting…</span></span>
+    <button id="bt">Connect</button>
     <button id="mute">Mute</button>
   </div>
   <div class="meters">
@@ -93,9 +93,9 @@ select{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--li
 </header>
 <main id="cards"></main>
 <footer>
-  <button id="save">Salva preset</button>
-  <button id="calib" title="Misura il costo reale di ogni modello con l'ampli acceso (circa 2 minuti: l'audio cambia durante la misura)">Calibra DSP</button>
-  <button id="eng" title="Motore dell'ampli NAM: CoyoPedal, VX (Full o Lite) oppure VX Lite. Il pedale si riavvia.">Motore: –</button>
+  <button id="save">Save preset</button>
+  <button id="calib" title="Measures the real DSP cost of every model with the amp on (about 2 minutes; the sound changes during the measurement)">Calibrate DSP</button>
+  <button id="eng" title="NAM amp engine: Full (if the capture has it) or Lite. The pedal restarts.">Engine: –</button>
   <span id="stat"></span>
 </footer>
 <div id="toast"></div>
@@ -196,7 +196,7 @@ function build(){
         p.n.forEach((nm, j) => { const o = document.createElement('option'); o.value = j; o.textContent = nm; sel.appendChild(o); });
         sel.value = Math.round(p.v);
         sel.onchange = () => {
-          if (p.k === 'wifi.on' && !confirm(APP ? 'Cambiando connessione la app perde il collegamento Bluetooth. Continuare?' : 'Cambiando connessione perdi questa pagina (con il Bluetooth si usa la app). Continuare?')) { sel.value = Math.round(p.v); return; }
+          if (p.k === 'wifi.on' && !confirm(APP ? 'Changing the connection drops the app\'s Bluetooth link. Continue?' : 'Changing the connection closes this page (with Bluetooth, use the app). Continue?')) { sel.value = Math.round(p.v); return; }
           p.v = +sel.value; send(p.k, p.v);
         };
         ctl[p.k] = { p, el: sel };
@@ -209,7 +209,7 @@ function build(){
         r.querySelector('span').textContent = p.l;
         const inp = r.querySelector('input');
         inp.onchange = () => {
-          if (p.k === 'wifi.on' && !inp.checked && !confirm('Spegnendo il WiFi perdi questa pagina. Riaccendilo dal menu della scheda. Continuare?')) { inp.checked = true; return; }
+          if (p.k === 'wifi.on' && !inp.checked && !confirm('Turning Wi-Fi off closes this page. Turn it back on from the pedal menu. Continue?')) { inp.checked = true; return; }
           p.v = inp.checked ? 1 : 0; send(p.k, p.v);
         };
         ctl[p.k] = { p, el: inp };
@@ -230,7 +230,7 @@ function build(){
       ctl[p.k] = { p, el: inp, val };
       card.appendChild(r);
     });
-    if (grp.blk === 'glob') { const n = document.createElement('div'); n.className = 'note'; n.textContent = 'In gain = guadagno analogico del convertitore. Blocco = campioni per elaborazione: 64 e 128 alleggeriscono il DSP ma aggiungono latenza.'; card.appendChild(n); }
+    if (grp.blk === 'glob') { const n = document.createElement('div'); n.className = 'note'; n.textContent = 'In gain = analog gain of the converter. Block = samples per processing cycle: 64 and 128 lighten the DSP load but add latency. Input/Output: which jacks are used (device setting, not stored in presets).'; card.appendChild(n); }
     box.appendChild(card);
   });
   box.insertBefore(presetCard(), box.firstChild);
@@ -243,12 +243,12 @@ function build(){
 let PS = [], psCur = -1;
 function presetCard(){
   const c = document.createElement('section'); c.className = 'card';
-  c.innerHTML = '<div class="head"><h2>PRESET</h2><button id="psave">Salva qui…</button></div><div class="pset" id="pset"></div><div class="note">Tocca per richiamare. "Salva qui…" salva le impostazioni correnti nello slot scelto. Dalla pedaliera: Program Change 1–16, oppure A+B / C+D (precedente / successivo).</div>';
+  c.innerHTML = '<div class="head"><h2>PRESET</h2><button id="psave">Save here…</button></div><div class="pset" id="pset"></div><div class="note">Tap to recall. "Save here…" stores the current settings in the chosen slot. From the footswitch: Program Change 1–16, or A+B / C+D (previous / next).</div>';
   c.querySelector('#psave').onclick = async () => {
-    const s = prompt('Numero dello slot (1-16):', psCur >= 0 ? psCur + 1 : 1); if (!s) return;
+    const s = prompt('Slot number (1-16):', psCur >= 0 ? psCur + 1 : 1); if (!s) return;
     const i = (+s) - 1; if (!(i >= 0 && i < 16)) return;
-    const n = prompt('Nome del preset:', PS[i] ? PS[i].name : ''); if (n === null) return;
-    try { const d = await (await fetch('/api/psave?s=' + i + '&n=' + encodeURIComponent(n.slice(0, 15)))).json(); if (d.err) toast(d.err); else { PS = d.slots; psCur = d.cur; renderPresets(); toast('Salvato in P' + (i + 1)); } } catch(e) {}
+    const n = prompt('Preset name:', PS[i] ? PS[i].name : ''); if (n === null) return;
+    try { const d = await (await fetch('/api/psave?s=' + i + '&n=' + encodeURIComponent(n.slice(0, 15)))).json(); if (d.err) toast(d.err); else { PS = d.slots; psCur = d.cur; renderPresets(); toast('Saved to P' + (i + 1)); } } catch(e) {}
   };
   return c;
 }
@@ -259,7 +259,7 @@ function renderPresets(){
     e.textContent = (i + 1) + ' ' + (p ? p.name : '–');
     e.className = (p ? '' : 'empty') + (i === psCur ? ' act' : '');
     e.onclick = async () => { if (!p) return; try { const d = await (await fetch('/api/pload?s=' + i)).json(); if (d.err) toast(d.err); } catch(x) {} };
-    e.oncontextmenu = async ev => { ev.preventDefault(); if (p && confirm('Eliminare il preset ' + (i + 1) + ' "' + p.name + '"?')) { const d = await (await fetch('/api/pdel?s=' + i)).json(); PS = d.slots; renderPresets(); } };
+    e.oncontextmenu = async ev => { ev.preventDefault(); if (p && confirm('Delete preset ' + (i + 1) + ' "' + p.name + '"?')) { const d = await (await fetch('/api/pdel?s=' + i)).json(); PS = d.slots; renderPresets(); } };
     b.appendChild(e);
   }
 }
@@ -267,19 +267,19 @@ async function loadPresets(){ try { const d = await (await fetch('/api/presets',
 
 /* ---------- pedaliera MIDI ---------- */
 let MD = null, midiCount = -1;
-const MTYPE = ['CC', 'PC', 'Nota'], MMODE = ['a ogni pressione', 'segue (>=64 acceso)', 'continuo (pedale)', 'qualsiasi valore'];
-const MACT = ['Blocco on/off', 'Parametro', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Tap tempo delay'];
-const PSTATE = ['disattivata', 'ricerca…', 'collegamento…', 'collegata'];
+const MTYPE = ['CC', 'PC', 'Note'], MMODE = ['toggle on press', 'follow (>=64 on)', 'continuous (pedal)', 'any value'];
+const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo'];
+const PSTATE = ['off', 'searching…', 'connecting…', 'connected'];
 function midiCard(){
   const c = document.createElement('section'); c.className = 'card'; c.id = 'midicard';
-  c.innerHTML = '<div class="head"><h2>PEDALIERA MIDI</h2><label class="sw"><input type="checkbox" id="pen"><span></span></label></div>' +
-    '<div class="inline"><span id="pst">–</span><button id="pscan">Cerca</button></div><div class="note" id="plast"></div><div id="mlist"></div>' +
-    '<div class="upl"><button id="madd">+ Associazione</button><button id="mdef">Default Chocolate</button></div>' +
-    '<div class="note">Funziona con la connessione Bluetooth. Chocolate in modo "Manufacturer Control": A, B, C, D = CC 20–23. "Impara" assegna il prossimo tasto premuto.</div>';
+  c.innerHTML = '<div class="head"><h2>MIDI FOOTSWITCH</h2><label class="sw"><input type="checkbox" id="pen"><span></span></label></div>' +
+    '<div class="inline"><span id="pst">–</span><button id="pscan">Search</button></div><div class="note" id="plast"></div><div id="mlist"></div>' +
+    '<div class="upl"><button id="madd">+ Mapping</button><button id="mdef">Chocolate defaults</button></div>' +
+    '<div class="note">Wireless: needs the Bluetooth connection (Chocolate in "Manufacturer Control" mode: A, B, C, D = CC 20–23). Wired: the MIDI IN jack (TRS type A) always works, with the same mappings. "Learn" assigns the next message received.</div>';
   c.querySelector('#pen').onchange = ev => api('/api/pedal?en=' + (ev.target.checked ? 1 : 0));
   c.querySelector('#pscan').onclick = () => api('/api/pedal?scan=1');
-  c.querySelector('#mdef').onclick = () => { if (confirm('Ripristinare le associazioni predefinite per il Chocolate?')) api('/api/mididef'); };
-  c.querySelector('#madd').onclick = () => { const i = MD.map.findIndex(m => !m); if (i < 0) return toast('Tabella piena'); api('/api/midiset?i=' + i + '&t=0&n=0&m=0&a=0&k=drv'); };
+  c.querySelector('#mdef').onclick = () => { if (confirm('Restore the default mappings for the Chocolate?')) api('/api/mididef'); };
+  c.querySelector('#madd').onclick = () => { const i = MD.map.findIndex(m => !m); if (i < 0) return toast('Table full'); api('/api/midiset?i=' + i + '&t=0&n=0&m=0&a=0&k=drv'); };
   return c;
 }
 async function api(u){ try { const d = await (await fetch(u)).json(); if (d.err) toast(d.err); else if (d.map) { MD = d; renderMidi(); } return d; } catch(e) {} }
@@ -288,17 +288,17 @@ function renderMidi(){
   if (!MD || !$('#mlist')) return;
   $('#pen').checked = !!MD.pen;
   const conn = (P.find(p => p.k === 'wifi.on') || {}).v;
-  $('#pst').textContent = 'Pedaliera: ' + (!MD.pen ? 'disattivata' : conn !== 2 ? 'serve la connessione Bluetooth' : PSTATE[MD.ped]) + (MD.ped === 3 && MD.pname ? ' (' + MD.pname + ')' : '');
-  $('#plast').textContent = MD.last ? 'Ultimo messaggio: ' + MD.last : '';
+  $('#pst').textContent = 'BLE footswitch: ' + (!MD.pen ? 'off' : conn !== 2 ? 'needs the Bluetooth connection' : PSTATE[MD.ped]) + (MD.ped === 3 && MD.pname ? ' (' + MD.pname + ')' : '');
+  $('#plast').textContent = MD.last ? 'Last message: ' + MD.last : '';
   const L = $('#mlist'); L.innerHTML = '';
   const blks = G.filter(g => g.blk !== 'glob' && g.blk !== 'amp').map(g => [g.blk, g.name]);
   MD.map.forEach((m, i) => {
     if (!m) return;
     const r = document.createElement('div'); r.className = 'mrow';
-    const what = m.t === 1 ? (m.n === 255 ? 'PC (qualsiasi)' : 'PC ' + (m.n + 1)) : MTYPE[m.t] + ' ' + m.n;
-    r.innerHTML = '<span class="msg"></span><span><button class="lrn">Impara</button> <button class="del">×</button></span><div class="ctl"></div>';
-    r.querySelector('.msg').textContent = what + (m.c ? ' · can. ' + m.c : '');
-    const lrn = r.querySelector('.lrn'); if (MD.learn === i) { lrn.classList.add('learn'); lrn.textContent = 'Premi un tasto…'; }
+    const what = m.t === 1 ? (m.n === 255 ? 'PC (any)' : 'PC ' + (m.n + 1)) : MTYPE[m.t] + ' ' + m.n;
+    r.innerHTML = '<span class="msg"></span><span><button class="lrn">Learn</button> <button class="del">×</button></span><div class="ctl"></div>';
+    r.querySelector('.msg').textContent = what + (m.c ? ' · ch. ' + m.c : '');
+    const lrn = r.querySelector('.lrn'); if (MD.learn === i) { lrn.classList.add('learn'); lrn.textContent = 'Press a switch…'; }
     lrn.onclick = () => api('/api/midilearn?i=' + (MD.learn === i ? -1 : i));
     r.querySelector('.del').onclick = () => api('/api/mididel?i=' + i);
     const C = r.querySelector('.ctl');
@@ -310,7 +310,7 @@ function renderMidi(){
     if (m.a === 0) mk(blks, m.k, 'k');
     if (m.a === 1) {
       mk(P.filter(p => p.t === 'knob' || p.t === 'glob').map(p => [p.k, (G[p.g] ? G[p.g].name + ' · ' : '') + p.l]), m.k, 'k');
-      if (m.m !== 2) { const v = document.createElement('input'); v.type = 'number'; v.step = 'any'; v.value = m.v; v.title = 'valore da richiamare'; v.onchange = () => api('/api/midiset?i=' + i + '&v=' + v.value); C.appendChild(v); }
+      if (m.m !== 2) { const v = document.createElement('input'); v.type = 'number'; v.step = 'any'; v.value = m.v; v.title = 'value to recall'; v.onchange = () => api('/api/midiset?i=' + i + '&v=' + v.value); C.appendChild(v); }
     }
     if (m.a === 2 && !(m.t === 1 && m.n === 255)) mk([...Array(16).keys()].map(j => [j, 'P' + (j + 1)]), m.v, 'v');
     L.appendChild(r);
@@ -355,16 +355,16 @@ const CRCT = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i
 function crc32(u){ let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRCT[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
 /* .nam (JSON) -> blob VXN1 con i pesi A2 Lite e/o Full */
 function namToVxn(d, fname){
-  if ((d.sample_rate || 48000) !== 48000) throw new Error('cattura a ' + d.sample_rate + ' Hz: servono 48 kHz');
+  if ((d.sample_rate || 48000) !== 48000) throw new Error('capture at ' + d.sample_rate + ' Hz: 48 kHz is required');
   const subs = d.architecture === 'SlimmableContainer' ? (d.config.submodels || []).map(s => s.model) : [d];
   let lite = null, full = null;
   for (const m of subs){
     if (!m || m.architecture !== 'WaveNet') continue;
     const C = a2C(m.config); if (!C) continue;
-    if (m.weights.length !== nw(C)) throw new Error('numero di pesi inatteso');
+    if (m.weights.length !== nw(C)) throw new Error('unexpected number of weights');
     if (C === 3) lite = m.weights; else full = m.weights;
   }
-  if (!lite && !full) throw new Error('non e\' una cattura A2 (Full o Lite): scegli la versione A2 della cattura');
+  if (!lite && !full) throw new Error('not an A2 capture (Full or Lite): pick the A2 version of the capture');
   const md = d.metadata || {}, nl = lite ? lite.length : 0, nf = full ? full.length : 0;
   const buf = new ArrayBuffer(128 + 4 * (nl + nf)), dv = new DataView(buf), u8 = new Uint8Array(buf);
   const W = new Float32Array(buf, 128); if (lite) W.set(lite, 0); if (full) W.set(full, nl);
@@ -373,7 +373,7 @@ function namToVxn(d, fname){
   dv.setFloat32(16, 48000, true);
   dv.setFloat32(20, md.input_level_dbu ?? NaN, true); dv.setFloat32(24, md.output_level_dbu ?? NaN, true);
   dv.setUint32(28, /cab/.test(md.gear_type || '') ? 1 : 0, true);
-  let nm = new TextEncoder().encode(fname.replace(/\.nam$/i, '').trim() || md.name || 'cattura');
+  let nm = new TextEncoder().encode(fname.replace(/\.nam$/i, '').trim() || md.name || 'capture');
   while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/�$/, ''));
   u8.set(nm, 32);
   dv.setUint32(96, crc32(new Uint8Array(buf, 128)), true);
@@ -382,22 +382,22 @@ function namToVxn(d, fname){
 function capStatus(t, err){ const e = $('#capst'); if (!e) return; e.textContent = t; e.classList.toggle('err', !!err); }
 function capBox(){
   const box = document.createElement('div'); box.className = 'caps';
-  box.innerHTML = '<div id="caplist"></div><div class="upl"><label>+ Carica cattura .nam<input type="file" id="capfile" accept=".nam,application/json"></label></div><div id="capst"></div>';
+  box.innerHTML = '<div id="caplist"></div><div class="upl"><label>+ Load .nam capture<input type="file" id="capfile" accept=".nam,application/json"></label></div><div id="capst"></div>';
   box.querySelector('#capfile').onchange = async ev => {
     const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
     try {
-      capStatus('Converto ' + f.name + '…');
+      capStatus('Converting ' + f.name + '…');
       const r = namToVxn(JSON.parse(await f.text()), f.name);
       let sl = CAPS ? CAPS.findIndex(c => !c) : 0;
       if (sl < 0){
-        if (capAct < 0 || !confirm('Archivio pieno: sostituire la cattura selezionata?')) { capStatus('Archivio pieno: elimina una cattura', 1); return; }
+        if (capAct < 0 || !confirm('Storage full: replace the selected capture?')) { capStatus('Storage full: delete a capture', 1); return; }
         sl = capAct;
       }
-      capStatus('Invio alla scheda (' + Math.round(r.blob.byteLength / 1024) + ' KB, ' + (r.full ? 'Full' : '') + (r.full && r.lite ? ' + ' : '') + (r.lite ? 'Lite' : '') + ')…');
+      capStatus('Sending to the pedal (' + Math.round(r.blob.byteLength / 1024) + ' KB, ' + (r.full ? 'Full' : '') + (r.full && r.lite ? ' + ' : '') + (r.lite ? 'Lite' : '') + ')…');
       const res = await (await fetch('/api/cap?s=' + sl, { method: 'POST', body: r.blob })).json();
-      if (!res.ok) throw new Error(res.err || 'errore');
+      if (!res.ok) throw new Error(res.err || 'error');
       await loadCaps(); selectCap(sl);
-    } catch(e){ capStatus('Errore: ' + e.message, 1); }
+    } catch(e){ capStatus('Error: ' + e.message, 1); }
   };
   loadCaps();
   return box;
@@ -405,7 +405,7 @@ function capBox(){
 function selectCap(i){
   const p = P.find(q => q.k === 'amp.cap'); if (p) p.v = i;
   capAct = -2; renderCaps(i);
-  capStatus('Caricamento della cattura nel motore (circa 4 s)…');
+  capStatus('Loading the capture into the engine…');
   send('amp.cap', i);
 }
 function renderCaps(sel){
@@ -418,21 +418,21 @@ function renderCaps(sel){
     r.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="nm"></span>' + (c.full ? '<span class="tag">Full</span>' : '<span class="tag">Lite</span>') + (c.cab ? '<span class="tag">cab</span>' : '');
     r.querySelector('.nm').textContent = c.name;
     if (i !== sel){
-      const d = document.createElement('button'); d.className = 'del'; d.textContent = '✕'; d.title = 'Elimina';
-      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Eliminare "' + c.name + '"?')) return; await fetch('/api/capdel?s=' + i); loadCaps(); };
+      const d = document.createElement('button'); d.className = 'del'; d.textContent = '✕'; d.title = 'Delete';
+      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Delete "' + c.name + '"?')) return; await fetch('/api/capdel?s=' + i); loadCaps(); };
       r.appendChild(d);
     }
     r.onclick = () => { if (i !== sel) selectCap(i); };
     L.appendChild(r);
   });
-  if (!n) L.innerHTML = '<div class="note">Nessuna cattura in memoria.</div>';
+  if (!n) L.innerHTML = '<div class="note">No captures stored.</div>';
 }
 async function loadCaps(){
   try {
     const d = await (await fetch('/api/caps', {cache:'no-store'})).json();
     CAPS = d.slots; capAct = d.active; capSt = d.st;
     renderCaps(d.active);
-    capStatus(d.st === 1 ? 'Caricamento…' : d.st === 2 ? d.msg : (d.active >= 0 ? (d.lite ? 'In uso (Lite)' : 'In uso (Full)') : 'Nessuna cattura attiva'), d.st === 2);
+    capStatus(d.st === 1 ? 'Loading…' : d.st === 2 ? d.msg : (d.active >= 0 ? (d.lite ? 'In use (Lite)' : 'In use (Full)') : 'No active capture'), d.st === 2);
   } catch(e){}
 }
 
@@ -441,7 +441,7 @@ async function loadCaps(){
 let IRS = null;
 function parseWav(buf){
   const dv = new DataView(buf), tag = o => String.fromCharCode(dv.getUint8(o), dv.getUint8(o+1), dv.getUint8(o+2), dv.getUint8(o+3));
-  if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE') throw new Error('non e\' un file WAV');
+  if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE') throw new Error('not a WAV file');
   let o = 12, fmt = null, data = null;
   while (o + 8 <= buf.byteLength){
     const id = tag(o), sz = dv.getUint32(o + 4, true);
@@ -450,7 +450,7 @@ function parseWav(buf){
     if (id === 'data') data = { off: o + 8, len: Math.min(sz, buf.byteLength - o - 8) };
     o += 8 + sz + (sz & 1);
   }
-  if (!fmt || !data) throw new Error('WAV senza formato o dati');
+  if (!fmt || !data) throw new Error('WAV without format or data');
   const bps = fmt.bits / 8, frame = bps * fmt.ch, n = Math.floor(data.len / frame), x = new Float32Array(n);
   for (let i = 0; i < n; i++){
     const q = data.off + i * frame;                      /* solo il primo canale */
@@ -458,7 +458,7 @@ function parseWav(buf){
     else if (fmt.f === 1 && fmt.bits === 16) x[i] = dv.getInt16(q, true) / 32768;
     else if (fmt.f === 1 && fmt.bits === 24) x[i] = ((dv.getUint8(q) | dv.getUint8(q+1) << 8 | dv.getInt8(q+2) << 16)) / 8388608;
     else if (fmt.f === 1 && fmt.bits === 32) x[i] = dv.getInt32(q, true) / 2147483648;
-    else throw new Error('formato WAV non supportato (' + fmt.f + '/' + fmt.bits + ' bit)');
+    else throw new Error('unsupported WAV format (' + fmt.f + '/' + fmt.bits + ' bit)');
   }
   return { x, sr: fmt.sr };
 }
@@ -478,7 +478,7 @@ function resample48(x, sr, maxOut){
 }
 function irToVxi(x, name){
   let e = 0; for (const v of x) e += v * v;
-  if (e <= 0) throw new Error('IR vuoto');
+  if (e <= 0) throw new Error('empty IR');
   const g = 1 / Math.sqrt(e), n = x.length;            /* energia unitaria: IR diversi suonano allo stesso volume */
   const buf = new ArrayBuffer(128 + 4 * n), dv = new DataView(buf), u8 = new Uint8Array(buf), W = new Float32Array(buf, 128);
   for (let i = 0; i < n; i++) W[i] = x[i] * g;
@@ -493,21 +493,21 @@ function irToVxi(x, name){
 function irStatus(t, err){ const e = $('#irst'); if (!e) return; e.textContent = t; e.classList.toggle('err', !!err); }
 function irBox(){
   const box = document.createElement('div'); box.className = 'caps';
-  box.innerHTML = '<div id="irlist"></div><div class="upl"><label>+ Carica IR .wav<input type="file" id="irfile" accept=".wav,audio/wav"></label></div><div id="irst"></div>';
+  box.innerHTML = '<div id="irlist"></div><div class="upl"><label>+ Load .wav IR<input type="file" id="irfile" accept=".wav,audio/wav"></label></div><div id="irst"></div>';
   box.querySelector('#irfile').onchange = async ev => {
     const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
     try {
-      irStatus('Converto ' + f.name + '…');
+      irStatus('Converting ' + f.name + '…');
       const w = parseWav(await f.arrayBuffer());
       const x = resample48(w.x, w.sr, 2048);
       const blob = irToVxi(x, f.name);
       let sl = IRS ? IRS.findIndex(c => !c) : 0;
-      if (sl < 0){ irStatus('Archivio IR pieno: elimina un IR', 1); return; }
-      irStatus('Invio (' + x.length + ' campioni' + (w.sr !== 48000 ? ', ricampionato da ' + w.sr + ' Hz' : '') + ')…');
+      if (sl < 0){ irStatus('IR storage full: delete an IR', 1); return; }
+      irStatus('Sending (' + x.length + ' samples' + (w.sr !== 48000 ? ', resampled from ' + w.sr + ' Hz' : '') + ')…');
       const res = await (await fetch('/api/ir?s=' + sl, { method: 'POST', body: blob })).json();
-      if (!res.ok) throw new Error(res.err || 'errore');
+      if (!res.ok) throw new Error(res.err || 'error');
       send('ir.slot', sl); await loadIrs(sl);
-    } catch(e){ irStatus('Errore: ' + e.message, 1); }
+    } catch(e){ irStatus('Error: ' + e.message, 1); }
   };
   loadIrs();
   return box;
@@ -522,16 +522,16 @@ function renderIrs(sel){
     r.querySelector('.nm').textContent = c.name;
     if (i !== sel){
       const d = document.createElement('button'); d.className = 'del'; d.textContent = '✕';
-      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Eliminare "' + c.name + '"?')) return; await fetch('/api/irdel?s=' + i); loadIrs(); };
+      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Delete "' + c.name + '"?')) return; await fetch('/api/irdel?s=' + i); loadIrs(); };
       r.appendChild(d);
     }
     r.onclick = () => { if (i !== sel){ send('ir.slot', i); renderIrs(i); } };
     L.appendChild(r);
   });
-  if (!n) L.innerHTML = '<div class="note">Nessun IR in memoria. Carica un file .wav (verra\' ricampionato a 48 kHz e accorciato a 2048 campioni).</div>';
+  if (!n) L.innerHTML = '<div class="note">No IRs stored. Load a .wav file (it is resampled to 48 kHz and trimmed to 2048 samples).</div>';
 }
 async function loadIrs(sel){
-  try { const d = await (await fetch('/api/irs', {cache:'no-store'})).json(); IRS = d.slots; renderIrs(sel ?? d.active); irStatus(d.msg ? 'In uso: ' + d.msg : ''); } catch(e){}
+  try { const d = await (await fetch('/api/irs', {cache:'no-store'})).json(); IRS = d.slots; renderIrs(sel ?? d.active); irStatus(d.msg ? 'In use: ' + d.msg : ''); } catch(e){}
 }
 
 let saveWait = false, fails = 0;
@@ -539,39 +539,38 @@ async function poll(){
   try {
     const s = await (await fetch('/api/state', {cache:'no-store'})).json();
     fails = 0;
-    $('#dot').classList.add('ok'); $('#ctext').textContent = 'connesso';
+    $('#dot').classList.add('ok'); $('#ctext').textContent = 'connected';
     meter('#min', '#nin', s.in); meter('#mout', '#nout', s.out);
     $('#mute').classList.toggle('on', !!s.mute); $('#mute').textContent = s.mute ? 'MUTE' : 'Mute';
     if (s.np !== P.length) { await reload(); } else sync(s.v);
     const dm = $('#dspm'); dm.innerHTML = 'DSP <b>' + s.dsp + '%</b>'; dm.classList.toggle('hot', s.dsp > 95);
     if (s.cap && (s.cap.act !== capAct || s.cap.st !== capSt)) loadCaps();
     if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; renderPresets(); }
-    if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; $('#eng').textContent = 'Motore: ' + ENGN[engCur]; }
+    if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; $('#eng').textContent = 'Engine: ' + (ENGN[engCur] || '?'); }
     if (s.midi !== undefined && (s.midi !== midiCount || (MD && (MD.ped !== s.ped || MD.learn >= 0)))) { midiCount = s.midi; loadMidi(); }
     $('#stat').textContent = 'core ' + Math.round(s.c0 / 6.66) + '% / ' + Math.round(s.c1 / 6.66) + '%' + (s.err ? ' · err ' + s.err : '');
-    if (saveWait && s.save !== -1){ saveWait = false; $('#save').textContent = s.save ? 'Salvato ✓' : 'Errore salvataggio'; setTimeout(() => $('#save').textContent = 'Salva preset', 1500); }
+    if (saveWait && s.save !== -1){ saveWait = false; $('#save').textContent = s.save ? 'Saved ✓' : 'Save error'; setTimeout(() => $('#save').textContent = 'Save preset', 1500); }
   } catch(e){
-    if (++fails > 2){ $('#dot').classList.remove('ok'); $('#ctext').textContent = 'disconnesso'; }
+    if (++fails > 2){ $('#dot').classList.remove('ok'); $('#ctext').textContent = 'disconnected'; }
   }
   setTimeout(poll, APP ? 1000 : 250);
 }
 
 $('#mute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
 let engCur = -1;
-const ENGN = ['CoyoPedal', 'VX', 'VX Lite'];
-const ENGD = ["CoyoPedal: il motore originale (Full, o la Lite espansa).",
-              "VX: il motore nuovo, molto piu' leggero; usa la Full della cattura se c'e', altrimenti la Lite.",
-              "VX Lite: il motore nuovo con la sola A2-Lite: il piu' leggero di tutti (lascia piu' DSP agli effetti)."];
+const ENGN = ['', 'Full', 'Lite'];
+const ENGD = ['', 'Full: uses the Full model of the capture when present (best accuracy), otherwise the Lite.',
+              'Lite: always the A2-Lite model: the lightest, leaves more DSP to the effects.'];
 $('#eng').onclick = async () => {
-  const to = engCur < 0 ? 1 : (engCur + 1) % 3;
-  if (!confirm('Passare al motore ' + ENGN[to] + '?\n\n' + ENGD[to] + '\n\nIl pedale si riavvia. Al primo uso di ogni cattura col motore VX la calibrazione delle scale dura 10-25 s (poi e\' immediata).')) return;
-  try { await fetch('/api/engine?e=' + to); toast('Riavvio con il motore ' + ENGN[to] + '...'); } catch(e) {}
+  const to = engCur === 2 ? 1 : 2;
+  if (!confirm('Switch to the ' + ENGN[to] + ' engine?\n\n' + ENGD[to] + '\n\nThe pedal restarts. The first time each capture is used, scale calibration takes 10-25 s (then it is instant).')) return;
+  try { await fetch('/api/engine?e=' + to); toast('Restarting with the ' + ENGN[to] + ' engine...'); } catch(e) {}
 };
 $('#calib').onclick = async () => {
-  if (!confirm("Calibrazione DSP: per circa 2 minuti gli effetti si accendono uno alla volta. Abbassa il volume. Procedere?")) return;
-  try { await fetch('/api/calib'); toast('Calibrazione avviata: circa 2 minuti'); } catch(e) {}
+  if (!confirm("DSP calibration: for about 2 minutes the effects switch on one at a time. Turn the volume down. Proceed?")) return;
+  try { await fetch('/api/calib'); toast('Calibration started: about 2 minutes'); } catch(e) {}
 };
-$('#save').onclick = async () => { saveWait = true; $('#save').textContent = 'Salvataggio…'; try { await fetch('/api/save'); } catch(e) {} };
+$('#save').onclick = async () => { saveWait = true; $('#save').textContent = 'Saving…'; try { await fetch('/api/save'); } catch(e) {} };
 
 let started = false;
 async function init(){
