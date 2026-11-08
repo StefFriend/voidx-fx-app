@@ -82,9 +82,10 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)   // dal vivo lo schermo resta acceso
-        window.statusBarColor = 0xFF0E1116.toInt()
+        window.statusBarColor = 0xFF0B0D11.toInt()
+        window.navigationBarColor = 0xFF0E1015.toInt()
         web = WebView(this)
-        web.setBackgroundColor(0xFF0E1116.toInt())
+        web.setBackgroundColor(0xFF0B0D11.toInt())
         web.settings.javaScriptEnabled = true
         web.settings.domStorageEnabled = true
         web.settings.allowFileAccess = true
@@ -125,6 +126,8 @@ class MainActivity : Activity() {
     inner class Bridge {
         @JavascriptInterface fun ready() { ui.post { ensurePermsAndConnect() } }
         @JavascriptInterface fun connect() { ui.post { wantConnected = true; ensurePermsAndConnect() } }
+        /* tema della pagina: barre di sistema dello stesso colore, icone chiare o scure */
+        @JavascriptInterface fun theme(dark: Boolean) { ui.post { applyBars(dark) } }
         @JavascriptInterface fun request(id: Int, url: String, b64: String) {
             val path = url.replaceFirst(Regex("^https?://[^/]+"), "")
             val body = if (b64.isEmpty()) ByteArray(0) else Base64.decode(b64, Base64.DEFAULT)
@@ -138,6 +141,18 @@ class MainActivity : Activity() {
                 pump()
             }
         }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun applyBars(dark: Boolean) {
+        val c = if (dark) 0xFF0B0D11.toInt() else 0xFFF3F4F7.toInt()
+        window.statusBarColor = c
+        window.navigationBarColor = if (dark) 0xFF0E1015.toInt() else 0xFFFFFFFF.toInt()
+        web.setBackgroundColor(c)
+        var f = window.decorView.systemUiVisibility
+        val light = android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        f = if (dark) f and light.inv() else f or light
+        window.decorView.systemUiVisibility = f
     }
 
     private fun js(code: String) = ui.post { web.evaluateJavascript(code, null) }

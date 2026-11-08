@@ -2,107 +2,410 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>VX Amp</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>VX FX</title>
 <style>
-:root{--bg:#0e1116;--card:#171b22;--line:#262c36;--fg:#e8ebf0;--mut:#8a93a3;--acc:#3fb6ff;--on:#35d07f;--warn:#ff5d5d;--meter:#2a313c}
+@font-face{font-family:Inter;font-weight:400;src:url(fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-weight:500;src:url(fonts/inter-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-weight:600;src:url(fonts/inter-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:500;src:url(fonts/space-grotesk-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:600;src:url(fonts/space-grotesk-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:700;src:url(fonts/space-grotesk-latin-700-normal.woff2) format('woff2')}
+
+:root{
+  --bg:#0B0D11;--s1:#14171D;--s2:#1B1F27;--s3:#0E1015;--line:#272C36;--line2:#1F232B;
+  --fg:#ECEFF4;--mut:#9AA3B2;--dim:#8A93A2;--off:#30353F;--track:#262B34;--hub:#1B1F27;
+  --inv:#ECEFF4;--invfg:#0B0D11;--onacc:#0B0D11;--nav:#0E1015;
+  --dyn:#F5B841;--drv:#FF7B3A;--amp:#FF5A5F;--ir:#D2A679;--eq:#C9D1DB;--mod:#B08CFF;--dly:#3FD99A;--rev:#47C8F5;
+  --ok:#3FD99A;--warn:#F5B841;--bad:#FF5A5F;--glow:.35;
+}
+:root[data-theme=light]{
+  --bg:#F3F4F7;--s1:#FFFFFF;--s2:#EEF0F4;--s3:#E7EAEF;--line:#D9DDE4;--line2:#E6E9EE;
+  --fg:#12151B;--mut:#555E6D;--dim:#5F6878;--off:#C9CED6;--track:#E1E4EA;--hub:#F1F3F6;
+  --inv:#12151B;--invfg:#FFFFFF;--onacc:#FFFFFF;--nav:#FFFFFF;
+  --dyn:#B87A00;--drv:#D9541A;--amp:#D7333A;--ir:#9A6A38;--eq:#5F6878;--mod:#7A4BE6;--dly:#0E9A60;--rev:#1488BE;
+  --ok:#0E9A60;--warn:#B87A00;--bad:#D7333A;--glow:.18;
+}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-header{position:sticky;top:0;z-index:2;background:rgba(14,17,22,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 16px 8px}
-.top{display:flex;align-items:center;gap:10px}
-h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.3px;flex:1}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--warn);display:inline-block;margin-right:6px}
-.dot.ok{background:var(--on)}
-#conn{color:var(--mut);font-size:12px}
-button{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-height:40px}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:15px/1.35 Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:var(--s2);border:1px solid var(--line);border-radius:12px;min-height:40px;padding:0 12px}
 button:active{transform:translateY(1px)}
-#mute.on{background:var(--warn);border-color:var(--warn);color:#fff}
-.meters{display:grid;grid-template-columns:auto 1fr 52px;gap:6px 8px;align-items:center;margin-top:8px;font-size:12px;color:var(--mut)}
-.bar{height:8px;background:linear-gradient(90deg,var(--on) 0 70%,#f3c33b 70% 88%,var(--warn) 88%);border-radius:4px;overflow:hidden}
-.bar i{display:block;float:right;height:100%;width:100%;background:var(--meter);transition:width .12s}
-.num{text-align:right;font-variant-numeric:tabular-nums}
-main{padding:12px 16px 96px;max-width:640px;margin:0 auto}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
-.card.off .row{opacity:.45}
-.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.head h2{font-size:15px;margin:0;font-weight:600;letter-spacing:.4px}
-.row{padding:8px 0 4px}
-.lab{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:2px}
-.lab b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;height:34px;margin:0;background:transparent;-webkit-appearance:none;appearance:none}
-input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--meter)}
-input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--meter)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:var(--acc);border:3px solid var(--card)}
-input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--acc);border:3px solid var(--card)}
-.sw{position:relative;width:52px;height:30px;flex:none}
-.sw input{opacity:0;width:0;height:0}
-.sw span{position:absolute;inset:0;background:#2b323d;border-radius:15px;transition:.15s}
-.sw span:before{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#cfd5de;transition:.15s}
-.sw input:checked+span{background:var(--on)}
-.sw input:checked+span:before{transform:translateX(22px);background:#fff}
-.inline{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
-.note{font-size:12px;color:var(--mut);margin-top:2px}
-footer{position:fixed;left:0;right:0;bottom:0;background:rgba(14,17,22,.96);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center}
-#save{flex:1;background:var(--acc);border-color:var(--acc);color:#04131e;font-weight:650}
-#stat{font-size:12px;color:var(--mut);min-width:110px;text-align:right}
-.caps{margin:6px 0 4px}
-.capr{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:#1b2029;cursor:pointer}
-.capr.act{border-color:var(--acc);background:#132331}
-.capr .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.capr .no{color:var(--mut);font-size:12px;width:18px;flex:none}
-.tag{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 5px;flex:none}
-.capr .del{min-height:30px;padding:2px 9px;font-size:13px;flex:none}
-.upl{display:flex;gap:8px;align-items:center;margin-top:8px}
-.upl label{flex:1;text-align:center;border:1px dashed #3a4350;border-radius:10px;padding:10px;color:var(--fg);cursor:pointer}
-.upl input{display:none}
-#capst{font-size:12px;color:var(--mut);margin-top:6px;min-height:16px}
-#capst.err{color:var(--warn)}
-select{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--line);border-radius:9px;padding:6px 8px;min-height:36px;max-width:60%}
-.sel{display:flex;align-items:center;justify-content:space-between;padding:6px 0;gap:10px;font-size:13px;color:var(--mut)}
-#dspm{font-size:12px;color:var(--mut);margin-left:auto}
-#dspm b{color:var(--fg)}
-#dspm.hot b{color:var(--warn)}
-#toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:#3a1f22;border:1px solid var(--warn);color:#ffd9d9;padding:8px 14px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:5}
-#toast.on{opacity:1}
-.pset{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
-.pset button{min-height:44px;padding:4px 6px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pset button.act{background:#132331;border-color:var(--acc);color:#fff}
-.pset button.empty{color:#556}
-.mrow{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
-.mrow .msg{font-weight:600}
-.mrow .ctl{display:flex;flex-wrap:wrap;gap:6px;grid-column:1/3}
-.mrow select,.mrow input{font:inherit;font-size:13px;color:var(--fg);background:#232a35;border:1px solid var(--line);border-radius:8px;padding:4px 6px;min-height:34px;max-width:100%}
-.mrow input{width:70px}
-.mrow button{min-height:34px;padding:2px 10px;font-size:13px}
-.learn{background:#3a2f12!important;border-color:#f3c33b!important}
-#bt{display:none}
+.g{font-family:'Space Grotesk',Inter,sans-serif}
+.cap{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:var(--mut)}
+.mut{color:var(--mut)}
+.small{font-size:12px}
+.hid{display:none!important}
+
+/* barra in alto */
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 14px 8px;background:var(--bg)}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--inv);color:var(--invfg);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:15px;flex:none}
+.ttl{flex:1;min-width:0;display:flex;flex-direction:column}
+.ttl b{font-family:'Space Grotesk';font-weight:700;font-size:20px;line-height:1.1}
+.ttl span{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:999px;background:var(--s1);border:1px solid var(--line);font-size:12px;color:var(--mut);flex:none}
+.pill b{color:var(--fg);font-family:'Space Grotesk';font-weight:600}
+.led{width:8px;height:8px;border-radius:50%;background:var(--off);flex:none}
+.led.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.led.busy{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.ib{width:40px;height:40px;min-height:40px;padding:0;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--s1);flex:none}
+.ib svg{width:20px;height:20px;stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+main{max-width:560px;margin:0 auto;padding:4px 14px calc(100px + env(safe-area-inset-bottom))}
+.view{display:none;flex-direction:column;gap:12px}
+.view.on{display:flex}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1;min-width:0}
+
+/* barra delle sezioni */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:8px 6px calc(10px + env(safe-area-inset-bottom));background:var(--nav);border-top:1px solid var(--line2)}
+nav.tabs button{background:none;border:none;min-height:52px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--dim)}
+nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button.on{color:var(--fg);font-weight:600}
+
+/* live */
+.preset{gap:12px}
+.pnav{width:48px;height:48px;border-radius:14px;padding:0;display:flex;align-items:center;justify-content:center;flex:none}
+.pnav svg{width:20px;height:20px;stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pname{display:flex;flex-direction:column;align-items:center;min-width:0;flex:1}
+.pname b{font-family:'Space Grotesk';font-weight:700;font-size:28px;letter-spacing:-.5px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.capline{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--mut);min-width:0}
+.capline span.n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:6px;border:1px solid var(--line);color:var(--mut);flex:none}
+.badge.amp{border-color:color-mix(in srgb,var(--amp) 45%,transparent);color:var(--amp)}
+.badge.ir{border-color:color-mix(in srgb,var(--ir) 45%,transparent);color:var(--ir)}
+.chain{display:flex;align-items:center;justify-content:space-between}
+.chain i{flex:1;height:2px;background:var(--off);margin:0 2px;min-width:3px}
+.chain b{height:30px;min-width:30px;padding:0 4px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:11px;background:var(--s2);color:var(--dim);border:1px solid var(--line)}
+.chain b.on{background:var(--c);color:var(--onacc);border-color:var(--c);box-shadow:0 0 12px color-mix(in srgb,var(--c) calc(var(--glow)*100%),transparent)}
+.meters{display:grid;grid-template-columns:30px minmax(0,1fr) 56px;gap:8px;align-items:center;font-size:12px;color:var(--mut);font-weight:600}
+.meters .mseg{display:flex;gap:2px}
+.meters .mseg i{flex:1;height:10px;border-radius:2px;background:var(--s3)}
+.meters .num{text-align:right;font-family:'Space Grotesk';color:var(--fg)}
+.fs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fsw{height:118px;border-radius:20px;padding:12px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--s3);border:1.5px solid var(--line);min-width:0}
+.fsw .h{display:flex;justify-content:space-between;align-items:center;width:100%}
+.fsw .h span{font-family:'Space Grotesk';font-weight:700;font-size:11px;letter-spacing:2px;color:var(--dim)}
+.fsw .lamp{width:12px;height:12px;border-radius:50%;background:var(--off)}
+.fsw .m{font-family:'Space Grotesk';font-weight:600;font-size:19px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsw .s{font-size:12px;color:var(--mut);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsw .k{font-size:11px;letter-spacing:1px;color:var(--dim);margin-top:auto}
+.fsw.on{background:var(--s1);border-color:var(--c);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 15%,transparent),0 8px 24px color-mix(in srgb,var(--c) 12%,transparent)}
+.fsw.on .h span{color:var(--c)}
+.fsw.on .lamp{background:var(--c);box-shadow:0 0 10px var(--c)}
+.vol{flex-direction:row;align-items:center;gap:12px;padding:12px 14px;border-radius:18px}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:30px;margin:0;flex:1;min-width:0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--track)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:var(--fg);border:4px solid var(--s1)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--track)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--fg);border:3px solid var(--s1)}
+.vv{font-family:'Space Grotesk';font-weight:600;font-size:15px;min-width:58px;text-align:right}
+.mute{font-size:12px;font-weight:700;letter-spacing:1px}
+.mute.on{background:var(--bad);border-color:var(--bad);color:#fff}
+.connect{align-items:center;text-align:center}
+.connect .big{font-family:'Space Grotesk';font-weight:700;font-size:18px}
+
+/* rig */
+.hrow{display:flex;align-items:flex-end;gap:10px}
+.hrow .t{flex:1;display:flex;flex-direction:column}
+.hrow .t b{font-family:'Space Grotesk';font-weight:700;font-size:26px}
+.hrow .t span{font-size:12px;color:var(--mut);letter-spacing:1px}
+.prim{background:var(--inv);color:var(--invfg);border-color:var(--inv);font-weight:600}
+.load{display:flex;flex-direction:column;gap:6px}
+.load .bar{height:8px;border-radius:4px;background:var(--s2);overflow:hidden}
+.load .bar i{display:block;height:100%;background:var(--fg);border-radius:4px;transition:width .3s}
+.load .bar i.hot{background:var(--bad)}
+.blocks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.blk{height:66px;border-radius:16px;padding:6px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;background:var(--s1);border:1px solid var(--line)}
+.blk .d{width:8px;height:8px;border-radius:50%;background:var(--off)}
+.blk.on .d{background:var(--c);box-shadow:0 0 8px var(--c)}
+.blk b{font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:1px}
+.blk span{font-size:10px;color:var(--mut);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.blk:not(.on){opacity:.62}
+.blk.sel{background:var(--s2);border:2px solid var(--c);opacity:1;box-shadow:0 0 18px color-mix(in srgb,var(--c) calc(var(--glow)*80%),transparent)}
+.blk.out{background:transparent;border:1px dashed var(--off);opacity:1}
+.ed .hd{display:flex;align-items:center;gap:10px}
+.tag{font-family:'Space Grotesk';font-weight:700;font-size:11px;letter-spacing:2px;padding:4px 8px;border-radius:7px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
+.ed .nm{flex:1;min-width:0;font-family:'Space Grotesk';font-weight:700;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw{width:52px;height:30px;min-height:30px;border-radius:15px;border:none;position:relative;padding:0;background:var(--off);flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.sw.on{background:var(--c,var(--ok))}
+.sw.on::after{left:25px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:36px;padding:0 12px;border-radius:10px;font-size:13px;background:var(--s2);color:var(--fg);border:1px solid var(--line);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip.on{background:var(--c,var(--inv));color:var(--onacc);border-color:var(--c,var(--inv));font-weight:600}
+.chip.inv.on{background:var(--inv);color:var(--invfg);border-color:var(--inv)}
+.knobs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 4px}
+.knob{display:flex;flex-direction:column;align-items:center;gap:2px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}
+.knob svg{width:64px;height:64px}
+.knob .v{font-family:'Space Grotesk';font-weight:600;font-size:14px;white-space:nowrap}
+.knob .l{font-size:11px;color:var(--mut);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.knob.drag .v{color:var(--c)}
+.segw{display:flex;align-items:center;gap:10px}
+.segw>span{font-size:12px;color:var(--mut);width:72px;flex:none}
+.seg{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);padding:3px;border-radius:12px;background:var(--s3);border:1px solid var(--line)}
+.seg button{min-height:34px;border-radius:9px;border:none;background:transparent;color:var(--mut);font-size:13px;font-weight:600;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg button.on{background:var(--s1);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+:root:not([data-theme=light]) .seg button.on{background:#2A303B}
+.foot{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut)}
+.foot svg{width:16px;height:16px;stroke:var(--mut);fill:none;stroke-width:2;flex:none}
+.list{display:flex;flex-direction:column;gap:8px}
+.it{display:flex;align-items:center;gap:10px;padding:10px 6px 10px 12px;border-radius:16px;background:var(--s1);border:1px solid var(--line);min-height:58px;text-align:left;width:100%}
+.it.act{border:1.5px solid var(--c)}
+.it .no{font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--mut);width:22px;flex:none}
+.it .bd{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.it .bd b{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .bd div{display:flex;gap:6px;align-items:center}
+.it .use{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--ok);flex:none}
+.it .x{width:40px;height:40px;min-height:40px;padding:0;border:none;background:transparent;display:flex;align-items:center;justify-content:center;flex:none}
+.it .x svg{width:18px;height:18px;stroke:var(--mut);fill:none;stroke-width:2;stroke-linecap:round}
+.add{height:96px;border-radius:20px;background:transparent;border:1.5px dashed var(--off);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-align:center}
+.add input{display:none}
+.add b{font-size:14px}
+.add svg{width:24px;height:24px;stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round}
+.cells{display:flex;gap:3px}
+.cells i{flex:1;height:8px;border-radius:2px;background:var(--s3)}
+.cells i.on{background:var(--c)}
+.status{font-size:12px;color:var(--mut);min-height:16px}
+.status.err{color:var(--bad)}
+
+/* preset */
+.pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ps{height:84px;border-radius:16px;padding:8px 8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;min-width:0;background:var(--s1);border:1px solid var(--line)}
+.ps .n{display:flex;justify-content:space-between;align-items:center;width:100%;font-family:'Space Grotesk';font-weight:700;font-size:12px;color:var(--mut)}
+.ps b{font-size:13px;font-weight:600;line-height:1.2;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.ps.empty{background:transparent;border:1px dashed var(--off)}
+.ps.empty b{color:var(--dim);font-weight:500}
+.ps.sel{background:var(--s2);border:2px solid var(--fg)}
+.acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.acts button{height:46px;border-radius:14px;font-weight:600}
+.pedal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pedal div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:14px;background:var(--s3);border:1px solid var(--line2);min-width:0}
+.pedal b{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:15px;border:2px solid var(--c);color:var(--c);background:var(--s1)}
+.pedal span{font-size:12px;color:var(--fg);text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* setup */
+.opt{display:flex;align-items:center;gap:10px}
+.opt .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.opt .tx b{font-size:13px;font-weight:600}
+.opt .tx span{font-size:12px;color:var(--mut)}
+.bsz{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.bsz button{height:64px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--s3)}
+.bsz button b{font-family:'Space Grotesk';font-weight:700;font-size:20px}
+.bsz button span{font-size:11px;color:var(--mut)}
+.bsz button.on{background:var(--s2);border:2px solid var(--fg)}
+.rows{padding:0;gap:0}
+.rows .cap{padding:14px 14px 4px}
+.rws{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 14px;background:transparent;border:none;border-top:1px solid var(--line2);border-radius:0;text-align:left;width:100%}
+.rws .a{flex:1;font-size:14px;font-weight:500}
+.rws .b{font-size:13px;color:var(--mut)}
+.rws svg{width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:2;flex:none}
+.rws:last-child{border-bottom-left-radius:22px;border-bottom-right-radius:22px}
+.note{font-size:12px;color:var(--mut);line-height:1.45}
+
+/* pannello a scomparsa (MIDI) */
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheet .in{width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--bg);border-radius:24px 24px 0 0;padding:16px 14px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.mrow{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--s1);border:1px solid var(--line)}
+.mrow .ctl{display:flex;flex-wrap:wrap;gap:6px}
+.mrow select,.mrow input{min-height:38px;border-radius:10px;border:1px solid var(--line);background:var(--s2);padding:0 8px;max-width:100%}
+.mrow input{width:76px}
+.learn{background:var(--warn)!important;color:#000!important;border-color:var(--warn)!important}
+
+/* accordatore */
+.tuner{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom))}
+.tuner .tt{display:flex;align-items:center;gap:10px}
+.tuner .tt b{flex:1;font-family:'Space Grotesk';font-weight:700;font-size:22px}
+.tbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;max-width:520px;width:100%;margin:0 auto}
+.gauge{width:100%;max-width:420px}
+.gauge svg{width:100%;height:auto;display:block}
+.tnote{display:flex;align-items:flex-start;gap:4px;margin-top:4px}
+.tnote b{font-family:'Space Grotesk';font-weight:700;font-size:112px;line-height:1;letter-spacing:-3px;transition:color .15s}
+.tnote span{font-family:'Space Grotesk';font-weight:600;font-size:28px;margin-top:12px;color:var(--mut)}
+.tcents{font-family:'Space Grotesk';font-weight:600;font-size:22px;min-height:30px}
+.thz{font-size:14px;color:var(--mut);min-height:20px}
+.strings{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;width:100%;max-width:420px;margin-top:14px}
+.strings div{height:44px;border-radius:12px;background:var(--s1);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--mut)}
+.strings div small{font-size:10px;font-weight:500}
+.strings div.on{border-color:var(--tc);color:var(--fg);box-shadow:0 0 14px color-mix(in srgb,var(--tc) 30%,transparent)}
+.tctl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;max-width:520px;width:100%;margin:0 auto}
+.tctl .card{padding:12px;gap:8px}
+.step{display:flex;align-items:center;gap:8px}
+.step button{width:44px;height:40px;padding:0;font-size:18px;font-weight:600}
+.step b{flex:1;text-align:center;font-family:'Space Grotesk';font-weight:600;font-size:16px;white-space:nowrap}
+
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:40;background:var(--inv);color:var(--invfg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:88vw;text-align:center;transition:.2s}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-<header>
-  <div class="top">
-    <h1>VX Amp</h1><span id="dspm">DSP <b>–</b></span>
-    <span id="conn"><span class="dot" id="dot"></span><span id="ctext">connecting…</span></span>
-    <button id="bt">Connect</button>
-    <button id="mute">Mute</button>
-  </div>
-  <div class="meters">
-    <span>IN</span><div class="bar"><i id="min"></i></div><span class="num" id="nin">–</span>
-    <span>OUT</span><div class="bar"><i id="mout"></i></div><span class="num" id="nout">–</span>
-  </div>
+<header class="top">
+  <div class="logo">VX</div>
+  <div class="ttl"><b id="vtitle">Live</b><span id="vsub">VoidX FX</span></div>
+  <div class="pill" id="connp"><span class="led busy" id="cled"></span><span id="ctext">…</span></div>
+  <div class="pill">DSP <b id="dsp">–</b></div>
+  <button class="ib" id="btun" aria-label="Tuner"><svg viewBox="0 0 24 24"><path d="M9 2v8a3 3 0 006 0V2"/><path d="M12 13v9"/></svg></button>
+  <button class="ib" id="bthm" aria-label="Light or dark theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
 </header>
-<main id="cards"></main>
-<footer>
-  <button id="save">Save preset</button>
-  <button id="calib" title="Measures the real DSP cost of every model with the amp on (about 2 minutes; the sound changes during the measurement)">Calibrate DSP</button>
-  <button id="refcal" title="For the IN2+ref / IN1+ref inputs: measures for 3 s the board disturbance on the two inputs and tunes the cancellation. Keep the guitar silent (volume at 0).">Calibrate input</button>
-  <button id="eng" title="NAM amp engine: Full (if the capture has it) or Lite. The pedal restarts.">Engine: –</button>
-  <span id="stat"></span>
-</footer>
+
+<main>
+  <!-- LIVE -->
+  <section class="view on" id="v-live">
+    <div class="card connect hid" id="conncard">
+      <span class="big">Not connected</span>
+      <span class="small mut" id="conntxt">Searching for the pedal over Bluetooth…</span>
+      <button class="prim" id="bconn">Connect</button>
+    </div>
+    <div class="card preset">
+      <div class="row">
+        <button class="pnav" id="pprev" aria-label="Previous preset"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="pname"><span class="cap" id="pslot">PRESET</span><b id="pnm">–</b></div>
+        <button class="pnav" id="pnext" aria-label="Next preset"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+      <div class="capline"><span class="led" id="capled" style="border-radius:2px;background:var(--amp)"></span><span class="n" id="capnm">–</span><span class="badge amp" id="capeng">–</span></div>
+      <div class="chain" id="chain" aria-label="Signal chain"></div>
+    </div>
+    <div class="meters" aria-label="Levels">
+      <span>IN</span><div class="mseg" id="min"></div><span class="num" id="nin">–</span>
+      <span>OUT</span><div class="mseg" id="mout"></div><span class="num" id="nout">–</span>
+    </div>
+    <div class="fs" id="fs" aria-label="Footswitches"></div>
+    <div class="card vol">
+      <span class="cap">VOLUME</span>
+      <input type="range" id="vol" aria-label="Volume">
+      <span class="vv" id="volv">–</span>
+      <button class="mute" id="bmute">MUTE</button>
+    </div>
+  </section>
+
+  <!-- RIG -->
+  <section class="view" id="v-rig">
+    <div class="load">
+      <div class="row small mut"><span class="sp">DSP load · block <span id="rblk">–</span></span><b class="g" id="rdsp" style="color:var(--fg)">–</b></div>
+      <div class="bar"><i id="rbar" style="width:0"></i></div>
+    </div>
+    <div class="blocks" id="blocks" aria-label="Chain"></div>
+    <div class="card ed" id="editor"></div>
+  </section>
+
+  <!-- PRESETS -->
+  <section class="view" id="v-presets">
+    <div class="pgrid" id="pgrid"></div>
+    <div class="acts">
+      <button class="prim" id="pload">Load</button>
+      <button id="psave">Save here</button>
+      <button id="pdel">Delete</button>
+    </div>
+    <div class="card" id="pedalcard">
+      <div class="row">
+        <svg viewBox="0 0 24 24" width="22" height="22" style="stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round;flex:none"><rect x="2" y="7" width="20" height="10" rx="3"/><circle cx="7" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="17" cy="12" r="1.5"/></svg>
+        <div class="sp" style="display:flex;flex-direction:column"><b style="font-size:14px" id="pedn">Bluetooth footswitch</b><span class="small mut" id="peds">–</span></div>
+        <button class="sw" id="pen" aria-label="Bluetooth footswitch on or off"></button>
+      </div>
+      <div class="pedal" id="pedal"></div>
+      <div class="row small mut"><span class="sp" id="pedhint">A+B · previous preset</span><button id="pscan">Search</button></div>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="view" id="v-lib">
+    <div class="seg" role="tablist" style="flex:none"><button class="on" id="ltcap">Amp captures</button><button id="ltir">Cabinet IRs</button></div>
+    <div class="load"><div class="row small mut"><span class="sp" id="lused">–</span><span id="lhint"></span></div><div class="cells" id="lcells"></div></div>
+    <div class="list" id="llist"></div>
+    <label class="add" id="ladd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><b id="laddt">Add</b><span class="small mut" id="laddn"></span><input type="file" id="lfile"></label>
+    <div class="status" id="lst"></div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="view" id="v-setup">
+    <div class="card">
+      <span class="cap">CONNECTION</span>
+      <div class="seg" id="sconn"></div>
+      <span class="small mut" id="sconnn"></span>
+    </div>
+    <div class="card">
+      <span class="cap">AUDIO I/O</span>
+      <b style="font-size:13px">Input</b>
+      <div class="chips" id="sin"></div>
+      <span class="note" id="sinn"></span>
+      <div class="opt hid" id="srefc" style="padding:10px 12px;border-radius:14px;background:var(--s3);border:1px solid var(--line)">
+        <div class="tx"><b>Input calibration</b><span>3 s with the guitar silent (volume at 0)</span></div>
+        <button class="prim" id="brefc">Calibrate</button>
+      </div>
+      <div class="row"><b style="font-size:13px;width:64px">In gain</b><input type="range" id="sgain" aria-label="In gain"><span class="vv" id="sgainv">–</span></div>
+      <div class="row"><b style="font-size:13px" class="sp">Output</b><div class="seg" id="sout" style="flex:none;width:230px"></div></div>
+    </div>
+    <div class="card">
+      <span class="cap">PERFORMANCE</span>
+      <div class="bsz" id="sblk"></div>
+      <div class="opt"><div class="tx"><b>Margin</b><span>Safe adds one block of headroom</span></div><div class="seg" id="slat" style="flex:none;width:140px"></div></div>
+      <div class="opt"><div class="tx"><b>Constant load</b><span>Steadier current, lower block tone</span></div><button class="sw" id="scl" aria-label="Constant load"></button></div>
+    </div>
+    <div class="card">
+      <span class="cap">APPEARANCE</span>
+      <div class="opt"><div class="tx"><b>Theme</b><span>Auto follows the phone setting</span></div><div class="seg" id="sthm" style="flex:none;width:200px"><button data-t="auto">Auto</button><button data-t="dark">Dark</button><button data-t="light">Light</button></div></div>
+    </div>
+    <div class="card rows">
+      <span class="cap">MIDI · SYSTEM</span>
+      <button class="rws" id="rmidi"><span class="a">MIDI mappings</span><span class="b" id="rmidiv">–</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="rws" id="reng"><span class="a">Amp engine</span><span class="b" id="rengv">–</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="rws" id="rtun"><span class="a">Tuner</span><span class="b" id="rtunv">A4 = 440 Hz</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="rws" id="rcal"><span class="a">Calibrate DSP</span><span class="b">about 2 min</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="rws" id="rsave"><span class="a">Save current settings</span><span class="b">kept at power-on</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <button class="on" data-v="live"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Live</button>
+  <button data-v="rig"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="5" height="8" rx="1.5"/><rect x="10" y="8" width="5" height="8" rx="1.5"/><rect x="17" y="8" width="4" height="8" rx="1.5"/></svg>Rig</button>
+  <button data-v="presets"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Presets</button>
+  <button data-v="lib"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Library</button>
+  <button data-v="setup"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Setup</button>
+</nav>
+
+<!-- accordatore -->
+<div class="tuner hid" id="tuner" role="dialog" aria-label="Tuner">
+  <div class="tt"><b>Tuner</b><span class="pill" id="tlvl">IN –</span><button class="ib" id="tclose" aria-label="Close the tuner"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="tbody">
+    <div class="gauge">
+      <svg viewBox="0 0 320 190" aria-hidden="true">
+        <g id="gticks"></g>
+        <path id="garc" d="M 30 170 A 130 130 0 0 1 290 170" fill="none" stroke="var(--track)" stroke-width="10" stroke-linecap="round"/>
+        <path id="gzone" d="" fill="none" stroke="var(--ok)" stroke-width="10" stroke-linecap="round" opacity=".55"/>
+        <g id="gneedle" style="transition:transform .12s ease-out;transform-origin:160px 170px"><line x1="160" y1="170" x2="160" y2="52" stroke="var(--fg)" stroke-width="4" stroke-linecap="round"/><circle cx="160" cy="170" r="9" fill="var(--fg)"/></g>
+      </svg>
+    </div>
+    <div class="tnote"><b id="tnote">–</b><span id="toct"></span></div>
+    <div class="tcents" id="tcents">Play a string</div>
+    <div class="thz" id="thz">&nbsp;</div>
+    <div class="strings" id="tstr"></div>
+  </div>
+  <div class="tctl">
+    <div class="card"><span class="cap">REFERENCE A4</span><div class="step"><button id="trm" aria-label="Lower reference">−</button><b id="tref">440 Hz</b><button id="trp" aria-label="Raise reference">+</button></div></div>
+    <div class="card"><span class="cap">OUTPUT</span><div class="opt"><div class="tx"><b>Mute while tuning</b></div><button class="sw" id="tmute" aria-label="Mute while tuning"></button></div></div>
+  </div>
+</div>
+
+<!-- MIDI -->
+<div class="sheet hid" id="sheet">
+  <div class="in">
+    <div class="row"><b class="sp g" style="font-size:20px">MIDI mappings</b><button class="ib" id="mclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <span class="note" id="mlast"></span>
+    <div class="list" id="mlist"></div>
+    <div class="acts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button id="madd">+ Mapping</button><button id="mdef">Chocolate defaults</button></div>
+    <span class="note">Wireless: needs the Bluetooth connection (Chocolate in "Manufacturer Control" mode: A, B, C, D = CC 20–23). Wired: the MIDI IN jack (TRS type A) always works, with the same mappings. "Learn" assigns the next message received.</span>
+  </div>
+</div>
 <div id="toast"></div>
+
 <script>
-/* ---------- trasporto: nella app Android le stesse richieste passano dal Bluetooth (ponte VXBridge) ---------- */
+/* ===================== trasporto: nell'app le richieste passano dal Bluetooth (VXBridge) ===================== */
 const APP = !!window.VXBridge;
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let connected = !APP;
 if (APP){
   const waits = {}; let rid = 1;
   const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
@@ -122,223 +425,266 @@ if (APP){
     });
   };
   window.vxStatus = (st, txt) => {
-    $('#dot').classList.toggle('ok', st === 2);
-    $('#ctext').textContent = txt;
-    $('#bt').style.display = st === 0 ? 'inline-block' : 'none';
-    if (st === 2 && !P.length) init();
+    connected = st === 2;
+    $('#cled').className = 'led' + (st === 2 ? ' on' : st === 1 ? ' busy' : '');
+    $('#ctext').textContent = st === 2 ? 'BLE' : st === 1 ? '…' : 'off';
+    $('#conncard').classList.toggle('hid', st === 2);
+    $('#conntxt').textContent = txt;
+    $('#bconn').classList.toggle('hid', st !== 0);
+    if (st === 2 && !started) init();
   };
 }
-const $ = s => document.querySelector(s);
-let P = [], G = [], ctl = {}, dragging = null, pending = {}, timer = null;
-
-function fmt(p, v){
-  if (p.n) return p.n[Math.round(v)] ?? '?';
-  if (p.max === 1 && p.min === 0 && p.step === 1) return v > 0.5 ? 'ON' : 'off';
-  return (p.step < 1 ? v.toFixed(1) : Math.round(v)) + (p.u === ':1' ? ':1' : ' ' + p.u);
-}
-function isToggle(p){ return !p.n && p.min === 0 && p.max === 1 && p.step === 1; }
+async function getj(u){ const r = await fetch(u, {cache:'no-store'}); return r.json(); }
 let toastT = null;
 function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2600); }
 
+/* ===================== tema ===================== */
+const mq = window.matchMedia('(prefers-color-scheme: light)');
+let themePref = 'auto';
+try { themePref = localStorage.getItem('vxTheme') || 'auto'; } catch(e) {}
+function applyTheme(){
+  const light = themePref === 'light' || (themePref === 'auto' && mq.matches);
+  document.documentElement.dataset.theme = light ? 'light' : 'dark';
+  document.querySelectorAll('#sthm button').forEach(b => b.classList.toggle('on', b.dataset.t === themePref));
+  try { window.VXBridge && VXBridge.theme && VXBridge.theme(!light); } catch(e) {}
+}
+function setTheme(t){ themePref = t; try { localStorage.setItem('vxTheme', t); } catch(e) {} applyTheme(); }
+mq.addEventListener && mq.addEventListener('change', applyTheme);
+$('#bthm').onclick = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+document.querySelectorAll('#sthm button').forEach(b => b.onclick = () => setTheme(b.dataset.t));
+applyTheme();
+
+/* ===================== dati ===================== */
+let P = [], G = [], PK = {}, S = null, PS = [], psCur = -1, CAPS = [], capAct = -1, capInfo = {}, IRS = [], irAct = -1, MD = null;
+let started = false, dragging = null, pending = {}, timer = null, engCur = 0, view = 'live', rigSel = 'drv', psSel = -1, libTab = 'cap';
+const BLK = {
+  gate: {ab: 'GATE', cat: 'DYN', c: 'dyn', mini: 'GT', name: 'Noise gate'},
+  comp: {ab: 'COMP', cat: 'DYN', c: 'dyn', mini: 'CP', name: 'Compressor'},
+  drv:  {ab: 'DRIVE', cat: 'DRIVE', c: 'drv', mini: 'DR', name: 'Drive'},
+  amp:  {ab: 'AMP', cat: 'AMP', c: 'amp', mini: 'AMP', name: 'Amp'},
+  ir:   {ab: 'CAB', cat: 'CAB', c: 'ir', mini: 'IR', name: 'Cabinet IR'},
+  eq:   {ab: 'EQ', cat: 'EQ', c: 'eq', mini: 'EQ', name: '4-band EQ'},
+  mod:  {ab: 'MOD', cat: 'MOD', c: 'mod', mini: 'MD', name: 'Modulation'},
+  dly:  {ab: 'DELAY', cat: 'DELAY', c: 'dly', mini: 'DL', name: 'Delay'},
+  rev:  {ab: 'REV', cat: 'REVERB', c: 'rev', mini: 'RV', name: 'Reverb'}
+};
+const cvar = b => 'var(--' + (BLK[b] ? BLK[b].c : 'fg') + ')';
+const blocks = () => G.map((g, i) => ({ blk: g.blk, g: i })).filter(x => x.blk !== 'glob' && BLK[x.blk]);
+const bparams = b => { const gi = G.findIndex(g => g.blk === b); return P.filter(p => p.g === gi); };
+const onP = b => PK[b + '.on'];
+const isOn = b => { const p = onP(b); return p ? p.v > 0.5 : false; };
+const modelP = b => bparams(b).find(p => p.t === 'model');
+function fhz(v){ return v < 1000 ? Math.round(v) + ' Hz' : (v / 1000).toFixed(v % 1000 ? 1 : 0) + ' kHz'; }
+function fmt(p, v){
+  if (p.n) return p.n[Math.round(v)] ?? '?';
+  if (!p.n && p.min === 0 && p.max === 1 && p.step === 1) return v > 0.5 ? 'On' : 'Off';
+  if (p.u === 'Hz') return fhz(v);
+  const s = p.step < 1 ? (+v).toFixed(1) : String(Math.round(v));
+  if (p.u === ':1') return s + ':1';
+  if (p.u === 'dB') return (v > 0 && p.min < 0 ? '+' : '') + s + ' dB';
+  return s + (p.u ? (p.u === '%' ? '%' : ' ' + p.u) : '');
+}
+function short(b){
+  if (b === 'amp'){ const c = CAPS[capAct]; return c ? c.name : 'no capture'; }
+  if (b === 'ir'){ const s = PK['ir.slot'], c = s ? IRS[Math.round(s.v)] : null; return c ? c.name : 'empty'; }
+  if (b === 'eq'){ const p = PK['eq.pos']; return p ? fmt(p, p.v) : '4-band'; }
+  if (b === 'gate') return 'Gate';
+  const m = modelP(b); return m ? fmt(m, m.v) : BLK[b].name;
+}
+function blockSub(b){
+  return bparams(b).filter(p => p.t === 'knob' && !p.n && p.k !== 'ir.slot').slice(0, 2).map(p => p.l + ' ' + fmt(p, p.v)).join(' · ');
+}
+
+/* invio dei valori: al massimo ~16 richieste al secondo, le piu' recenti vincono */
 function send(k, v){
   pending[k] = v;
   if (timer) return;
-  timer = setTimeout(flush, 60);               /* al massimo ~16 richieste al secondo */
+  timer = setTimeout(flush, 60);
 }
 async function flush(){
   timer = null;
   const items = Object.entries(pending); pending = {};
   for (const [k, v] of items){
     try {
-      const r = await (await fetch('/api/set?k=' + encodeURIComponent(k) + '&v=' + v)).json();
-      const p = P.find(q => q.k === k);
-      if (r.err){ toast(r.err); if (p){ p.v = r.v; const c = ctl[k]; if (c) setCtl(c, p, r.v); } }
-      if (p && (p.t === 'model')) await reload();          /* altro modello: altre manopole */
+      const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v);
+      const p = PK[k];
+      if (r.err){ toast(r.err); if (p) { p.v = r.v; refresh(); } }
+      if (p && (p.t === 'model')) await reload();
     } catch(e) {}
   }
 }
+function setv(k, v){ const p = PK[k]; if (!p) return; p.v = v; send(k, v); refresh(); }
 
-function setCtl(c, p, v){
-  if (c.el.type === 'checkbox'){ c.el.checked = v > 0.5; if (c.card) c.card.classList.toggle('off', !(v > 0.5)); }
-  else if (c.el.tagName === 'SELECT'){ c.el.value = Math.round(v); }
-  else { c.el.value = v; if (c.val) c.val.textContent = fmt(p, v); }
-  relabel(p.k, v);
+/* ===================== manopola ===================== */
+const KT = 122.5, KC = 163.4;
+function knobHTML(p){
+  return '<div class="knob" data-k="' + esc(p.k) + '" style="--c:' + cvar(blkOf(p)) + '"><svg viewBox="0 0 64 64" role="img" aria-label="' + esc(p.l) + '">' +
+    '<circle cx="32" cy="32" r="26" fill="none" stroke="var(--track)" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + KT + ' ' + KC + '" transform="rotate(135 32 32)"/>' +
+    '<circle class="arc" cx="32" cy="32" r="26" fill="none" stroke="var(--c)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 ' + KC + '" transform="rotate(135 32 32)"/>' +
+    '<circle cx="32" cy="32" r="17" fill="var(--hub)"/><line class="ptr" x1="32" y1="32" x2="32" y2="18" stroke="var(--fg)" stroke-width="2.5" stroke-linecap="round"/></svg>' +
+    '<span class="v"></span><span class="l"></span></div>';
 }
-
-let LDEP = {};
-function fhz(v){ return v < 1000 ? Math.round(v) + ' Hz' : (Math.round(v / 100) % 10 ? (Math.round(v / 100) / 10).toFixed(1) : Math.round(v / 1000)) + ' kHz'; }
-function relabel(k, v){ (LDEP[k] || []).forEach(sp => { sp.textContent = fhz(v); }); }
-function build(){
-  const box = $('#cards'); box.innerHTML = ''; ctl = {}; LDEP = {};
-  G.forEach((grp, g) => {
-    const ps = P.filter(p => p.g === g);
-    const card = document.createElement('section'); card.className = 'card'; card.dataset.g = g; card.dataset.blk = grp.blk;
-    const head = document.createElement('div'); head.className = 'head';
-    head.innerHTML = '<h2></h2>'; head.querySelector('h2').textContent = grp.name;
-    const tog = ps.find(p => p.t === 'on' || p.k === 'amp.on');
-    if (tog){
-      const lab = document.createElement('label'); lab.className = 'sw';
-      lab.innerHTML = '<input type="checkbox"><span></span>';
-      const inp = lab.querySelector('input');
-      inp.onchange = () => { tog.v = inp.checked ? 1 : 0; card.classList.toggle('off', !inp.checked); send(tog.k, tog.v); };
-      ctl[tog.k] = { p: tog, el: inp, card };
-      head.appendChild(lab);
+function blkOf(p){ const g = G[p.g]; return g ? g.blk : 'glob'; }
+function knobSet(el, p){
+  const f = Math.max(0, Math.min(1, (p.v - p.min) / ((p.max - p.min) || 1)));
+  el.querySelector('.arc').setAttribute('stroke-dasharray', (KT * f).toFixed(1) + ' ' + KC);
+  const a = (135 + 270 * f) * Math.PI / 180;
+  const l = el.querySelector('.ptr'); l.setAttribute('x2', (32 + 14 * Math.cos(a)).toFixed(1)); l.setAttribute('y2', (32 + 14 * Math.sin(a)).toFixed(1));
+  el.querySelector('.v').textContent = fmt(p, p.v);
+  el.querySelector('.l').textContent = p.lf && PK[p.lf] ? fhz(PK[p.lf].v) : p.l;
+}
+function snap(p, v){ v = Math.max(p.min, Math.min(p.max, v)); return Math.round((v - p.min) / p.step) * p.step + p.min; }
+function bindKnob(el){
+  const k = el.dataset.k; let y0 = 0, v0 = 0, moved = false, lp = null, id = null;
+  el.addEventListener('pointerdown', ev => {
+    const p = PK[k]; if (!p) return;
+    el.setPointerCapture(ev.pointerId); id = ev.pointerId; y0 = ev.clientY; v0 = p.v; moved = false; dragging = k; el.classList.add('drag');
+    lp = setTimeout(() => {
+      if (moved) return;
+      dragging = null; el.classList.remove('drag');
+      const s = prompt(p.l + ' (' + fmt(p, p.min) + ' … ' + fmt(p, p.max) + ')', p.v);
+      if (s !== null && s.trim() !== '' && !isNaN(+s)) setv(k, snap(p, +s));
+    }, 600);
+  });
+  el.addEventListener('pointermove', ev => {
+    if (ev.pointerId !== id || dragging !== k) return;
+    const p = PK[k], dy = y0 - ev.clientY;
+    if (Math.abs(dy) > 4) { moved = true; clearTimeout(lp); }
+    if (!moved) return;
+    const nv = snap(p, v0 + dy * (p.max - p.min) / 220);
+    if (nv !== p.v){
+      p.v = nv; knobSet(el, p); send(k, nv); refreshLight();
+      document.querySelectorAll('#editor .knob').forEach(o => { const q = PK[o.dataset.k]; if (q && q.lf === k) knobSet(o, q); });
     }
-    card.appendChild(head);
-    ps.forEach(p => {
-      if (p === tog) return;
-      if (p.k === 'amp.cap'){ card.appendChild(capBox()); return; }
-      if (p.k === 'ir.slot'){ card.appendChild(irBox()); return; }
-      if (p.n){                                   /* scelta a nomi: modello, posizione, blocco */
-        const r = document.createElement('div'); r.className = 'sel';
-        r.innerHTML = '<span></span><select></select>';
-        r.querySelector('span').textContent = p.l;
-        const sel = r.querySelector('select');
-        p.n.forEach((nm, j) => { const o = document.createElement('option'); o.value = j; o.textContent = nm; sel.appendChild(o); });
-        sel.value = Math.round(p.v);
-        sel.onchange = () => {
-          if (p.k === 'wifi.on' && !confirm(APP ? 'Changing the connection drops the app\'s Bluetooth link. Continue?' : 'Changing the connection closes this page (with Bluetooth, use the app). Continue?')) { sel.value = Math.round(p.v); return; }
-          p.v = +sel.value; send(p.k, p.v);
-        };
-        ctl[p.k] = { p, el: sel };
-        card.appendChild(r);
-        return;
-      }
-      if (isToggle(p)){                            /* es. WiFi */
-        const r = document.createElement('div'); r.className = 'inline';
-        r.innerHTML = '<span></span><label class="sw"><input type="checkbox"><span></span></label>';
-        r.querySelector('span').textContent = p.l;
-        const inp = r.querySelector('input');
-        inp.onchange = () => {
-          if (p.k === 'wifi.on' && !inp.checked && !confirm('Turning Wi-Fi off closes this page. Turn it back on from the pedal menu. Continue?')) { inp.checked = true; return; }
-          p.v = inp.checked ? 1 : 0; send(p.k, p.v);
-        };
-        ctl[p.k] = { p, el: inp };
-        card.appendChild(r);
-        return;
-      }
-      const r = document.createElement('div'); r.className = 'row';
-      r.innerHTML = '<div class="lab"><span></span><b></b></div><input type="range">';
-      r.querySelector('span').textContent = p.l;
-      if (p.lf) (LDEP[p.lf] = LDEP[p.lf] || []).push(r.querySelector('span'));   /* EQ: etichetta = frequenza */
-      const inp = r.querySelector('input'), val = r.querySelector('b');
-      inp.min = p.min; inp.max = p.max; inp.step = p.step; inp.value = p.v; val.textContent = fmt(p, p.v);
-      const start = () => { dragging = p.k; };
-      const end = () => { setTimeout(() => { if (dragging === p.k) dragging = null; }, 400); };
-      inp.addEventListener('pointerdown', start); inp.addEventListener('touchstart', start, {passive:true});
-      inp.addEventListener('pointerup', end); inp.addEventListener('touchend', end); inp.addEventListener('change', end);
-      inp.oninput = () => { p.v = +inp.value; val.textContent = fmt(p, p.v); relabel(p.k, p.v); send(p.k, p.v); };
-      ctl[p.k] = { p, el: inp, val };
-      card.appendChild(r);
-    });
-    if (grp.blk === 'glob') { const n = document.createElement('div'); n.className = 'note'; n.textContent = 'In gain = analog gain of the converter. Block = samples per processing cycle: 64 and 128 lighten the DSP load but add latency. Input/Output: which jacks are used (device setting, not stored in presets).'; card.appendChild(n); }
-    box.appendChild(card);
   });
-  box.insertBefore(presetCard(), box.firstChild);
-  box.appendChild(midiCard());
-  loadPresets(); loadMidi();
-  sync(P.map(p => p.v));
+  const end = () => { clearTimeout(lp); id = null; el.classList.remove('drag'); setTimeout(() => { if (dragging === k) dragging = null; }, 350); };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
 }
 
-/* ---------- preset numerati ---------- */
-let PS = [], psCur = -1;
-function presetCard(){
-  const c = document.createElement('section'); c.className = 'card';
-  c.innerHTML = '<div class="head"><h2>PRESET</h2><button id="psave">Save here…</button></div><div class="pset" id="pset"></div><div class="note">Tap to recall. "Save here…" stores the current settings in the chosen slot. From the footswitch: Program Change 1–16, or A+B / C+D (previous / next).</div>';
-  c.querySelector('#psave').onclick = async () => {
-    const s = prompt('Slot number (1-16):', psCur >= 0 ? psCur + 1 : 1); if (!s) return;
-    const i = (+s) - 1; if (!(i >= 0 && i < 16)) return;
-    const n = prompt('Preset name:', PS[i] ? PS[i].name : ''); if (n === null) return;
-    try { const d = await (await fetch('/api/psave?s=' + i + '&n=' + encodeURIComponent(n.slice(0, 15)))).json(); if (d.err) toast(d.err); else { PS = d.slots; psCur = d.cur; renderPresets(); toast('Saved to P' + (i + 1)); } } catch(e) {}
-  };
-  return c;
-}
-function renderPresets(){
-  const b = $('#pset'); if (!b) return; b.innerHTML = '';
-  for (let i = 0; i < 16; i++){
-    const p = PS[i], e = document.createElement('button');
-    e.textContent = (i + 1) + ' ' + (p ? p.name : '–');
-    e.className = (p ? '' : 'empty') + (i === psCur ? ' act' : '');
-    e.onclick = async () => { if (!p) return; try { const d = await (await fetch('/api/pload?s=' + i)).json(); if (d.err) toast(d.err); } catch(x) {} };
-    e.oncontextmenu = async ev => { ev.preventDefault(); if (p && confirm('Delete preset ' + (i + 1) + ' "' + p.name + '"?')) { const d = await (await fetch('/api/pdel?s=' + i)).json(); PS = d.slots; renderPresets(); } };
-    b.appendChild(e);
-  }
-}
-async function loadPresets(){ try { const d = await (await fetch('/api/presets', {cache:'no-store'})).json(); PS = d.slots; psCur = d.cur; renderPresets(); } catch(e) {} }
-
-/* ---------- pedaliera MIDI ---------- */
-let MD = null, midiCount = -1;
-const MTYPE = ['CC', 'PC', 'Note'], MMODE = ['toggle on press', 'follow (>=64 on)', 'continuous (pedal)', 'any value'];
-const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo'];
-const PSTATE = ['off', 'searching…', 'connecting…', 'connected'];
-function midiCard(){
-  const c = document.createElement('section'); c.className = 'card'; c.id = 'midicard';
-  c.innerHTML = '<div class="head"><h2>MIDI FOOTSWITCH</h2><label class="sw"><input type="checkbox" id="pen"><span></span></label></div>' +
-    '<div class="inline"><span id="pst">–</span><button id="pscan">Search</button></div><div class="note" id="plast"></div><div id="mlist"></div>' +
-    '<div class="upl"><button id="madd">+ Mapping</button><button id="mdef">Chocolate defaults</button></div>' +
-    '<div class="note">Wireless: needs the Bluetooth connection (Chocolate in "Manufacturer Control" mode: A, B, C, D = CC 20–23). Wired: the MIDI IN jack (TRS type A) always works, with the same mappings. "Learn" assigns the next message received.</div>';
-  c.querySelector('#pen').onchange = ev => api('/api/pedal?en=' + (ev.target.checked ? 1 : 0));
-  c.querySelector('#pscan').onclick = () => api('/api/pedal?scan=1');
-  c.querySelector('#mdef').onclick = () => { if (confirm('Restore the default mappings for the Chocolate?')) api('/api/mididef'); };
-  c.querySelector('#madd').onclick = () => { const i = MD.map.findIndex(m => !m); if (i < 0) return toast('Table full'); api('/api/midiset?i=' + i + '&t=0&n=0&m=0&a=0&k=drv'); };
-  return c;
-}
-async function api(u){ try { const d = await (await fetch(u)).json(); if (d.err) toast(d.err); else if (d.map) { MD = d; renderMidi(); } return d; } catch(e) {} }
-async function loadMidi(){ await api('/api/midi'); }
-function renderMidi(){
-  if (!MD || !$('#mlist')) return;
-  $('#pen').checked = !!MD.pen;
-  const conn = (P.find(p => p.k === 'wifi.on') || {}).v;
-  $('#pst').textContent = 'BLE footswitch: ' + (!MD.pen ? 'off' : conn !== 2 ? 'needs the Bluetooth connection' : PSTATE[MD.ped]) + (MD.ped === 3 && MD.pname ? ' (' + MD.pname + ')' : '');
-  $('#plast').textContent = MD.last ? 'Last message: ' + MD.last : '';
-  const L = $('#mlist'); L.innerHTML = '';
-  const blks = G.filter(g => g.blk !== 'glob' && g.blk !== 'amp').map(g => [g.blk, g.name]);
-  MD.map.forEach((m, i) => {
-    if (!m) return;
-    const r = document.createElement('div'); r.className = 'mrow';
-    const what = m.t === 1 ? (m.n === 255 ? 'PC (any)' : 'PC ' + (m.n + 1)) : MTYPE[m.t] + ' ' + m.n;
-    r.innerHTML = '<span class="msg"></span><span><button class="lrn">Learn</button> <button class="del">×</button></span><div class="ctl"></div>';
-    r.querySelector('.msg').textContent = what + (m.c ? ' · ch. ' + m.c : '');
-    const lrn = r.querySelector('.lrn'); if (MD.learn === i) { lrn.classList.add('learn'); lrn.textContent = 'Press a switch…'; }
-    lrn.onclick = () => api('/api/midilearn?i=' + (MD.learn === i ? -1 : i));
-    r.querySelector('.del').onclick = () => api('/api/mididel?i=' + i);
-    const C = r.querySelector('.ctl');
-    const mk = (opts, val, key) => { const s = document.createElement('select'); opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; s.appendChild(o); }); s.value = val; s.onchange = () => api('/api/midiset?i=' + i + '&' + key + '=' + encodeURIComponent(s.value)); C.appendChild(s); return s; };
-    mk(MTYPE.map((t, j) => [j, t]), m.t, 't');
-    if (m.t !== 1) { const n = document.createElement('input'); n.type = 'number'; n.min = 0; n.max = 127; n.value = m.n; n.onchange = () => api('/api/midiset?i=' + i + '&n=' + n.value); C.appendChild(n); }
-    if (m.t !== 1) mk(MMODE.map((t, j) => [j, t]), m.m, 'm');
-    mk(MACT.map((t, j) => [j, t]), m.a, 'a');
-    if (m.a === 0) mk(blks, m.k, 'k');
-    if (m.a === 1) {
-      mk(P.filter(p => p.t === 'knob' || p.t === 'glob').map(p => [p.k, (G[p.g] ? G[p.g].name + ' · ' : '') + p.l]), m.k, 'k');
-      if (m.m !== 2) { const v = document.createElement('input'); v.type = 'number'; v.step = 'any'; v.value = m.v; v.title = 'value to recall'; v.onchange = () => api('/api/midiset?i=' + i + '&v=' + v.value); C.appendChild(v); }
-    }
-    if (m.a === 2 && !(m.t === 1 && m.n === 255)) mk([...Array(16).keys()].map(j => [j, 'P' + (j + 1)]), m.v, 'v');
-    L.appendChild(r);
-  });
-}
-
-function sync(vals){
-  P.forEach((p, i) => {
-    const c = ctl[p.k]; if (!c || dragging === p.k || p.k in pending) return;
-    const v = vals[i]; if (v === undefined) return; p.v = v;
-    setCtl(c, p, v);
-  });
-}
-
+/* ===================== LIVE ===================== */
+const segs = n => '<i></i>'.repeat(n);
+$('#min').innerHTML = segs(28); $('#mout').innerHTML = segs(28);
 function meter(id, nid, db){
-  const pct = Math.max(0, Math.min(100, (db + 60) / 60 * 100));
-  $(id).style.width = (100 - pct) + '%';
-  $(nid).textContent = db <= -119 ? '–∞' : db.toFixed(0) + ' dB';
+  const n = Math.max(0, Math.min(28, Math.round((db + 60) / 60 * 28)));
+  $(id).querySelectorAll('i').forEach((e, i) => { e.style.background = i >= n ? '' : i >= 25 ? 'var(--bad)' : i >= 20 ? 'var(--warn)' : 'var(--ok)'; });
+  $(nid).textContent = db <= -119 ? '−∞' : Math.round(db) + ' dB';
+}
+function fsBlocks(){
+  const out = [], seen = {};
+  if (MD && MD.map) MD.map.forEach(m => { if (m && m.a === 0 && m.t === 0 && m.n >= 20 && m.n <= 23 && BLK[m.k] && !seen[m.n]) { seen[m.n] = 1; out.push({ key: 'ABCD'[m.n - 20], blk: m.k }); } });
+  out.sort((a, b) => a.key.localeCompare(b.key));
+  if (!out.length) ['drv', 'mod', 'dly', 'rev'].forEach((b, i) => out.push({ key: 'ABCD'[i], blk: b }));
+  return out.slice(0, 4);
+}
+function renderLive(){
+  const ps = PS[psCur];
+  $('#pslot').textContent = psCur >= 0 ? 'PRESET ' + String(psCur + 1).padStart(2, '0') : 'CURRENT SETTINGS';
+  $('#pnm').textContent = ps ? ps.name : 'Unsaved';
+  const c = CAPS[capAct];
+  $('#capnm').textContent = c ? c.name : 'no capture';
+  $('#capeng').textContent = capInfo.lite ? 'LITE' : 'FULL';
+  $('#capeng').classList.toggle('hid', !c);
+  $('#chain').innerHTML = blocks().map((x, i) => (i ? '<i></i>' : '') + '<b class="' + (isOn(x.blk) ? 'on' : '') + '" style="--c:' + cvar(x.blk) + '" title="' + BLK[x.blk].name + '">' + BLK[x.blk].mini + '</b>').join('');
+  $('#fs').innerHTML = fsBlocks().map(f => '<button class="fsw' + (isOn(f.blk) ? ' on' : '') + '" data-b="' + f.blk + '" aria-pressed="' + isOn(f.blk) + '" style="--c:' + cvar(f.blk) + '">' +
+    '<div class="h"><span>' + BLK[f.blk].cat + '</span><i class="lamp"></i></div><span class="m">' + esc(short(f.blk)) + '</span><span class="s">' + esc(blockSub(f.blk)) + '</span><span class="k">SWITCH ' + f.key + '</span></button>').join('');
+  $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => { const b = e.dataset.b, p = onP(b); if (p) setv(p.k, p.v > 0.5 ? 0 : 1); });
+  const v = PK['out.vol']; if (v && dragging !== 'out.vol'){ const r = $('#vol'); r.min = v.min; r.max = v.max; r.step = v.step; r.value = v.v; $('#volv').textContent = fmt(v, v.v); }
+}
+$('#vol').oninput = ev => { const p = PK['out.vol']; if (!p) return; dragging = 'out.vol'; p.v = +ev.target.value; $('#volv').textContent = fmt(p, p.v); send('out.vol', p.v); };
+$('#vol').onchange = () => setTimeout(() => { if (dragging === 'out.vol') dragging = null; }, 350);
+$('#bmute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
+function nextSlot(dir){ for (let k = 1; k <= 16; k++){ const i = ((psCur < 0 ? (dir > 0 ? -1 : 0) : psCur) + dir * k + 32) % 16; if (PS[i]) return i; } return -1; }
+async function loadPreset(i){ if (i < 0) return toast('No presets stored'); try { const d = await getj('/api/pload?s=' + i); if (d.err) toast(d.err); else { psCur = i; await reload(); } } catch(e) {} }
+$('#pprev').onclick = () => loadPreset(nextSlot(-1));
+$('#pnext').onclick = () => loadPreset(nextSlot(1));
+$('#bconn').onclick = () => { try { VXBridge.connect(); } catch(e) {} };
+
+/* ===================== RIG ===================== */
+function renderRig(){
+  const bl = blocks();
+  if (!bl.find(x => x.blk === rigSel) && bl.length) rigSel = bl[0].blk;
+  const out = PK['io.out'];
+  $('#blocks').innerHTML = bl.map(x => '<button class="blk' + (isOn(x.blk) ? ' on' : '') + (x.blk === rigSel ? ' sel' : '') + '" data-b="' + x.blk + '" style="--c:' + cvar(x.blk) + '" aria-pressed="' + (x.blk === rigSel) + '"><i class="d"></i><b>' + BLK[x.blk].ab + '</b><span>' + esc(short(x.blk)) + '</span></button>').join('') +
+    '<button class="blk out" data-b="out"><i class="d" style="background:var(--mut)"></i><b>OUT</b><span>' + esc(out ? fmt(out, out.v) : 'Stereo') + '</span></button>';
+  $('#blocks').querySelectorAll('.blk').forEach(e => e.onclick = () => { if (e.dataset.b === 'out') return show('setup'); rigSel = e.dataset.b; renderRig(); });
+  renderEditor();
+}
+function chipsHTML(p, cls){
+  return '<div class="chips">' + p.n.map((n, i) => '<button class="chip ' + (cls || '') + (Math.round(p.v) === i ? ' on' : '') + '" data-k="' + esc(p.k) + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div>';
+}
+function segHTML(p, label){
+  return '<div class="segw"><span>' + esc(label || p.l) + '</span><div class="seg">' + p.n.map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-k="' + esc(p.k) + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div></div>';
+}
+function renderEditor(){
+  const b = rigSel, E = $('#editor'); if (!BLK[b]) { E.innerHTML = ''; return; }
+  const ps = bparams(b), on = onP(b), M = BLK[b];
+  let h = '<div class="hd" style="--c:' + cvar(b) + '"><span class="tag">' + M.cat + '</span><span class="nm">' + esc(b === 'amp' || b === 'ir' ? short(b) : (modelP(b) ? short(b) : M.name)) + '</span>' +
+    (on ? '<button class="sw' + (on.v > 0.5 ? ' on' : '') + '" data-tog="' + on.k + '" aria-label="Block on or off" aria-pressed="' + (on.v > 0.5) + '"></button>' : '') + '</div>';
+  const mp = modelP(b);
+  if (mp) h += '<div style="--c:' + cvar(b) + '">' + chipsHTML(mp) + '</div>';
+  if (b === 'amp'){
+    const list = CAPS.map((c, i) => c ? '<button class="chip' + (i === capAct ? ' on' : '') + '" data-cap="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
+    h += '<div style="--c:var(--amp)" class="chips">' + (list || '<span class="note">No captures: add one in Library.</span>') + '</div>';
+  }
+  if (b === 'ir'){
+    const list = IRS.map((c, i) => c ? '<button class="chip' + (PK['ir.slot'] && Math.round(PK['ir.slot'].v) === i ? ' on' : '') + '" data-k="ir.slot" data-v="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
+    h += '<div style="--c:var(--ir)" class="chips">' + (list || '<span class="note">No IRs: add one in Library.</span>') + '</div>';
+  }
+  const kn = ps.filter(p => (p.t === 'knob' || (b === 'amp' && p.t === 'amp' && p.k !== 'amp.on' && p.k !== 'amp.cap')) && !p.n && p.k !== 'ir.slot');
+  if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
+  ps.filter(p => p.n && p.t !== 'model').forEach(p => { h += segHTML(p, p.t === 'pos' ? 'Position' : p.l); });
+  if (b === 'amp') h += '<div class="segw"><span>Engine</span><div class="seg"><button class="' + (engCur !== 2 ? 'on' : '') + '" data-eng="1">Full</button><button class="' + (engCur === 2 ? 'on' : '') + '" data-eng="2">Lite</button></div></div>';
+  h += '<div class="foot"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span class="sp">' + (b === 'amp' ? 'In use: ' + (capInfo.lite ? 'Lite' : 'Full') + ' model · ' : '') + 'Drag knobs up or down, long-press to type a value</span></div>';
+  E.innerHTML = h;
+  E.querySelectorAll('.knob').forEach(el => { knobSet(el, PK[el.dataset.k]); bindKnob(el); });
+  E.querySelectorAll('[data-tog]').forEach(e => e.onclick = () => { const p = PK[e.dataset.tog]; setv(p.k, p.v > 0.5 ? 0 : 1); });
+  E.querySelectorAll('button[data-k]').forEach(e => e.onclick = () => setv(e.dataset.k, +e.dataset.v));
+  E.querySelectorAll('[data-cap]').forEach(e => e.onclick = () => selectCap(+e.dataset.cap));
+  E.querySelectorAll('[data-eng]').forEach(e => e.onclick = () => switchEngine(+e.dataset.eng));
+}
+function switchEngine(to){
+  if (to === engCur) return;
+  if (!confirm('Switch to the ' + (to === 2 ? 'Lite' : 'Full') + ' engine?\n\n' + (to === 2 ? 'Lite: always the A2-Lite model, the lightest: more DSP left for the effects.' : 'Full: the Full model of the capture when present (best accuracy), otherwise the Lite.') + '\n\nThe pedal restarts.')) return;
+  getj('/api/engine?e=' + to).then(() => toast('Restarting with the ' + (to === 2 ? 'Lite' : 'Full') + ' engine…')).catch(() => {});
 }
 
-async function reload(){
-  try { const d = await (await fetch('/api/params', {cache:'no-store'})).json(); G = d.groups; P = d.params; build(); } catch(e) {}
+/* ===================== PRESET ===================== */
+function renderPresets(){
+  if (psSel < 0) psSel = psCur >= 0 ? psCur : 0;
+  $('#pgrid').innerHTML = Array.from({ length: 16 }, (_, i) => { const p = PS[i];
+    return '<button class="ps' + (p ? '' : ' empty') + (i === psSel ? ' sel' : '') + '" data-i="' + i + '" aria-pressed="' + (i === psSel) + '"><span class="n">' + String(i + 1).padStart(2, '0') + (i === psCur ? '<i class="led on"></i>' : '') + '</span><b>' + esc(p ? p.name : 'Empty') + '</b></button>'; }).join('');
+  $('#pgrid').querySelectorAll('.ps').forEach(e => { e.onclick = () => { psSel = +e.dataset.i; renderPresets(); }; e.ondblclick = () => { if (PS[+e.dataset.i]) loadPreset(+e.dataset.i); }; });
+  $('#pload').disabled = !PS[psSel]; $('#pdel').disabled = !PS[psSel];
+  const used = PS.filter(Boolean).length;
+  if (view === 'presets') $('#vsub').textContent = '16 slots · ' + used + ' used';
+  renderPedal();
 }
+$('#pload').onclick = () => loadPreset(psSel);
+$('#psave').onclick = async () => {
+  const n = prompt('Preset name for slot ' + (psSel + 1) + ':', PS[psSel] ? PS[psSel].name : ''); if (n === null) return;
+  if (PS[psSel] && !confirm('Overwrite "' + PS[psSel].name + '" with the current settings?')) return;
+  try { const d = await getj('/api/psave?s=' + psSel + '&n=' + encodeURIComponent(n.slice(0, 15))); if (d.err) toast(d.err); else { PS = d.slots; psCur = d.cur; renderPresets(); renderLive(); toast('Saved to slot ' + (psSel + 1)); } } catch(e) {}
+};
+$('#pdel').onclick = async () => {
+  const p = PS[psSel]; if (!p || !confirm('Delete preset ' + (psSel + 1) + ' "' + p.name + '"?')) return;
+  try { const d = await getj('/api/pdel?s=' + psSel); PS = d.slots; renderPresets(); renderLive(); } catch(e) {}
+};
+const PSTATE = ['off', 'searching…', 'connecting…', 'connected'];
+function renderPedal(){
+  if (!MD) return;
+  const conn = PK['wifi.on'] ? Math.round(PK['wifi.on'].v) : 0;
+  $('#pedn').textContent = MD.ped === 3 && MD.pname ? MD.pname : 'Bluetooth footswitch';
+  $('#peds').textContent = !MD.pen ? 'off' : conn !== 2 ? 'needs the Bluetooth connection' : 'Bluetooth MIDI · ' + PSTATE[MD.ped];
+  $('#pen').classList.toggle('on', !!MD.pen);
+  $('#pedal').innerHTML = fsBlocks().map(f => '<div style="--c:' + cvar(f.blk) + '"><b>' + f.key + '</b><span>' + BLK[f.blk].name.replace('Noise gate', 'Gate') + '</span></div>').join('');
+  const nx = MD.map.find(m => m && m.a === 3), pv = MD.map.find(m => m && m.a === 4);
+  $('#pedhint').textContent = (pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–16 recalls the presets';
+}
+$('#pen').onclick = () => midiApi('/api/pedal?en=' + (MD && MD.pen ? 0 : 1));
+$('#pscan').onclick = () => midiApi('/api/pedal?scan=1');
 
-/* ---------- catture NAM ---------- */
+/* ===================== LIBRERIA ===================== */
 const KS=[6,6,6,6,6,6,6,6,6,6,6,6,6,6,15,15,6,6,6,6,6,6,6], DS=[1,3,7,17,41,101,239,1,3,7,17,41,101,239,1,13,1,3,7,17,41,101,239];
-let CAPS = null, capAct = -1, capSt = 0;
 function nw(C){ let n = C; for (const k of KS) n += k*C*C + 3*C + C*C; return n + 16*C + 2; }
 function a2C(cfg){
   const L = cfg && (cfg.layers || cfg.layer_arrays);
@@ -354,7 +700,8 @@ function a2C(cfg){
 }
 const CRCT = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++){ let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[i] = c >>> 0; } return t; })();
 function crc32(u){ let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRCT[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
-/* .nam (JSON) -> blob VXN1 con i pesi A2 Lite e/o Full */
+function nameBytes(s){ let nm = new TextEncoder().encode(s); while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/�$/, '')); return nm; }
+/* .nam (JSON) -> blob VXN1 con i pesi A2 Lite e/o Full, cosi' come sono nel file */
 function namToVxn(d, fname){
   if ((d.sample_rate || 48000) !== 48000) throw new Error('capture at ' + d.sample_rate + ' Hz: 48 kHz is required');
   const subs = d.architecture === 'SlimmableContainer' ? (d.config.submodels || []).map(s => s.model) : [d];
@@ -369,99 +716,37 @@ function namToVxn(d, fname){
   const md = d.metadata || {}, nl = lite ? lite.length : 0, nf = full ? full.length : 0;
   const buf = new ArrayBuffer(128 + 4 * (nl + nf)), dv = new DataView(buf), u8 = new Uint8Array(buf);
   const W = new Float32Array(buf, 128); if (lite) W.set(lite, 0); if (full) W.set(full, nl);
-  u8.set([86, 88, 78, 49], 0);                                   /* "VXN1" */
+  u8.set([86, 88, 78, 49], 0);
   dv.setUint32(4, 128, true); dv.setUint32(8, nl, true); dv.setUint32(12, nf, true);
   dv.setFloat32(16, 48000, true);
   dv.setFloat32(20, md.input_level_dbu ?? NaN, true); dv.setFloat32(24, md.output_level_dbu ?? NaN, true);
   dv.setUint32(28, /cab/.test(md.gear_type || '') ? 1 : 0, true);
-  let nm = new TextEncoder().encode(fname.replace(/\.nam$/i, '').trim() || md.name || 'capture');
-  while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/�$/, ''));
-  u8.set(nm, 32);
+  u8.set(nameBytes(fname.replace(/\.nam$/i, '').trim() || md.name || 'capture'), 32);
   dv.setUint32(96, crc32(new Uint8Array(buf, 128)), true);
   return { blob: buf, lite: !!lite, full: !!full };
 }
-function capStatus(t, err){ const e = $('#capst'); if (!e) return; e.textContent = t; e.classList.toggle('err', !!err); }
-function capBox(){
-  const box = document.createElement('div'); box.className = 'caps';
-  box.innerHTML = '<div id="caplist"></div><div class="upl"><label>+ Load .nam capture<input type="file" id="capfile" accept=".nam,application/json"></label></div><div id="capst"></div>';
-  box.querySelector('#capfile').onchange = async ev => {
-    const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
-    try {
-      capStatus('Converting ' + f.name + '…');
-      const r = namToVxn(JSON.parse(await f.text()), f.name);
-      let sl = CAPS ? CAPS.findIndex(c => !c) : 0;
-      if (sl < 0){
-        if (capAct < 0 || !confirm('Storage full: replace the selected capture?')) { capStatus('Storage full: delete a capture', 1); return; }
-        sl = capAct;
-      }
-      capStatus('Sending to the pedal (' + Math.round(r.blob.byteLength / 1024) + ' KB, ' + (r.full ? 'Full' : '') + (r.full && r.lite ? ' + ' : '') + (r.lite ? 'Lite' : '') + ')…');
-      const res = await (await fetch('/api/cap?s=' + sl, { method: 'POST', body: r.blob })).json();
-      if (!res.ok) throw new Error(res.err || 'error');
-      await loadCaps(); selectCap(sl);
-    } catch(e){ capStatus('Error: ' + e.message, 1); }
-  };
-  loadCaps();
-  return box;
-}
-function selectCap(i){
-  const p = P.find(q => q.k === 'amp.cap'); if (p) p.v = i;
-  capAct = -2; renderCaps(i);
-  capStatus('Loading the capture into the engine…');
-  send('amp.cap', i);
-}
-function renderCaps(sel){
-  const L = $('#caplist'); if (!L || !CAPS) return;
-  L.innerHTML = '';
-  let n = 0;
-  CAPS.forEach((c, i) => {
-    if (!c) return; n++;
-    const r = document.createElement('div'); r.className = 'capr' + (i === sel ? ' act' : '');
-    r.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="nm"></span>' + (c.full ? '<span class="tag">Full</span>' : '<span class="tag">Lite</span>') + (c.cab ? '<span class="tag">cab</span>' : '');
-    r.querySelector('.nm').textContent = c.name;
-    if (i !== sel){
-      const d = document.createElement('button'); d.className = 'del'; d.textContent = '✕'; d.title = 'Delete';
-      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Delete "' + c.name + '"?')) return; await fetch('/api/capdel?s=' + i); loadCaps(); };
-      r.appendChild(d);
-    }
-    r.onclick = () => { if (i !== sel) selectCap(i); };
-    L.appendChild(r);
-  });
-  if (!n) L.innerHTML = '<div class="note">No captures stored.</div>';
-}
-async function loadCaps(){
-  try {
-    const d = await (await fetch('/api/caps', {cache:'no-store'})).json();
-    CAPS = d.slots; capAct = d.active; capSt = d.st;
-    renderCaps(d.active);
-    capStatus(d.st === 1 ? 'Loading…' : d.st === 2 ? d.msg : (d.active >= 0 ? (d.lite ? 'In use (Lite)' : 'In use (Full)') : 'No active capture'), d.st === 2);
-  } catch(e){}
-}
-
-
-/* ---------- IR del cabinet ---------- */
-let IRS = null;
 function parseWav(buf){
   const dv = new DataView(buf), tag = o => String.fromCharCode(dv.getUint8(o), dv.getUint8(o+1), dv.getUint8(o+2), dv.getUint8(o+3));
   if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE') throw new Error('not a WAV file');
-  let o = 12, fmt = null, data = null;
+  let o = 12, fm = null, data = null;
   while (o + 8 <= buf.byteLength){
     const id = tag(o), sz = dv.getUint32(o + 4, true);
     if (id === 'fmt '){ let f = dv.getUint16(o + 8, true); if (f === 0xFFFE) f = dv.getUint16(o + 32, true);
-      fmt = { f, ch: dv.getUint16(o + 10, true), sr: dv.getUint32(o + 12, true), bits: dv.getUint16(o + 22, true) }; }
+      fm = { f, ch: dv.getUint16(o + 10, true), sr: dv.getUint32(o + 12, true), bits: dv.getUint16(o + 22, true) }; }
     if (id === 'data') data = { off: o + 8, len: Math.min(sz, buf.byteLength - o - 8) };
     o += 8 + sz + (sz & 1);
   }
-  if (!fmt || !data) throw new Error('WAV without format or data');
-  const bps = fmt.bits / 8, frame = bps * fmt.ch, n = Math.floor(data.len / frame), x = new Float32Array(n);
+  if (!fm || !data) throw new Error('WAV without format or data');
+  const bps = fm.bits / 8, frame = bps * fm.ch, n = Math.floor(data.len / frame), x = new Float32Array(n);
   for (let i = 0; i < n; i++){
-    const q = data.off + i * frame;                      /* solo il primo canale */
-    if (fmt.f === 3 && fmt.bits === 32) x[i] = dv.getFloat32(q, true);
-    else if (fmt.f === 1 && fmt.bits === 16) x[i] = dv.getInt16(q, true) / 32768;
-    else if (fmt.f === 1 && fmt.bits === 24) x[i] = ((dv.getUint8(q) | dv.getUint8(q+1) << 8 | dv.getInt8(q+2) << 16)) / 8388608;
-    else if (fmt.f === 1 && fmt.bits === 32) x[i] = dv.getInt32(q, true) / 2147483648;
-    else throw new Error('unsupported WAV format (' + fmt.f + '/' + fmt.bits + ' bit)');
+    const q = data.off + i * frame;
+    if (fm.f === 3 && fm.bits === 32) x[i] = dv.getFloat32(q, true);
+    else if (fm.f === 1 && fm.bits === 16) x[i] = dv.getInt16(q, true) / 32768;
+    else if (fm.f === 1 && fm.bits === 24) x[i] = ((dv.getUint8(q) | dv.getUint8(q+1) << 8 | dv.getInt8(q+2) << 16)) / 8388608;
+    else if (fm.f === 1 && fm.bits === 32) x[i] = dv.getInt32(q, true) / 2147483648;
+    else throw new Error('unsupported WAV format (' + fm.f + '/' + fm.bits + ' bit)');
   }
-  return { x, sr: fmt.sr };
+  return { x, sr: fm.sr };
 }
 function resample48(x, sr, maxOut){
   if (sr === 48000) return x.slice(0, maxOut);
@@ -480,113 +765,299 @@ function resample48(x, sr, maxOut){
 function irToVxi(x, name){
   let e = 0; for (const v of x) e += v * v;
   if (e <= 0) throw new Error('empty IR');
-  const g = 1 / Math.sqrt(e), n = x.length;            /* energia unitaria: IR diversi suonano allo stesso volume */
+  const g = 1 / Math.sqrt(e), n = x.length;
   const buf = new ArrayBuffer(128 + 4 * n), dv = new DataView(buf), u8 = new Uint8Array(buf), W = new Float32Array(buf, 128);
   for (let i = 0; i < n; i++) W[i] = x[i] * g;
-  u8.set([86, 88, 73, 49], 0);                         /* "VXI1" */
+  u8.set([86, 88, 73, 49], 0);
   dv.setUint32(4, 128, true); dv.setUint32(8, n, true); dv.setFloat32(12, 48000, true); dv.setFloat32(16, g, true);
-  let nm = new TextEncoder().encode(name.replace(/\.wav$/i, '').trim() || 'IR');
-  while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/�$/, ''));
-  u8.set(nm, 32);
+  u8.set(nameBytes(name.replace(/\.wav$/i, '').trim() || 'IR'), 32);
   dv.setUint32(96, crc32(new Uint8Array(buf, 128)), true);
   return buf;
 }
-function irStatus(t, err){ const e = $('#irst'); if (!e) return; e.textContent = t; e.classList.toggle('err', !!err); }
-function irBox(){
-  const box = document.createElement('div'); box.className = 'caps';
-  box.innerHTML = '<div id="irlist"></div><div class="upl"><label>+ Load .wav IR<input type="file" id="irfile" accept=".wav,audio/wav"></label></div><div id="irst"></div>';
-  box.querySelector('#irfile').onchange = async ev => {
-    const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
-    try {
-      irStatus('Converting ' + f.name + '…');
-      const w = parseWav(await f.arrayBuffer());
-      const x = resample48(w.x, w.sr, 2048);
-      const blob = irToVxi(x, f.name);
-      let sl = IRS ? IRS.findIndex(c => !c) : 0;
-      if (sl < 0){ irStatus('IR storage full: delete an IR', 1); return; }
-      irStatus('Sending (' + x.length + ' samples' + (w.sr !== 48000 ? ', resampled from ' + w.sr + ' Hz' : '') + ')…');
+function lstat(t, err){ const e = $('#lst'); e.textContent = t || ''; e.classList.toggle('err', !!err); }
+function renderLib(){
+  const cap = libTab === 'cap', list = cap ? CAPS : IRS, total = cap ? 20 : 10, used = list.filter(Boolean).length;
+  $('#ltcap').classList.toggle('on', cap); $('#ltir').classList.toggle('on', !cap);
+  const c = cap ? 'var(--amp)' : 'var(--ir)';
+  $('#lused').textContent = used + ' of ' + total + ' slots used'; $('#lhint').textContent = 'Tap to use';
+  $('#lcells').style.setProperty('--c', c);
+  $('#lcells').innerHTML = Array.from({ length: total }, (_, i) => '<i class="' + (list[i] ? 'on' : '') + '"></i>').join('');
+  const act = cap ? capAct : (PK['ir.slot'] ? Math.round(PK['ir.slot'].v) : -1);
+  $('#llist').innerHTML = list.map((it, i) => {
+    if (!it) return '';
+    const tags = cap ? (it.full ? '<span class="badge amp">FULL</span>' : '') + (it.lite ? '<span class="badge">LITE</span>' : '') + (it.cab ? '<span class="badge">CAB</span>' : '')
+                     : '<span class="badge ir">' + it.n + '</span><span class="small mut">' + (it.n / 48).toFixed(0) + ' ms</span>';
+    return '<div class="it' + (i === act ? ' act' : '') + '" style="--c:' + c + '" data-i="' + i + '"><span class="no">' + String(i + 1).padStart(2, '0') + '</span><div class="bd"><b>' + esc(it.name) + '</b><div>' + tags + '</div></div>' +
+      (i === act ? '<span class="use">IN USE</span>' : '<button class="x" data-del="' + i + '" aria-label="Delete"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg></button>') + '</div>';
+  }).join('') || '<span class="note">' + (cap ? 'No captures stored.' : 'No IRs stored.') + '</span>';
+  $('#llist').querySelectorAll('.it').forEach(e => e.onclick = ev => {
+    const i = +e.dataset.i;
+    if (ev.target.closest('[data-del]')) return delItem(i);
+    if (i === act) return;
+    if (cap) selectCap(i); else setv('ir.slot', i);
+  });
+  $('#laddt').textContent = cap ? 'Add a .nam capture' : 'Add an IR (.wav)';
+  $('#laddn').textContent = cap ? 'A2 file · Full and Lite versions read from it' : 'Resampled to 48 kHz, up to 2048 samples';
+  $('#lfile').accept = cap ? '.nam,application/json' : '.wav,audio/wav';
+}
+$('#ltcap').onclick = () => { libTab = 'cap'; lstat(''); renderLib(); };
+$('#ltir').onclick = () => { libTab = 'ir'; lstat(''); renderLib(); };
+async function delItem(i){
+  const cap = libTab === 'cap', it = (cap ? CAPS : IRS)[i];
+  if (!it || !confirm('Delete "' + it.name + '"?')) return;
+  try { const d = await getj((cap ? '/api/capdel?s=' : '/api/irdel?s=') + i); if (d.err) toast(d.err); } catch(e) {}
+  cap ? loadCaps() : loadIrs();
+}
+function selectCap(i){ capAct = i; lstat('Loading the capture into the engine…'); send('amp.cap', i); refresh(); }
+$('#lfile').onchange = async ev => {
+  const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+  try {
+    if (libTab === 'cap'){
+      lstat('Reading ' + f.name + '…');
+      const r = namToVxn(JSON.parse(await f.text()), f.name);
+      let sl = CAPS.findIndex(c => !c);
+      if (sl < 0){ if (capAct < 0 || !confirm('Storage full: replace the capture in use?')) return lstat('Storage full: delete a capture', 1); sl = capAct; }
+      lstat('Sending to the pedal (' + Math.round(r.blob.byteLength / 1024) + ' KB, ' + [r.full ? 'Full' : '', r.lite ? 'Lite' : ''].filter(Boolean).join(' + ') + ')…');
+      const res = await (await fetch('/api/cap?s=' + sl, { method: 'POST', body: r.blob })).json();
+      if (!res.ok) throw new Error(res.err || 'error');
+      await loadCaps(); selectCap(sl);
+    } else {
+      lstat('Reading ' + f.name + '…');
+      const w = parseWav(await f.arrayBuffer()), x = resample48(w.x, w.sr, 2048), blob = irToVxi(x, f.name);
+      const sl = IRS.findIndex(c => !c);
+      if (sl < 0) return lstat('IR storage full: delete an IR', 1);
+      lstat('Sending (' + x.length + ' samples' + (w.sr !== 48000 ? ', resampled from ' + w.sr + ' Hz' : '') + ')…');
       const res = await (await fetch('/api/ir?s=' + sl, { method: 'POST', body: blob })).json();
       if (!res.ok) throw new Error(res.err || 'error');
-      send('ir.slot', sl); await loadIrs(sl);
-    } catch(e){ irStatus('Error: ' + e.message, 1); }
-  };
-  loadIrs();
-  return box;
-}
-function renderIrs(sel){
-  const L = $('#irlist'); if (!L || !IRS) return;
-  L.innerHTML = ''; let n = 0;
-  IRS.forEach((c, i) => {
-    if (!c) return; n++;
-    const r = document.createElement('div'); r.className = 'capr' + (i === sel ? ' act' : '');
-    r.innerHTML = '<span class="no">' + (i + 1) + '</span><span class="nm"></span><span class="tag">' + c.n + '</span>';
-    r.querySelector('.nm').textContent = c.name;
-    if (i !== sel){
-      const d = document.createElement('button'); d.className = 'del'; d.textContent = '✕';
-      d.onclick = async ev => { ev.stopPropagation(); if (!confirm('Delete "' + c.name + '"?')) return; await fetch('/api/irdel?s=' + i); loadIrs(); };
-      r.appendChild(d);
+      setv('ir.slot', sl); await loadIrs(); lstat('IR stored in slot ' + (sl + 1));
     }
-    r.onclick = () => { if (i !== sel){ send('ir.slot', i); renderIrs(i); } };
+  } catch(e){ lstat('Error: ' + e.message, 1); }
+};
+async function loadCaps(){
+  try { const d = await getj('/api/caps'); CAPS = d.slots || []; capAct = d.active; capInfo = d;
+    if (libTab === 'cap') lstat(d.st === 1 ? 'Loading…' : d.st === 2 ? d.msg : '' , d.st === 2);
+    refresh(); } catch(e){}
+}
+async function loadIrs(){ try { const d = await getj('/api/irs'); IRS = d.slots || []; irAct = d.active; refresh(); } catch(e){} }
+
+/* ===================== SETUP ===================== */
+const CONN_NOTE = ['Radio off: lowest noise and DSP load.', 'Access point VoidX-FX: open 192.168.4.1 in a browser. The app\'s Bluetooth link drops.', 'App and BLE-MIDI footswitch over Bluetooth.'];
+const IN_NOTE = ['Guitar on IN1.', 'Guitar on IN2.', 'Average of both inputs (−6 dB). Mixes two sources.', 'Guitar on IN2, IN1 left empty as noise reference: cancels the board hum and the radio clicks.', 'Guitar on IN1, IN2 left empty as noise reference.'];
+function segFor(id, k, names){
+  const p = PK[k], E = $(id); if (!p) { E.innerHTML = ''; return; }
+  E.innerHTML = (names || p.n).map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-v="' + i + '">' + esc(n) + '</button>').join('');
+  E.querySelectorAll('button').forEach(b => b.onclick = () => {
+    const v = +b.dataset.v; if (v === Math.round(p.v)) return;
+    if (k === 'wifi.on' && !confirm('Changing the connection drops the app\'s Bluetooth link' + (v === 1 ? ' (then use a browser on the pedal Wi-Fi).' : '.') + ' Continue?')) return;
+    setv(k, v);
+  });
+}
+function renderSetup(){
+  segFor('#sconn', 'wifi.on');
+  const c = PK['wifi.on']; $('#sconnn').textContent = c ? CONN_NOTE[Math.round(c.v)] || '' : '';
+  const pin = PK['io.in'];
+  if (pin){
+    $('#sin').innerHTML = pin.n.map((n, i) => '<button class="chip inv' + (Math.round(pin.v) === i ? ' on' : '') + '" data-v="' + i + '">' + esc(n) + '</button>').join('');
+    $('#sin').querySelectorAll('button').forEach(b => b.onclick = () => setv('io.in', +b.dataset.v));
+    $('#sinn').textContent = IN_NOTE[Math.round(pin.v)] || '';
+    $('#srefc').classList.toggle('hid', Math.round(pin.v) < 3);
+  }
+  const g = PK['in.gain']; if (g && dragging !== 'in.gain'){ const r = $('#sgain'); r.min = g.min; r.max = g.max; r.step = g.step; r.value = g.v; $('#sgainv').textContent = fmt(g, g.v); }
+  segFor('#sout', 'io.out', ['Stereo', 'Mono', 'OUT1', 'OUT2']);
+  const bs = PK['blk.size'];
+  if (bs){
+    const sub = ['lowest latency', 'more headroom', 'max headroom'];
+    $('#sblk').innerHTML = bs.n.map((n, i) => '<button class="' + (Math.round(bs.v) === i ? 'on' : '') + '" data-v="' + i + '"><b>' + n + '</b><span>' + sub[i] + '</span></button>').join('');
+    $('#sblk').querySelectorAll('button').forEach(b => b.onclick = () => setv('blk.size', +b.dataset.v));
+    $('#rblk').textContent = bs.n[Math.round(bs.v)];
+  }
+  segFor('#slat', 'io.lat');
+  const cl = PK['io.cl']; $('#scl').classList.toggle('on', !!(cl && cl.v > 0.5));
+  $('#rengv').textContent = engCur === 2 ? 'Lite' : 'Full';
+  $('#rmidiv').textContent = MD ? MD.map.filter(Boolean).length + ' of ' + MD.map.length : '–';
+  $('#rtunv').textContent = 'A4 = ' + tref + ' Hz';
+}
+$('#sgain').oninput = ev => { const p = PK['in.gain']; if (!p) return; dragging = 'in.gain'; p.v = +ev.target.value; $('#sgainv').textContent = fmt(p, p.v); send('in.gain', p.v); };
+$('#sgain').onchange = () => setTimeout(() => { if (dragging === 'in.gain') dragging = null; }, 350);
+$('#scl').onclick = () => { const p = PK['io.cl']; if (p) setv('io.cl', p.v > 0.5 ? 0 : 1); };
+$('#brefc').onclick = async () => {
+  if (!confirm('Input calibration: for 3 seconds keep the guitar silent (volume knob at 0), with nothing connected to the reference input. Proceed?')) return;
+  try { await fetch('/api/refcal'); toast('Calibrating: 3 seconds of silence…'); setTimeout(() => toast('Input calibration done (result on the pedal display)'), 4200); } catch(e) {}
+};
+$('#reng').onclick = () => switchEngine(engCur === 2 ? 1 : 2);
+$('#rcal').onclick = async () => { if (!confirm('DSP calibration: for about 2 minutes the effects switch on one at a time. Turn the volume down. Proceed?')) return; try { await fetch('/api/calib'); toast('Calibration started: about 2 minutes'); } catch(e) {} };
+let saveWait = false;
+$('#rsave').onclick = async () => { saveWait = true; toast('Saving…'); try { await fetch('/api/save'); } catch(e) {} };
+$('#rtun').onclick = () => openTuner();
+
+/* ===================== MIDI ===================== */
+const MTYPE = ['CC', 'PC', 'Note'], MMODE = ['toggle on press', 'follow (>=64 on)', 'continuous (pedal)', 'any value'];
+const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo', 'Tuner'];
+async function midiApi(u){ try { const d = await getj(u); if (d.err) toast(d.err); else if (d.map) { MD = d; renderPedal(); renderMidi(); renderSetup(); renderLive(); } return d; } catch(e) {} }
+function renderMidi(){
+  if (!MD || $('#sheet').classList.contains('hid')) return;
+  $('#mlast').textContent = MD.last ? 'Last message: ' + MD.last : 'No MIDI message received yet.';
+  const blks = blocks().filter(x => x.blk !== 'amp').map(x => [x.blk, BLK[x.blk].name]);
+  const L = $('#mlist'); L.innerHTML = '';
+  MD.map.forEach((m, i) => {
+    if (!m) return;
+    const r = document.createElement('div'); r.className = 'mrow';
+    const what = m.t === 1 ? (m.n === 255 ? 'PC (any)' : 'PC ' + (m.n + 1)) : MTYPE[m.t] + ' ' + m.n;
+    r.innerHTML = '<div class="row"><b class="sp g"></b><button class="lrn">Learn</button><button class="del" aria-label="Delete mapping">✕</button></div><div class="ctl"></div>';
+    r.querySelector('b').textContent = what + (m.c ? ' · ch. ' + m.c : '') + ' → ' + MACT[m.a];
+    const lrn = r.querySelector('.lrn'); if (MD.learn === i) { lrn.classList.add('learn'); lrn.textContent = 'Press a switch…'; }
+    lrn.onclick = () => midiApi('/api/midilearn?i=' + (MD.learn === i ? -1 : i));
+    r.querySelector('.del').onclick = () => midiApi('/api/mididel?i=' + i);
+    const C = r.querySelector('.ctl');
+    const mk = (opts, val, key) => { const s = document.createElement('select'); opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; s.appendChild(o); }); s.value = val; s.onchange = () => midiApi('/api/midiset?i=' + i + '&' + key + '=' + encodeURIComponent(s.value)); C.appendChild(s); return s; };
+    mk(MTYPE.map((t, j) => [j, t]), m.t, 't');
+    if (m.t !== 1) { const n = document.createElement('input'); n.type = 'number'; n.min = 0; n.max = 127; n.value = m.n; n.setAttribute('aria-label', 'Number'); n.onchange = () => midiApi('/api/midiset?i=' + i + '&n=' + n.value); C.appendChild(n); }
+    if (m.t !== 1) mk(MMODE.map((t, j) => [j, t]), m.m, 'm');
+    mk(MACT.map((t, j) => [j, t]), m.a, 'a');
+    if (m.a === 0) mk(blks, m.k, 'k');
+    if (m.a === 1) {
+      mk(P.filter(p => p.t === 'knob' || p.t === 'glob').map(p => [p.k, (G[p.g] ? G[p.g].name + ' · ' : '') + p.l]), m.k, 'k');
+      if (m.m !== 2) { const v = document.createElement('input'); v.type = 'number'; v.step = 'any'; v.value = m.v; v.setAttribute('aria-label', 'Value to recall'); v.onchange = () => midiApi('/api/midiset?i=' + i + '&v=' + v.value); C.appendChild(v); }
+    }
+    if (m.a === 2 && !(m.t === 1 && m.n === 255)) mk([...Array(16).keys()].map(j => [j, 'Preset ' + (j + 1)]), m.v, 'v');
     L.appendChild(r);
   });
-  if (!n) L.innerHTML = '<div class="note">No IRs stored. Load a .wav file (it is resampled to 48 kHz and trimmed to 2048 samples).</div>';
 }
-async function loadIrs(sel){
-  try { const d = await (await fetch('/api/irs', {cache:'no-store'})).json(); IRS = d.slots; renderIrs(sel ?? d.active); irStatus(d.msg ? 'In use: ' + d.msg : ''); } catch(e){}
-}
+$('#rmidi').onclick = () => { $('#sheet').classList.remove('hid'); renderMidi(); midiApi('/api/midi'); };
+$('#mclose').onclick = () => $('#sheet').classList.add('hid');
+$('#sheet').onclick = ev => { if (ev.target.id === 'sheet') $('#sheet').classList.add('hid'); };
+$('#madd').onclick = () => { const i = MD ? MD.map.findIndex(m => !m) : -1; if (i < 0) return toast('Table full'); midiApi('/api/midiset?i=' + i + '&t=0&n=0&m=0&a=0&k=drv'); };
+$('#mdef').onclick = () => { if (confirm('Restore the default mappings for the Chocolate?')) midiApi('/api/mididef'); };
 
-let saveWait = false, fails = 0;
+/* ===================== ACCORDATORE ===================== */
+let tOpen = false, tBusy = false, tref = 440, tmute = 1, tLast = 0;
+const STR = [[40, 'E', '6'], [45, 'A', '5'], [50, 'D', '4'], [55, 'G', '3'], [59, 'B', '2'], [64, 'E', '1']];
+(function gaugeTicks(){
+  let s = '';
+  for (let c = -50; c <= 50; c += 5){
+    const a = (c / 50) * 60 * Math.PI / 180, big = c % 25 === 0;
+    const r1 = 142, r2 = big ? 156 : 150, x1 = 160 + r1 * Math.sin(a), y1 = 170 - r1 * Math.cos(a), x2 = 160 + r2 * Math.sin(a), y2 = 170 - r2 * Math.cos(a);
+    s += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--dim)" stroke-width="' + (big ? 2.5 : 1.5) + '" stroke-linecap="round"/>';
+  }
+  $('#gticks').innerHTML = s;
+  const z = 3 / 50 * 60 * Math.PI / 180, R = 130;
+  $('#gzone').setAttribute('d', 'M ' + (160 - R * Math.sin(z)).toFixed(1) + ' ' + (170 - R * Math.cos(z)).toFixed(1) + ' A ' + R + ' ' + R + ' 0 0 1 ' + (160 + R * Math.sin(z)).toFixed(1) + ' ' + (170 - R * Math.cos(z)).toFixed(1));
+  $('#garc').setAttribute('d', 'M ' + (160 - R * Math.sin(Math.PI / 3)).toFixed(1) + ' ' + (170 - R * Math.cos(Math.PI / 3)).toFixed(1) + ' A ' + R + ' ' + R + ' 0 0 1 ' + (160 + R * Math.sin(Math.PI / 3)).toFixed(1) + ' ' + (170 - R * Math.cos(Math.PI / 3)).toFixed(1));
+  $('#tstr').innerHTML = STR.map(s => '<div data-n="' + s[0] + '">' + s[1] + '<small>' + s[2] + '</small></div>').join('');
+})();
+function tunerShow(t){
+  tref = Math.round(t.ref); tmute = t.mute;
+  $('#tref').textContent = tref + ' Hz'; $('#tmute').classList.toggle('on', !!t.mute);
+  $('#tlvl').textContent = 'IN ' + Math.round(t.lvl) + ' dB';
+  const col = !t.ok ? 'var(--dim)' : Math.abs(t.c) < 2 ? 'var(--ok)' : Math.abs(t.c) < 10 ? 'var(--warn)' : 'var(--bad)';
+  document.documentElement.style.setProperty('--tc', col);
+  $('#tnote').style.color = t.ok ? col : 'var(--dim)';
+  if (t.ok){
+    $('#tnote').textContent = t.name; $('#toct').textContent = t.oct;
+    $('#tcents').textContent = (Math.abs(t.c) < 2 ? 'In tune · ' : t.c < 0 ? 'Flat · ' : 'Sharp · ') + (t.c > 0 ? '+' : '') + t.c.toFixed(1) + ' cents';
+    $('#thz').textContent = t.hz.toFixed(2) + ' Hz';
+    const c = Math.max(-50, Math.min(50, t.c));
+    $('#gneedle').style.transform = 'rotate(' + (c / 50 * 60).toFixed(1) + 'deg)';
+  } else {
+    $('#tcents').textContent = 'Play a string'; $('#thz').innerHTML = '&nbsp;';
+    if (Date.now() - tLast > 800) { $('#tnote').textContent = '–'; $('#toct').textContent = ''; $('#gneedle').style.transform = 'rotate(0deg)'; }
+  }
+  if (t.ok) tLast = Date.now();
+  $('#tstr').querySelectorAll('div').forEach(d => d.classList.toggle('on', !!t.ok && +d.dataset.n === t.note));
+}
+async function tunerLoop(){
+  if (!tOpen) return;
+  if (!tBusy){
+    tBusy = true;
+    try { const t = await getj('/api/tuner'); if (tOpen) tunerShow(t); if (!t.on && tOpen) { closeTuner(false); } } catch(e) {}
+    tBusy = false;
+  }
+  setTimeout(tunerLoop, APP ? 110 : 90);
+}
+async function openTuner(already){
+  if (tOpen) return;
+  tOpen = true; $('#tuner').classList.remove('hid');
+  if (!already) { try { const t = await getj('/api/tuner?on=1'); tunerShow(t); } catch(e) {} }
+  tunerLoop();
+}
+async function closeTuner(send){
+  tOpen = false; $('#tuner').classList.add('hid');
+  if (send !== false) { try { await getj('/api/tuner?on=0'); } catch(e) {} }
+}
+$('#btun').onclick = () => openTuner();
+$('#tclose').onclick = () => closeTuner();
+$('#trm').onclick = () => getj('/api/tuner?ref=' + (tref - 1)).then(tunerShow).catch(() => {});
+$('#trp').onclick = () => getj('/api/tuner?ref=' + (tref + 1)).then(tunerShow).catch(() => {});
+$('#tmute').onclick = () => getj('/api/tuner?mute=' + (tmute ? 0 : 1)).then(tunerShow).catch(() => {});
+
+/* ===================== navigazione, aggiornamento ===================== */
+const TITLES = { live: 'Live', rig: 'Rig', presets: 'Presets', lib: 'Library', setup: 'Setup' };
+function show(v){
+  view = v;
+  document.querySelectorAll('.view').forEach(e => e.classList.toggle('on', e.id === 'v-' + v));
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  $('#vtitle').textContent = TITLES[v];
+  refresh();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => show(b.dataset.v));
+function subtitle(){
+  const ps = PS[psCur];
+  if (view === 'presets') return '16 slots · ' + PS.filter(Boolean).length + ' used';
+  if (view === 'lib') return CAPS.filter(Boolean).length + ' captures · ' + IRS.filter(Boolean).length + ' IRs';
+  if (view === 'setup') return 'Device · MIDI · system';
+  return (psCur >= 0 ? String(psCur + 1).padStart(2, '0') + ' · ' : '') + (ps ? ps.name : 'Unsaved settings');
+}
+function refreshLight(){ if (view === 'live') renderLive(); }
+function refresh(){
+  if (!P.length) return;
+  $('#vsub').textContent = subtitle();
+  if (view === 'live') renderLive();
+  else if (view === 'rig') { if (!dragging) renderRig(); }
+  else if (view === 'presets') renderPresets();
+  else if (view === 'lib') renderLib();
+  else if (view === 'setup') renderSetup();
+}
+async function reload(){
+  try { const d = await getj('/api/params'); G = d.groups; P = d.params; PK = {}; P.forEach(p => PK[p.k] = p); refresh(); } catch(e) {}
+}
+let fails = 0, pollN = 0, lastSig = '';
 async function poll(){
   try {
-    const s = await (await fetch('/api/state', {cache:'no-store'})).json();
-    fails = 0;
-    $('#dot').classList.add('ok'); $('#ctext').textContent = 'connected';
+    const s = await getj('/api/state'); S = s; fails = 0;
+    if (!APP) { $('#cled').className = 'led on'; $('#ctext').textContent = 'Wi-Fi'; }
     meter('#min', '#nin', s.in); meter('#mout', '#nout', s.out);
-    $('#mute').classList.toggle('on', !!s.mute); $('#mute').textContent = s.mute ? 'MUTE' : 'Mute';
-    if (s.np !== P.length) { await reload(); } else sync(s.v);
-    const dm = $('#dspm'); dm.innerHTML = 'DSP <b>' + s.dsp + '%</b>'; dm.classList.toggle('hot', s.dsp > 95);
-    if (s.cap && (s.cap.act !== capAct || s.cap.st !== capSt)) loadCaps();
-    if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; renderPresets(); }
-    if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; $('#eng').textContent = 'Engine: ' + (ENGN[engCur] || '?'); }
-    if (s.midi !== undefined && (s.midi !== midiCount || (MD && (MD.ped !== s.ped || MD.learn >= 0)))) { midiCount = s.midi; loadMidi(); }
-    $('#stat').textContent = 'core ' + Math.round(s.c0 / 6.66) + '% / ' + Math.round(s.c1 / 6.66) + '%' + (s.err ? ' · err ' + s.err : '');
-    if (saveWait && s.save !== -1){ saveWait = false; $('#save').textContent = s.save ? 'Saved ✓' : 'Save error'; setTimeout(() => $('#save').textContent = 'Save preset', 1500); }
+    $('#bmute').classList.toggle('on', !!s.mute); $('#bmute').textContent = s.mute ? 'MUTED' : 'MUTE';
+    $('#dsp').textContent = s.dsp + '%'; $('#rdsp').textContent = s.dsp + '%';
+    $('#rbar').style.width = Math.min(100, s.dsp) + '%'; $('#rbar').classList.toggle('hot', s.dsp > 95);
+    let changed = false;
+    if (s.np !== P.length) { await reload(); changed = true; }
+    else s.v.forEach((v, i) => { const p = P[i]; if (p && p.v !== v && dragging !== p.k && !(p.k in pending)) { p.v = v; changed = true; } });
+    if (s.cap && (s.cap.act !== capAct || s.cap.st !== capInfo.st || s.cap.lite !== capInfo.lite)) { loadCaps(); }
+    if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; changed = true; }
+    if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; changed = true; }
+    if (s.midi !== undefined && MD && (s.midi !== MD.count || MD.ped !== s.ped || MD.learn >= 0)) midiApi('/api/midi');
+    if (saveWait && s.save !== -1) { saveWait = false; toast(s.save ? 'Settings saved' : 'Save error'); }
+    const sig = JSON.stringify([s.v, psCur, engCur, capAct]);
+    if (changed || sig !== lastSig) { lastSig = sig; if (!(view === 'rig' && dragging)) refresh(); }
+    if (++pollN % 3 === 0 && !tOpen) { try { const t = await getj('/api/tuner'); if (t.on) openTuner(true); tref = Math.round(t.ref); } catch(e) {} }
   } catch(e){
-    if (++fails > 2){ $('#dot').classList.remove('ok'); $('#ctext').textContent = 'disconnected'; }
+    if (++fails > 2 && !APP) { $('#cled').className = 'led'; $('#ctext').textContent = 'offline'; }
   }
-  setTimeout(poll, APP ? 1000 : 250);
+  setTimeout(poll, tOpen ? 1500 : (APP ? 700 : 300));
 }
-
-$('#mute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
-let engCur = -1;
-const ENGN = ['', 'Full', 'Lite'];
-const ENGD = ['', 'Full: uses the Full model of the capture when present (best accuracy), otherwise the Lite.',
-              'Lite: always the A2-Lite model: the lightest, leaves more DSP to the effects.'];
-$('#eng').onclick = async () => {
-  const to = engCur === 2 ? 1 : 2;
-  if (!confirm('Switch to the ' + ENGN[to] + ' engine?\n\n' + ENGD[to] + '\n\nThe pedal restarts. The first time each capture is used, scale calibration takes 10-25 s (then it is instant).')) return;
-  try { await fetch('/api/engine?e=' + to); toast('Restarting with the ' + ENGN[to] + ' engine...'); } catch(e) {}
-};
-$('#calib').onclick = async () => {
-  if (!confirm("DSP calibration: for about 2 minutes the effects switch on one at a time. Turn the volume down. Proceed?")) return;
-  try { await fetch('/api/calib'); toast('Calibration started: about 2 minutes'); } catch(e) {}
-};
-$('#refcal').onclick = async () => {
-  if (!confirm("Input calibration: for 3 seconds keep the guitar silent (volume knob at 0), with nothing connected to the reference input. Proceed?")) return;
-  try { await fetch('/api/refcal'); toast('Input calibration: 3 seconds of silence...'); } catch(e) {}
-};
-$('#save').onclick = async () => { saveWait = true; $('#save').textContent = 'Saving…'; try { await fetch('/api/save'); } catch(e) {} };
-
-let started = false;
 async function init(){
   if (started) return; started = true;
   for (;;){
-    try { const d = await (await fetch('/api/params', {cache:'no-store'})).json(); G = d.groups; P = d.params; build(); break; }
-    catch(e){ await new Promise(r => setTimeout(r, 1000)); }
+    try { await reload(); if (P.length) break; } catch(e) {}
+    await new Promise(r => setTimeout(r, 1000));
   }
+  try { const d = await getj('/api/presets'); PS = d.slots; psCur = d.cur; } catch(e) {}
+  await loadCaps(); await loadIrs(); await midiApi('/api/midi');
+  refresh();
   poll();
 }
-if (APP) { $('#bt').onclick = () => VXBridge.connect(); VXBridge.ready(); } else init();
+if (APP) { $('#conncard').classList.remove('hid'); VXBridge.ready(); } else init();
 </script>
 </body>
 </html>
