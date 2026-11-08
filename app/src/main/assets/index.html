@@ -95,6 +95,7 @@ select{font:inherit;color:var(--fg);background:#232a35;border:1px solid var(--li
 <footer>
   <button id="save">Save preset</button>
   <button id="calib" title="Measures the real DSP cost of every model with the amp on (about 2 minutes; the sound changes during the measurement)">Calibrate DSP</button>
+  <button id="refcal" title="For the IN2+ref / IN1+ref inputs: measures for 3 s the board disturbance on the two inputs and tunes the cancellation. Keep the guitar silent (volume at 0).">Calibrate input</button>
   <button id="eng" title="NAM amp engine: Full (if the capture has it) or Lite. The pedal restarts.">Engine: –</button>
   <span id="stat"></span>
 </footer>
@@ -569,6 +570,10 @@ $('#eng').onclick = async () => {
 $('#calib').onclick = async () => {
   if (!confirm("DSP calibration: for about 2 minutes the effects switch on one at a time. Turn the volume down. Proceed?")) return;
   try { await fetch('/api/calib'); toast('Calibration started: about 2 minutes'); } catch(e) {}
+};
+$('#refcal').onclick = async () => {
+  if (!confirm("Input calibration: for 3 seconds keep the guitar silent (volume knob at 0), with nothing connected to the reference input. Proceed?")) return;
+  try { await fetch('/api/refcal'); toast('Input calibration: 3 seconds of silence...'); } catch(e) {}
 };
 $('#save').onclick = async () => { saveWait = true; $('#save').textContent = 'Saving…'; try { await fetch('/api/save'); } catch(e) {} };
 
