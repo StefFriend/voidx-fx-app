@@ -79,6 +79,28 @@ nav.tabs button.on{color:var(--fg);font-weight:600}
 .chain i{flex:1;height:2px;background:var(--off);margin:0 2px;min-width:3px}
 .chain b{height:30px;min-width:30px;padding:0 4px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:11px;background:var(--s2);color:var(--dim);border:1px solid var(--line)}
 .chain b.on{background:var(--c);color:var(--onacc);border-color:var(--c);box-shadow:0 0 12px color-mix(in srgb,var(--c) calc(var(--glow)*100%),transparent)}
+.bgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.bt{min-height:44px;height:44px;padding:0 4px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:.5px;background:var(--s2);color:var(--dim);border:1px solid var(--line);min-width:0}
+.bt i{width:8px;height:8px;border-radius:50%;background:var(--off);flex:none}
+.bt.on{background:color-mix(in srgb,var(--c) 18%,var(--s1));color:var(--fg);border-color:var(--c)}
+.bt.on i{background:var(--c);box-shadow:0 0 8px var(--c)}
+.prow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.prow button{height:44px;border-radius:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+.prow svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pname{background:none;border:none;min-height:0;padding:0;cursor:pointer}
+.fshd{display:flex;align-items:center;justify-content:space-between}
+.fshd button{min-height:34px;font-size:13px;font-weight:600}
+.fsw .m.multi{font-size:16px}
+.slist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sl{min-height:58px;border-radius:14px;padding:8px 10px;display:flex;align-items:center;gap:10px;text-align:left;background:var(--s1);border:1px solid var(--line);min-width:0}
+.sl .no{font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--mut);flex:none}
+.sl b{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl.empty{background:transparent;border:1px dashed var(--off)}
+.sl.empty b{color:var(--dim);font-weight:500}
+.sl.cur{border:2px solid var(--ok)}
+.asg{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--s1);border:1px solid var(--line)}
+.asg .k{display:flex;align-items:center;gap:10px}
+.asg .k b{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;border:2px solid var(--fg)}
 .meters{display:grid;grid-template-columns:30px minmax(0,1fr) 56px;gap:8px;align-items:center;font-size:12px;color:var(--mut);font-weight:600}
 .meters .mseg{display:flex;gap:2px}
 .meters .mseg i{flex:1;height:10px;border-radius:2px;background:var(--s3)}
@@ -260,16 +282,21 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     <div class="card preset">
       <div class="row">
         <button class="pnav" id="pprev" aria-label="Previous preset"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="pname"><span class="cap" id="pslot">PRESET</span><b id="pnm">–</b></div>
+        <button class="pname" id="pname" aria-label="Choose a preset"><span class="cap" id="pslot">PRESET</span><b id="pnm">–</b></button>
         <button class="pnav" id="pnext" aria-label="Next preset"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
       </div>
       <div class="capline"><span class="led" id="capled" style="border-radius:2px;background:var(--amp)"></span><span class="n" id="capnm">–</span><span class="badge amp" id="capeng">–</span></div>
-      <div class="chain" id="chain" aria-label="Signal chain"></div>
+      <div class="prow">
+        <button id="lload"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Presets</button>
+        <button id="lsave" class="prim"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg>Save</button>
+      </div>
     </div>
+    <div class="bgrid" id="bgrid" aria-label="Blocks on and off"></div>
     <div class="meters" aria-label="Levels">
       <span>IN</span><div class="mseg" id="min"></div><span class="num" id="nin">–</span>
       <span>OUT</span><div class="mseg" id="mout"></div><span class="num" id="nout">–</span>
     </div>
+    <div class="fshd"><span class="cap">FOOTSWITCH</span><button id="fsedit">Assign blocks</button></div>
     <div class="fs" id="fs" aria-label="Footswitches"></div>
     <div class="card vol">
       <span class="cap">VOLUME</span>
@@ -352,7 +379,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
       <button class="rws" id="reng"><span class="a">Amp engine</span><span class="b" id="rengv">–</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
       <button class="rws" id="rtun"><span class="a">Tuner</span><span class="b" id="rtunv">A4 = 440 Hz</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
       <button class="rws" id="rcal"><span class="a">Calibrate DSP</span><span class="b">about 2 min</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
-      <button class="rws" id="rsave"><span class="a">Save current settings</span><span class="b">kept at power-on</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="rws" id="rsave"><span class="a">Save as startup settings</span><span class="b">loaded at power-on</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
   </section>
 </main>
@@ -396,6 +423,23 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     <div class="list" id="mlist"></div>
     <div class="acts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button id="madd">+ Mapping</button><button id="mdef">Chocolate defaults</button></div>
     <span class="note">Wireless: needs the Bluetooth connection (Chocolate in "Manufacturer Control" mode: A, B, C, D = CC 20–23). Wired: the MIDI IN jack (TRS type A) always works, with the same mappings. "Learn" assigns the next message received.</span>
+  </div>
+</div>
+<!-- scelta / salvataggio preset -->
+<div class="sheet hid" id="psheet">
+  <div class="in">
+    <div class="row"><b class="sp g" style="font-size:20px" id="pst">Presets</b><button class="ib" id="psclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <button class="prim hid" id="psupd" style="height:50px;border-radius:14px"></button>
+    <span class="note" id="psn"></span>
+    <div class="slist" id="pslist"></div>
+  </div>
+</div>
+<!-- assegnazione dei pedali -->
+<div class="sheet hid" id="fsheet">
+  <div class="in">
+    <div class="row"><b class="sp g" style="font-size:20px">Assign blocks</b><button class="ib" id="fsclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <span class="note">Each switch of the Chocolate (Manufacturer Control: A, B, C, D = CC 20–23) switches on and off the blocks you pick here, one or more. With more blocks, a press follows the first one: they all go on or all go off together.</span>
+    <div class="list" id="fslist"></div>
   </div>
 </div>
 <div id="toast"></div>
@@ -569,27 +613,102 @@ function meter(id, nid, db){
   $(id).querySelectorAll('i').forEach((e, i) => { e.style.background = i >= n ? '' : i >= 25 ? 'var(--bad)' : i >= 20 ? 'var(--warn)' : 'var(--ok)'; });
   $(nid).textContent = db <= -119 ? '−∞' : Math.round(db) + ' dB';
 }
-function fsBlocks(){
-  const out = [], seen = {};
-  if (MD && MD.map) MD.map.forEach(m => { if (m && m.a === 0 && m.t === 0 && m.n >= 20 && m.n <= 23 && BLK[m.k] && !seen[m.n]) { seen[m.n] = 1; out.push({ key: 'ABCD'[m.n - 20], blk: m.k }); } });
-  out.sort((a, b) => a.key.localeCompare(b.key));
-  if (!out.length) ['drv', 'mod', 'dly', 'rev'].forEach((b, i) => out.push({ key: 'ABCD'[i], blk: b }));
-  return out.slice(0, 4);
+/* pedali: per ogni tasto A..D i blocchi delle mappature "Block on/off" su CC 20..23, nell'ordine della tabella */
+function fsGroups(){
+  const g = [0, 1, 2, 3].map(i => ({ key: 'ABCD'[i], cc: 20 + i, blks: [], idx: [] }));
+  if (MD && MD.map) MD.map.forEach((m, i) => {
+    if (m && m.a === 0 && m.t === 0 && m.n >= 20 && m.n <= 23 && BLK[m.k]) { const x = g[m.n - 20]; if (!x.blks.includes(m.k)) { x.blks.push(m.k); x.idx.push(i); } }
+  });
+  return g;
+}
+function toggleGroup(blks){
+  if (!blks.length) return;
+  const nv = isOn(blks[0]) ? 0 : 1;
+  blks.forEach(b => { const p = onP(b); if (p) { p.v = nv; send(p.k, nv); } });
+  refresh();
 }
 function renderLive(){
   const ps = PS[psCur];
-  $('#pslot').textContent = psCur >= 0 ? 'PRESET ' + String(psCur + 1).padStart(2, '0') : 'CURRENT SETTINGS';
+  $('#pslot').textContent = psCur >= 0 && ps ? 'PRESET ' + String(psCur + 1).padStart(2, '0') : 'CURRENT SETTINGS';
   $('#pnm').textContent = ps ? ps.name : 'Unsaved';
   const c = CAPS[capAct];
   $('#capnm').textContent = c ? c.name : 'no capture';
   $('#capeng').textContent = capInfo.lite ? 'LITE' : 'FULL';
   $('#capeng').classList.toggle('hid', !c);
-  $('#chain').innerHTML = blocks().map((x, i) => (i ? '<i></i>' : '') + '<b class="' + (isOn(x.blk) ? 'on' : '') + '" style="--c:' + cvar(x.blk) + '" title="' + BLK[x.blk].name + '">' + BLK[x.blk].mini + '</b>').join('');
-  $('#fs').innerHTML = fsBlocks().map(f => '<button class="fsw' + (isOn(f.blk) ? ' on' : '') + '" data-b="' + f.blk + '" aria-pressed="' + isOn(f.blk) + '" style="--c:' + cvar(f.blk) + '">' +
-    '<div class="h"><span>' + BLK[f.blk].cat + '</span><i class="lamp"></i></div><span class="m">' + esc(short(f.blk)) + '</span><span class="s">' + esc(blockSub(f.blk)) + '</span><span class="k">SWITCH ' + f.key + '</span></button>').join('');
-  $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => { const b = e.dataset.b, p = onP(b); if (p) setv(p.k, p.v > 0.5 ? 0 : 1); });
+  $('#bgrid').innerHTML = blocks().map(x => '<button class="bt' + (isOn(x.blk) ? ' on' : '') + '" data-b="' + x.blk + '" style="--c:' + cvar(x.blk) + '" aria-pressed="' + isOn(x.blk) + '" aria-label="' + BLK[x.blk].name + '"><i></i>' + BLK[x.blk].ab + '</button>').join('');
+  $('#bgrid').querySelectorAll('.bt').forEach(e => e.onclick = () => toggleGroup([e.dataset.b]));
+  $('#fs').innerHTML = fsGroups().map(f => {
+    if (!f.blks.length) return '<button class="fsw" data-k="' + f.key + '" style="--c:var(--fg)"><div class="h"><span>SWITCH ' + f.key + '</span><i class="lamp"></i></div><span class="m" style="color:var(--dim)">Not assigned</span><span class="s">Tap to assign blocks</span><span class="k">CC ' + f.cc + '</span></button>';
+    const on = isOn(f.blks[0]), multi = f.blks.length > 1;
+    return '<button class="fsw' + (on ? ' on' : '') + '" data-k="' + f.key + '" aria-pressed="' + on + '" style="--c:' + cvar(f.blks[0]) + '">' +
+      '<div class="h"><span>' + esc(f.blks.map(b => BLK[b].ab).join(' + ')) + '</span><i class="lamp"></i></div>' +
+      '<span class="m' + (multi ? ' multi' : '') + '">' + esc(multi ? f.blks.map(short).join(' · ') : short(f.blks[0])) + '</span>' +
+      '<span class="s">' + esc(multi ? f.blks.map(b => BLK[b].name + (isOn(b) ? ' on' : ' off')).join(', ') : blockSub(f.blks[0])) + '</span><span class="k">SWITCH ' + f.key + '</span></button>';
+  }).join('');
+  const G4 = fsGroups();
+  $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => { const f = G4['ABCD'.indexOf(e.dataset.k)]; if (f.blks.length) toggleGroup(f.blks); else openAssign(); });
   const v = PK['out.vol']; if (v && dragging !== 'out.vol'){ const r = $('#vol'); r.min = v.min; r.max = v.max; r.step = v.step; r.value = v.v; $('#volv').textContent = fmt(v, v.v); }
 }
+/* assegnazione: ogni cambio aggiunge o toglie una mappatura "Block on/off" sul CC del tasto */
+function openAssign(){ $('#fsheet').classList.remove('hid'); renderAssign(); midiApi('/api/midi'); }
+function renderAssign(){
+  if ($('#fsheet').classList.contains('hid')) return;
+  const bl = blocks();
+  $('#fslist').innerHTML = fsGroups().map(f => '<div class="asg"><div class="k"><b>' + f.key + '</b><span class="sp small mut">CC ' + f.cc + ' · ' + (f.blks.length ? f.blks.map(b => BLK[b].name).join(' + ') : 'nothing') + '</span></div><div class="chips">' +
+    bl.map(x => '<button class="chip' + (f.blks.includes(x.blk) ? ' on' : '') + '" style="--c:' + cvar(x.blk) + '" data-k="' + f.key + '" data-b="' + x.blk + '">' + BLK[x.blk].ab + '</button>').join('') + '</div></div>').join('');
+  $('#fslist').querySelectorAll('.chip').forEach(e => e.onclick = () => assignToggle(e.dataset.k, e.dataset.b));
+}
+let asgBusy = false;
+async function assignToggle(key, blk){
+  if (asgBusy || !MD) return;
+  asgBusy = true;
+  try {
+    const f = fsGroups()['ABCD'.indexOf(key)], j = f.blks.indexOf(blk);
+    if (j >= 0) await midiApi('/api/mididel?i=' + f.idx[j]);
+    else {
+      const i = MD.map.findIndex(m => !m);
+      if (i < 0) toast('MIDI table full: delete a mapping in Setup');
+      else await midiApi('/api/midiset?i=' + i + '&t=0&n=' + f.cc + '&m=0&a=0&k=' + blk);
+    }
+  } finally { asgBusy = false; renderAssign(); }
+}
+$('#fsedit').onclick = openAssign;
+$('#fsclose').onclick = () => { $('#fsheet').classList.add('hid'); refresh(); };
+$('#fsheet').onclick = ev => { if (ev.target.id === 'fsheet') { $('#fsheet').classList.add('hid'); refresh(); } };
+/* scelta e salvataggio dei preset dalla schermata Live */
+let psMode = 'load';
+function openPresets(mode){ psMode = mode; $('#psheet').classList.remove('hid'); renderPsheet(); }
+function renderPsheet(){
+  const save = psMode === 'save', cur = PS[psCur];
+  $('#pst').textContent = save ? 'Save preset' : 'Load a preset';
+  $('#psupd').classList.toggle('hid', !(save && cur));
+  if (save && cur) $('#psupd').textContent = 'Update "' + cur.name + '" (' + String(psCur + 1).padStart(2, '0') + ')';
+  $('#psn').textContent = save ? (cur ? 'Or pick another slot to save a copy with a new name.' : 'Pick a slot and give the preset a name.') : 'Tap a preset to load it.';
+  $('#pslist').innerHTML = Array.from({ length: 16 }, (_, i) => { const p = PS[i];
+    return '<button class="sl' + (p ? '' : ' empty') + (i === psCur ? ' cur' : '') + '" data-i="' + i + '"><span class="no">' + String(i + 1).padStart(2, '0') + '</span><b>' + esc(p ? p.name : (save ? 'Empty · save here' : 'Empty')) + '</b></button>'; }).join('');
+  $('#pslist').querySelectorAll('.sl').forEach(e => e.onclick = () => { const i = +e.dataset.i; save ? savePreset(i, false) : (PS[i] ? (loadPreset(i), closePs()) : null); });
+}
+function closePs(){ $('#psheet').classList.add('hid'); }
+async function savePreset(i, keepName){
+  let n = PS[i] ? PS[i].name : '';
+  if (!keepName){
+    n = prompt('Preset name for slot ' + (i + 1) + ':', n || (PS[psCur] ? PS[psCur].name : ''));
+    if (n === null) return;
+    n = n.trim(); if (!n) return toast('Give the preset a name');
+    if (PS[i] && i !== psCur && !confirm('Overwrite "' + PS[i].name + '"?')) return;
+  }
+  try {
+    const d = await getj('/api/psave?s=' + i + '&n=' + encodeURIComponent(n.slice(0, 15)));
+    if (d.err) return toast(d.err);
+    PS = d.slots; psCur = d.cur; closePs(); refresh(); toast('Saved "' + n + '" in slot ' + (i + 1));
+  } catch(e) { toast('Save failed: check the connection'); }
+}
+$('#psupd').onclick = () => savePreset(psCur, true);
+$('#pname').onclick = () => openPresets('load');
+$('#lload').onclick = () => openPresets('load');
+$('#lsave').onclick = () => openPresets('save');
+$('#psclose').onclick = closePs;
+$('#psheet').onclick = ev => { if (ev.target.id === 'psheet') closePs(); };
 $('#vol').oninput = ev => { const p = PK['out.vol']; if (!p) return; dragging = 'out.vol'; p.v = +ev.target.value; $('#volv').textContent = fmt(p, p.v); send('out.vol', p.v); };
 $('#vol').onchange = () => setTimeout(() => { if (dragging === 'out.vol') dragging = null; }, 350);
 $('#bmute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
@@ -676,7 +795,7 @@ function renderPedal(){
   $('#pedn').textContent = MD.ped === 3 && MD.pname ? MD.pname : 'Bluetooth footswitch';
   $('#peds').textContent = !MD.pen ? 'off' : conn !== 2 ? 'needs the Bluetooth connection' : 'Bluetooth MIDI · ' + PSTATE[MD.ped];
   $('#pen').classList.toggle('on', !!MD.pen);
-  $('#pedal').innerHTML = fsBlocks().map(f => '<div style="--c:' + cvar(f.blk) + '"><b>' + f.key + '</b><span>' + BLK[f.blk].name.replace('Noise gate', 'Gate') + '</span></div>').join('');
+  $('#pedal').innerHTML = fsGroups().map(f => '<div style="--c:' + (f.blks.length ? cvar(f.blks[0]) : 'var(--dim)') + '"><b>' + f.key + '</b><span>' + esc(f.blks.length ? f.blks.map(b => BLK[b].ab).join(' + ') : '–') + '</span></div>').join('');
   const nx = MD.map.find(m => m && m.a === 3), pv = MD.map.find(m => m && m.a === 4);
   $('#pedhint').textContent = (pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–16 recalls the presets';
 }
@@ -893,7 +1012,7 @@ $('#rtun').onclick = () => openTuner();
 /* ===================== MIDI ===================== */
 const MTYPE = ['CC', 'PC', 'Note'], MMODE = ['toggle on press', 'follow (>=64 on)', 'continuous (pedal)', 'any value'];
 const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo', 'Tuner'];
-async function midiApi(u){ try { const d = await getj(u); if (d.err) toast(d.err); else if (d.map) { MD = d; renderPedal(); renderMidi(); renderSetup(); renderLive(); } return d; } catch(e) {} }
+async function midiApi(u){ try { const d = await getj(u); if (d.err) toast(d.err); else if (d.map) { MD = d; renderPedal(); renderMidi(); renderAssign(); if (view === 'setup') renderSetup(); if (view === 'live') renderLive(); } return d; } catch(e) {} }
 function renderMidi(){
   if (!MD || $('#sheet').classList.contains('hid')) return;
   $('#mlast').textContent = MD.last ? 'Last message: ' + MD.last : 'No MIDI message received yet.';
