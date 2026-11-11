@@ -147,6 +147,24 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .blk:not(.on){opacity:.62}
 .blk.sel{background:var(--s2);border:2px solid var(--c);opacity:1;box-shadow:0 0 18px color-mix(in srgb,var(--c) calc(var(--glow)*80%),transparent)}
 .blk.out{background:transparent;border:1px dashed var(--off);opacity:1}
+.blk{position:relative}
+.blk .par,.orow .par{font-style:normal;font-weight:700;color:var(--c);font-size:13px;line-height:1}
+.blk .par{position:absolute;top:5px;right:7px}
+.ordb{display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border-radius:14px;background:var(--s1);border:1px solid var(--line);font-family:'Space Grotesk';font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--fg)}
+.ordb svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.orow{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:14px;background:var(--s1);border:1px solid var(--line)}
+.orow.amp{border-color:var(--amp);background:color-mix(in srgb,var(--amp) 10%,var(--s1))}
+.orow .no{width:20px;text-align:right;font-family:'Space Grotesk';font-weight:700;color:var(--dim);font-size:13px}
+.orow .d{width:9px;height:9px;border-radius:50%;background:var(--off);flex:none}
+.orow.on .d{background:var(--c);box-shadow:0 0 8px var(--c)}
+.orow .sp{display:flex;flex-direction:column;gap:2px;min-width:0}
+.orow .sp b{font-size:14px}
+.orow .ib:disabled{opacity:.3}
+.route{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));background:color-mix(in srgb,var(--c) 6%,transparent)}
+.route .rt{display:flex;align-items:center;gap:8px}
+.route .rt b{font-size:13px}
+.route .seg.sm{flex:0 0 170px}
+.bt{white-space:nowrap;overflow:hidden}
 .ed .hd{display:flex;align-items:center;gap:10px}
 .tag{font-family:'Space Grotesk';font-weight:700;font-size:11px;letter-spacing:2px;padding:4px 8px;border-radius:7px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
 .ed .nm{flex:1;min-width:0;font-family:'Space Grotesk';font-weight:700;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -313,6 +331,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
       <div class="bar"><i id="rbar" style="width:0"></i></div>
     </div>
     <div class="blocks" id="blocks" aria-label="Chain"></div>
+    <button class="ordb hid" id="rordb"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg>Chain order</button>
     <div class="card ed" id="editor"></div>
   </section>
 
@@ -442,6 +461,15 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     <div class="list" id="fslist"></div>
   </div>
 </div>
+<!-- ordine della catena -->
+<div class="sheet hid" id="osheet">
+  <div class="in">
+    <div class="row"><b class="sp g" style="font-size:20px">Chain order</b><button class="ib" id="oclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <span class="note">Move any block anywhere, also across the amp. Blocks before the amp run in mono. The pedal checks the DSP before accepting a new order.</span>
+    <div class="list" id="olist"></div>
+    <div class="acts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button id="odef">Default order</button><button class="prim" id="oapply">Apply</button></div>
+  </div>
+</div>
 <div id="toast"></div>
 
 <script>
@@ -510,10 +538,22 @@ const BLK = {
   eq:   {ab: 'EQ', cat: 'EQ', c: 'eq', mini: 'EQ', name: '4-band EQ'},
   mod:  {ab: 'MOD', cat: 'MOD', c: 'mod', mini: 'MD', name: 'Modulation'},
   dly:  {ab: 'DELAY', cat: 'DELAY', c: 'dly', mini: 'DL', name: 'Delay'},
-  rev:  {ab: 'REV', cat: 'REVERB', c: 'rev', mini: 'RV', name: 'Reverb'}
+  rev:  {ab: 'REV', cat: 'REVERB', c: 'rev', mini: 'RV', name: 'Reverb'},
+  drv2: {ab: 'DRIVE 2', cat: 'DRIVE 2', c: 'drv', mini: 'D2', name: 'Drive 2'},
+  mod2: {ab: 'MOD 2', cat: 'MOD 2', c: 'mod', mini: 'M2', name: 'Modulation 2'},
+  dly2: {ab: 'DELAY 2', cat: 'DELAY 2', c: 'dly', mini: 'L2', name: 'Delay 2'},
+  ir2:  {ab: 'CAB 2', cat: 'CAB 2', c: 'ir', mini: 'I2', name: 'Cabinet IR 2'}
 };
+/* catena: ordine dei blocchi (AMP compreso) e coppie che possono andare in parallelo, dal firmware (v48+) */
+let ORD = [], PAIRS = [], LV = -1;
+const DEF_ORD = ['gate', 'comp', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'dly', 'dly2', 'rev', 'eq'];
+const pairOf = b => PAIRS.find(x => x[0] === b || x[1] === b);
+const isPar = b => { const q = pairOf(b); return !!(q && PK[q[0] + '.par'] && PK[q[0] + '.par'].v > 0.5); };
+const isPre = b => { const a = ORD.indexOf('amp'), i = ORD.indexOf(b); return a >= 0 && i >= 0 && i < a; };
 const cvar = b => 'var(--' + (BLK[b] ? BLK[b].c : 'fg') + ')';
-const blocks = () => G.map((g, i) => ({ blk: g.blk, g: i })).filter(x => x.blk !== 'glob' && BLK[x.blk]);
+const blocks = () => { const l = G.map((g, i) => ({ blk: g.blk, g: i })).filter(x => x.blk !== 'glob' && BLK[x.blk]);
+  if (ORD.length) l.sort((a, b) => (ORD.indexOf(a.blk) + 99) % 99 - (ORD.indexOf(b.blk) + 99) % 99);   /* nell'ordine della catena */
+  return l; };
 const bparams = b => { const gi = G.findIndex(g => g.blk === b); return P.filter(p => p.g === gi); };
 const onP = b => PK[b + '.on'];
 const isOn = b => { const p = onP(b); return p ? p.v > 0.5 : false; };
@@ -523,6 +563,7 @@ function fmt(p, v){
   if (p.n) return p.n[Math.round(v)] ?? '?';
   if (!p.n && p.min === 0 && p.max === 1 && p.step === 1) return v > 0.5 ? 'On' : 'Off';
   if (p.u === 'Hz') return fhz(v);
+  if (/\.pan[12]$/.test(p.k)) { const r = Math.round(v); return r === 0 ? 'C' : (r < 0 ? 'L' : 'R') + Math.abs(r); }
   const s = p.step < 1 ? (+v).toFixed(1) : String(Math.round(v));
   if (p.u === ':1') return s + ':1';
   if (p.u === 'dB') return (v > 0 && p.min < 0 ? '+' : '') + s + ' dB';
@@ -530,13 +571,13 @@ function fmt(p, v){
 }
 function short(b){
   if (b === 'amp'){ const c = CAPS[capAct]; return c ? c.name : 'no capture'; }
-  if (b === 'ir'){ const s = PK['ir.slot'], c = s ? IRS[Math.round(s.v)] : null; return c ? c.name : 'empty'; }
+  if (b === 'ir' || b === 'ir2'){ const s = PK[b + '.slot'], c = s ? IRS[Math.round(s.v)] : null; return c ? c.name : 'empty'; }
   if (b === 'eq'){ const p = PK['eq.pos']; return p ? fmt(p, p.v) : '4-band'; }
   if (b === 'gate') return 'Gate';
   const m = modelP(b); return m ? fmt(m, m.v) : BLK[b].name;
 }
 function blockSub(b){
-  return bparams(b).filter(p => p.t === 'knob' && !p.n && p.k !== 'ir.slot').slice(0, 2).map(p => p.l + ' ' + fmt(p, p.v)).join(' · ');
+  return bparams(b).filter(p => p.t === 'knob' && !p.n && !/\.slot$/.test(p.k)).slice(0, 2).map(p => p.l + ' ' + fmt(p, p.v)).join(' · ');
 }
 
 /* invio dei valori: al massimo ~16 richieste al secondo, le piu' recenti vincono */
@@ -553,7 +594,7 @@ async function flush(){
       const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v);
       const p = PK[k];
       if (r.err){ toast(r.err); if (p) { p.v = r.v; refresh(); } }
-      if (p && (p.t === 'model')) await reload();
+      if (p && (p.t === 'model' || p.t === 'route')) await reload();
     } catch(e) {}
   }
 }
@@ -723,9 +764,11 @@ function renderRig(){
   const bl = blocks();
   if (!bl.find(x => x.blk === rigSel) && bl.length) rigSel = bl[0].blk;
   const out = PK['io.out'];
-  $('#blocks').innerHTML = bl.map(x => '<button class="blk' + (isOn(x.blk) ? ' on' : '') + (x.blk === rigSel ? ' sel' : '') + '" data-b="' + x.blk + '" style="--c:' + cvar(x.blk) + '" aria-pressed="' + (x.blk === rigSel) + '"><i class="d"></i><b>' + BLK[x.blk].ab + '</b><span>' + esc(short(x.blk)) + '</span></button>').join('') +
+  $('#blocks').innerHTML = bl.map(x => '<button class="blk' + (isOn(x.blk) ? ' on' : '') + (x.blk === rigSel ? ' sel' : '') + (x.blk === 'amp' ? ' ampb' : '') + '" data-b="' + x.blk + '" style="--c:' + cvar(x.blk) + '" aria-pressed="' + (x.blk === rigSel) + '">' +
+      (isPar(x.blk) ? '<em class="par" title="In parallel">∥</em>' : '') + '<i class="d"></i><b>' + BLK[x.blk].ab + '</b><span>' + esc(short(x.blk)) + '</span></button>').join('') +
     '<button class="blk out" data-b="out"><i class="d" style="background:var(--mut)"></i><b>OUT</b><span>' + esc(out ? fmt(out, out.v) : 'Stereo') + '</span></button>';
   $('#blocks').querySelectorAll('.blk').forEach(e => e.onclick = () => { if (e.dataset.b === 'out') return show('setup'); rigSel = e.dataset.b; renderRig(); });
+  $('#rordb').classList.toggle('hid', !ORD.length);
   renderEditor();
 }
 function chipsHTML(p, cls){
@@ -745,13 +788,15 @@ function renderEditor(){
     const list = CAPS.map((c, i) => c ? '<button class="chip' + (i === capAct ? ' on' : '') + '" data-cap="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
     h += '<div style="--c:var(--amp)" class="chips">' + (list || '<span class="note">No captures: add one in Library.</span>') + '</div>';
   }
-  if (b === 'ir'){
-    const list = IRS.map((c, i) => c ? '<button class="chip' + (PK['ir.slot'] && Math.round(PK['ir.slot'].v) === i ? ' on' : '') + '" data-k="ir.slot" data-v="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
+  if (b === 'ir' || b === 'ir2'){
+    const sk = b + '.slot';
+    const list = IRS.map((c, i) => c ? '<button class="chip' + (PK[sk] && Math.round(PK[sk].v) === i ? ' on' : '') + '" data-k="' + sk + '" data-v="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
     h += '<div style="--c:var(--ir)" class="chips">' + (list || '<span class="note">No IRs: add one in Library.</span>') + '</div>';
   }
-  const kn = ps.filter(p => (p.t === 'knob' || (b === 'amp' && p.t === 'amp' && p.k !== 'amp.on' && p.k !== 'amp.cap')) && !p.n && p.k !== 'ir.slot');
+  const kn = ps.filter(p => (p.t === 'knob' || (b === 'amp' && p.t === 'amp' && p.k !== 'amp.on' && p.k !== 'amp.cap')) && !p.n && !/\.slot$/.test(p.k));
   if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
-  ps.filter(p => p.n && p.t !== 'model').forEach(p => { h += segHTML(p, p.t === 'pos' ? 'Position' : p.l); });
+  ps.filter(p => p.n && p.t !== 'model' && p.t !== 'route').forEach(p => { h += segHTML(p, p.t === 'pos' ? 'Position' : p.l); });
+  h += routingHTML(b);
   if (b === 'amp') h += '<div class="segw"><span>Engine</span><div class="seg"><button class="' + (engCur !== 2 ? 'on' : '') + '" data-eng="1">Full</button><button class="' + (engCur === 2 ? 'on' : '') + '" data-eng="2">Lite</button></div></div>';
   h += '<div class="foot"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span class="sp">' + (b === 'amp' ? 'In use: ' + (capInfo.lite ? 'Lite' : 'Full') + ' model · ' : '') + 'Drag knobs up or down, long-press to type a value</span></div>';
   E.innerHTML = h;
@@ -761,6 +806,48 @@ function renderEditor(){
   E.querySelectorAll('[data-cap]').forEach(e => e.onclick = () => selectCap(+e.dataset.cap));
   E.querySelectorAll('[data-eng]').forEach(e => e.onclick = () => switchEngine(+e.dataset.eng));
 }
+/* routing di una coppia (Drive, Mod, IR, Delay): i parametri stanno sul primo blocco della coppia */
+function routingHTML(b){
+  const q = pairOf(b); if (!q) return '';
+  const a = q[0], rp = PK[a + '.par']; if (!rp) return '';
+  const other = q[0] === b ? q[1] : q[0], par = rp.v > 0.5;
+  const ia = ORD.indexOf(q[0]), ib = ORD.indexOf(q[1]);
+  let h = '<div class="route" style="--c:' + cvar(b) + '"><div class="rt"><b>Routing with ' + esc(BLK[other].name) + '</b><span class="sp"></span>' +
+    '<div class="seg sm">' + ['Series', 'Parallel'].map((n, i) => '<button class="' + (Math.round(rp.v) === i ? 'on' : '') + '" data-k="' + a + '.par" data-v="' + i + '">' + n + '</button>').join('') + '</div></div>';
+  if (par){
+    const kn = ['pmix', 'pan1', 'pan2'].map(k => PK[a + '.' + k]).filter(Boolean);
+    h += '<span class="note">Both blocks get the same input' + (Math.min(ia, ib) >= 0 ? ', at the position of ' + esc(BLK[ORD[Math.min(ia, ib)]].name) : '') + '. Mix 1/2: 0% = only ' + esc(BLK[q[0]].name) + ', 100% = only ' + esc(BLK[q[1]].name) + '. A block switched off passes the dry signal on its branch.</span>';
+    if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
+  } else h += '<span class="note">In series, in chain order. Tap Parallel to run both on the same input and mix them (Mix 1/2, pan for each branch).</span>';
+  return h + '</div>';
+}
+/* ordine della catena: frecce su/giu', poi "Apply" (il pedale controlla il DSP prima di accettare) */
+let ordDraft = [];
+function openOrder(){ ordDraft = (ORD.length ? ORD : DEF_ORD).slice(); $('#osheet').classList.remove('hid'); renderOrder(); }
+function closeOrder(){ $('#osheet').classList.add('hid'); }
+function renderOrder(){
+  const ai = ordDraft.indexOf('amp'), dirty = ordDraft.join() !== ORD.join();
+  $('#olist').innerHTML = ordDraft.map((b, i) => { const M = BLK[b] || {ab: b, name: b, c: 'fg'}, q = pairOf(b);
+    return '<div class="orow' + (b === 'amp' ? ' amp' : '') + (isOn(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '"><span class="no">' + (i + 1) + '</span><i class="d"></i><div class="sp"><b>' + esc(M.name) + (isPar(b) ? ' <em class="par">∥</em>' : '') + '</b><span class="small mut">' +
+      (b === 'amp' ? 'NAM amp: mono before, stereo after' : (i < ai ? 'before the amp · mono' : 'after the amp') + (q && isPar(b) ? ' · parallel with ' + BLK[q[0] === b ? q[1] : q[0]].name : '')) + '</span></div>' +
+      '<button class="ib" data-i="' + i + '" data-d="-1" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>' +
+      '<button class="ib" data-i="' + i + '" data-d="1" aria-label="Move down"' + (i === ordDraft.length - 1 ? ' disabled' : '') + '><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>'; }).join('');
+  $('#olist').querySelectorAll('button[data-d]').forEach(e => e.onclick = () => { const i = +e.dataset.i, j = i + +e.dataset.d; if (j < 0 || j >= ordDraft.length) return; [ordDraft[i], ordDraft[j]] = [ordDraft[j], ordDraft[i]]; renderOrder(); });
+  $('#oapply').disabled = !dirty;
+  $('#odef').disabled = ordDraft.join() === DEF_ORD.join();
+}
+async function applyOrder(){
+  try {
+    const d = await getj('/api/order?o=' + ordDraft.join(','));
+    if (!d.ok) return toast(d.err || 'Order refused');
+    await reload(); closeOrder(); toast('Chain order applied');
+  } catch(e) { toast('Order not sent: check the connection'); }
+}
+$('#rordb').onclick = openOrder;
+$('#oclose').onclick = closeOrder;
+$('#osheet').onclick = ev => { if (ev.target.id === 'osheet') closeOrder(); };
+$('#odef').onclick = () => { ordDraft = DEF_ORD.slice(); renderOrder(); };
+$('#oapply').onclick = applyOrder;
 function switchEngine(to){
   if (to === engCur) return;
   if (!confirm('Switch to the ' + (to === 2 ? 'Lite' : 'Full') + ' engine?\n\n' + (to === 2 ? 'Lite: always the A2-Lite model, the lightest: more DSP left for the effects.' : 'Full: the Full model of the capture when present (best accuracy), otherwise the Lite.') + '\n\nThe pedal restarts.')) return;
@@ -1138,7 +1225,8 @@ function refresh(){
   else if (view === 'setup') renderSetup();
 }
 async function reload(){
-  try { const d = await getj('/api/params'); G = d.groups; P = d.params; PK = {}; P.forEach(p => PK[p.k] = p); refresh(); } catch(e) {}
+  try { const d = await getj('/api/params'); G = d.groups; P = d.params; PK = {}; P.forEach(p => PK[p.k] = p);
+    ORD = Array.isArray(d.order) ? d.order : []; PAIRS = Array.isArray(d.pairs) ? d.pairs : []; if (d.lv !== undefined) LV = d.lv; refresh(); } catch(e) {}
 }
 let fails = 0, pollN = 0, lastSig = '';
 async function poll(){
@@ -1150,7 +1238,7 @@ async function poll(){
     $('#dsp').textContent = s.dsp + '%'; $('#rdsp').textContent = s.dsp + '%';
     $('#rbar').style.width = Math.min(100, s.dsp) + '%'; $('#rbar').classList.toggle('hot', s.dsp > 95);
     let changed = false;
-    if (s.np !== P.length) { await reload(); changed = true; }
+    if (s.np !== P.length || (s.lv !== undefined && s.lv !== LV)) { await reload(); changed = true; }
     else s.v.forEach((v, i) => { const p = P[i]; if (p && p.v !== v && dragging !== p.k && !(p.k in pending)) { p.v = v; changed = true; } });
     if (s.cap && (s.cap.act !== capAct || s.cap.st !== capInfo.st || s.cap.lite !== capInfo.lite)) { loadCaps(); }
     if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; changed = true; }
