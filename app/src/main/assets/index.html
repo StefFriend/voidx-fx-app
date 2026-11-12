@@ -542,11 +542,13 @@ const BLK = {
   drv2: {ab: 'DRIVE 2', cat: 'DRIVE 2', c: 'drv', mini: 'D2', name: 'Drive 2'},
   mod2: {ab: 'MOD 2', cat: 'MOD 2', c: 'mod', mini: 'M2', name: 'Modulation 2'},
   dly2: {ab: 'DELAY 2', cat: 'DELAY 2', c: 'dly', mini: 'L2', name: 'Delay 2'},
-  ir2:  {ab: 'CAB 2', cat: 'CAB 2', c: 'ir', mini: 'I2', name: 'Cabinet IR 2'}
+  ir2:  {ab: 'CAB 2', cat: 'CAB 2', c: 'ir', mini: 'I2', name: 'Cabinet IR 2'},
+  amp2: {ab: 'AMP 2', cat: 'AMP 2', c: 'amp', mini: 'A2', name: 'Amp 2'}
 };
 /* catena: ordine dei blocchi (AMP compreso) e coppie che possono andare in parallelo, dal firmware (v48+) */
 let ORD = [], PAIRS = [], LV = -1;
-const DEF_ORD = ['gate', 'comp', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'dly', 'dly2', 'rev', 'eq'];
+const DEF_ORD = ['gate', 'comp', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'dly', 'dly2', 'rev', 'eq'];   /* amp2 segue sempre amp */
+const noAmp2 = o => o.filter(b => b !== 'amp2');
 const pairOf = b => PAIRS.find(x => x[0] === b || x[1] === b);
 const isPar = b => { const q = pairOf(b); return !!(q && PK[q[0] + '.par'] && PK[q[0] + '.par'].v > 0.5); };
 const isPre = b => { const a = ORD.indexOf('amp'), i = ORD.indexOf(b); return a >= 0 && i >= 0 && i < a; };
@@ -571,6 +573,7 @@ function fmt(p, v){
 }
 function short(b){
   if (b === 'amp'){ const c = CAPS[capAct]; return c ? c.name : 'no capture'; }
+  if (b === 'amp2'){ const s = PK['amp2.cap'], c = s ? CAPS[Math.round(s.v)] : null; return c ? c.name : 'no capture'; }
   if (b === 'ir' || b === 'ir2'){ const s = PK[b + '.slot'], c = s ? IRS[Math.round(s.v)] : null; return c ? c.name : 'empty'; }
   if (b === 'eq'){ const p = PK['eq.pos']; return p ? fmt(p, p.v) : '4-band'; }
   if (b === 'gate') return 'Gate';
@@ -673,7 +676,7 @@ function renderLive(){
   $('#pslot').textContent = psCur >= 0 && ps ? 'PRESET ' + String(psCur + 1).padStart(2, '0') : 'CURRENT SETTINGS';
   $('#pnm').textContent = ps ? ps.name : 'Unsaved';
   const c = CAPS[capAct];
-  $('#capnm').textContent = c ? c.name : 'no capture';
+  $('#capnm').textContent = (c ? c.name : 'no capture') + (isOn('amp2') ? ' + ' + short('amp2') : '');
   $('#capeng').textContent = capInfo.lite ? 'LITE' : 'FULL';
   $('#capeng').classList.toggle('hid', !c);
   $('#bgrid').innerHTML = blocks().map(x => '<button class="bt' + (isOn(x.blk) ? ' on' : '') + '" data-b="' + x.blk + '" style="--c:' + cvar(x.blk) + '" aria-pressed="' + isOn(x.blk) + '" aria-label="' + BLK[x.blk].name + '"><i></i>' + BLK[x.blk].ab + '</button>').join('');
@@ -780,7 +783,7 @@ function segHTML(p, label){
 function renderEditor(){
   const b = rigSel, E = $('#editor'); if (!BLK[b]) { E.innerHTML = ''; return; }
   const ps = bparams(b), on = onP(b), M = BLK[b];
-  let h = '<div class="hd" style="--c:' + cvar(b) + '"><span class="tag">' + M.cat + '</span><span class="nm">' + esc(b === 'amp' || b === 'ir' ? short(b) : (modelP(b) ? short(b) : M.name)) + '</span>' +
+  let h = '<div class="hd" style="--c:' + cvar(b) + '"><span class="tag">' + M.cat + '</span><span class="nm">' + esc(b === 'amp' || b === 'amp2' || b === 'ir' || b === 'ir2' ? short(b) : (modelP(b) ? short(b) : M.name)) + '</span>' +
     (on ? '<button class="sw' + (on.v > 0.5 ? ' on' : '') + '" data-tog="' + on.k + '" aria-label="Block on or off" aria-pressed="' + (on.v > 0.5) + '"></button>' : '') + '</div>';
   const mp = modelP(b);
   if (mp) h += '<div style="--c:' + cvar(b) + '">' + chipsHTML(mp) + '</div>';
@@ -788,16 +791,24 @@ function renderEditor(){
     const list = CAPS.map((c, i) => c ? '<button class="chip' + (i === capAct ? ' on' : '') + '" data-cap="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
     h += '<div style="--c:var(--amp)" class="chips">' + (list || '<span class="note">No captures: add one in Library.</span>') + '</div>';
   }
+  if (b === 'amp2'){
+    const cv = PK['amp2.cap'] ? Math.round(PK['amp2.cap'].v) : -1;
+    const list = CAPS.map((c, i) => c ? '<button class="chip' + (i === cv ? ' on' : '') + '" data-k="amp2.cap" data-v="' + i + '"' + (c.lite ? '' : ' disabled') + '>' + (i + 1) + ' · ' + esc(c.name) + (c.lite ? '' : ' (no Lite)') + '</button>' : '').join('');
+    h += '<div style="--c:var(--amp)" class="chips">' + (list || '<span class="note">No captures: add one in Library.</span>') + '</div>';
+    if (capInfo.st2 === 2 && capInfo.msg2) h += '<span class="note" style="color:var(--bad)">' + esc(capInfo.msg2) + '</span>';
+    else if (capInfo.st2 === 1) h += '<span class="note">Loading…</span>';
+  }
   if (b === 'ir' || b === 'ir2'){
     const sk = b + '.slot';
     const list = IRS.map((c, i) => c ? '<button class="chip' + (PK[sk] && Math.round(PK[sk].v) === i ? ' on' : '') + '" data-k="' + sk + '" data-v="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
     h += '<div style="--c:var(--ir)" class="chips">' + (list || '<span class="note">No IRs: add one in Library.</span>') + '</div>';
   }
-  const kn = ps.filter(p => (p.t === 'knob' || (b === 'amp' && p.t === 'amp' && p.k !== 'amp.on' && p.k !== 'amp.cap')) && !p.n && !/\.slot$/.test(p.k));
+  const kn = ps.filter(p => (p.t === 'knob' || ((b === 'amp' || b === 'amp2') && p.t === 'amp' && !/\.(on|cap)$/.test(p.k))) && !p.n && !/\.slot$/.test(p.k));
   if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
   ps.filter(p => p.n && p.t !== 'model' && p.t !== 'route').forEach(p => { h += segHTML(p, p.t === 'pos' ? 'Position' : p.l); });
   h += routingHTML(b);
-  if (b === 'amp') h += '<div class="segw"><span>Engine</span><div class="seg"><button class="' + (engCur !== 2 ? 'on' : '') + '" data-eng="1">Full</button><button class="' + (engCur === 2 ? 'on' : '') + '" data-eng="2">Lite</button></div></div>';
+  if (b === 'amp' && !isOn('amp2')) h += '<div class="segw"><span>Engine</span><div class="seg"><button class="' + (engCur !== 2 ? 'on' : '') + '" data-eng="1">Full</button><button class="' + (engCur === 2 ? 'on' : '') + '" data-eng="2">Lite</button></div></div>';
+  if (b === 'amp2') h += '<span class="note">While Amp 2 is on, both amps run the A2-Lite model (the Full needs too much DSP and RAM for two). Amp 2 works with Bluetooth or with the radio off, not with Wi-Fi. Switching it on or off reloads the amps: a short silence.</span>';
   h += '<div class="foot"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span class="sp">' + (b === 'amp' ? 'In use: ' + (capInfo.lite ? 'Lite' : 'Full') + ' model · ' : '') + 'Drag knobs up or down, long-press to type a value</span></div>';
   E.innerHTML = h;
   E.querySelectorAll('.knob').forEach(el => { knobSet(el, PK[el.dataset.k]); bindKnob(el); });
@@ -814,6 +825,14 @@ function routingHTML(b){
   const ia = ORD.indexOf(q[0]), ib = ORD.indexOf(q[1]);
   let h = '<div class="route" style="--c:' + cvar(b) + '"><div class="rt"><b>Routing with ' + esc(BLK[other].name) + '</b><span class="sp"></span>' +
     '<div class="seg sm">' + ['Series', 'Parallel'].map((n, i) => '<button class="' + (Math.round(rp.v) === i ? 'on' : '') + '" data-k="' + a + '.par" data-v="' + i + '">' + n + '</button>').join('') + '</div></div>';
+  if (a === 'amp'){
+    if (par){
+      const kn = ['pmix', 'pan1', 'pan2'].map(k => PK[a + '.' + k]).filter(Boolean);
+      h += '<span class="note">Both amps get the same guitar. Mix 1/2 at 50% keeps both at full level; towards 0% or 100% the other one fades out. Pan 1 and Pan 2: by default Amp left, Amp 2 right.</span>';
+      if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
+    } else h += '<span class="note">In series: Amp 2 takes the output of Amp (for example a preamp capture into an amp capture). It all runs on one core, so it costs more DSP than parallel.</span>';
+    return h + '</div>';
+  }
   if (par){
     const kn = ['pmix', 'pan1', 'pan2'].map(k => PK[a + '.' + k]).filter(Boolean);
     h += '<span class="note">Both blocks get the same input' + (Math.min(ia, ib) >= 0 ? ', at the position of ' + esc(BLK[ORD[Math.min(ia, ib)]].name) : '') + '. Mix 1/2: 0% = only ' + esc(BLK[q[0]].name) + ', 100% = only ' + esc(BLK[q[1]].name) + '. A block switched off passes the dry signal on its branch.</span>';
@@ -823,12 +842,12 @@ function routingHTML(b){
 }
 /* ordine della catena: frecce su/giu', poi "Apply" (il pedale controlla il DSP prima di accettare) */
 let ordDraft = [];
-function openOrder(){ ordDraft = (ORD.length ? ORD : DEF_ORD).slice(); $('#osheet').classList.remove('hid'); renderOrder(); }
+function openOrder(){ ordDraft = noAmp2(ORD.length ? ORD : DEF_ORD); $('#osheet').classList.remove('hid'); renderOrder(); }
 function closeOrder(){ $('#osheet').classList.add('hid'); }
 function renderOrder(){
-  const ai = ordDraft.indexOf('amp'), dirty = ordDraft.join() !== ORD.join();
+  const ai = ordDraft.indexOf('amp'), dirty = ordDraft.join() !== noAmp2(ORD).join();
   $('#olist').innerHTML = ordDraft.map((b, i) => { const M = BLK[b] || {ab: b, name: b, c: 'fg'}, q = pairOf(b);
-    return '<div class="orow' + (b === 'amp' ? ' amp' : '') + (isOn(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '"><span class="no">' + (i + 1) + '</span><i class="d"></i><div class="sp"><b>' + esc(M.name) + (isPar(b) ? ' <em class="par">∥</em>' : '') + '</b><span class="small mut">' +
+    return '<div class="orow' + (b === 'amp' ? ' amp' : '') + (isOn(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '"><span class="no">' + (i + 1) + '</span><i class="d"></i><div class="sp"><b>' + esc(b === 'amp' && isOn('amp2') ? 'Amp + Amp 2' : M.name) + (isPar(b) && b !== 'amp' ? ' <em class="par">∥</em>' : '') + '</b><span class="small mut">' +
       (b === 'amp' ? 'NAM amp: mono before, stereo after' : (i < ai ? 'before the amp · mono' : 'after the amp') + (q && isPar(b) ? ' · parallel with ' + BLK[q[0] === b ? q[1] : q[0]].name : '')) + '</span></div>' +
       '<button class="ib" data-i="' + i + '" data-d="-1" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>' +
       '<button class="ib" data-i="' + i + '" data-d="1" aria-label="Move down"' + (i === ordDraft.length - 1 ? ' disabled' : '') + '><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>'; }).join('');
@@ -1241,6 +1260,7 @@ async function poll(){
     if (s.np !== P.length || (s.lv !== undefined && s.lv !== LV)) { await reload(); changed = true; }
     else s.v.forEach((v, i) => { const p = P[i]; if (p && p.v !== v && dragging !== p.k && !(p.k in pending)) { p.v = v; changed = true; } });
     if (s.cap && (s.cap.act !== capAct || s.cap.st !== capInfo.st || s.cap.lite !== capInfo.lite)) { loadCaps(); }
+    else if (s.cap2 && (s.cap2.act !== capInfo.active2 || s.cap2.st !== capInfo.st2)) { loadCaps(); }
     if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; changed = true; }
     if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; changed = true; }
     if (s.midi !== undefined && MD && (s.midi !== MD.count || MD.ped !== s.ped || MD.learn >= 0)) midiApi('/api/midi');
