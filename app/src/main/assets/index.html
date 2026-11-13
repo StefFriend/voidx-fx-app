@@ -13,243 +13,320 @@
 @font-face{font-family:'Space Grotesk';font-weight:700;src:url(fonts/space-grotesk-latin-700-normal.woff2) format('woff2')}
 
 :root{
-  --bg:#0B0D11;--s1:#14171D;--s2:#1B1F27;--s3:#0E1015;--line:#272C36;--line2:#1F232B;
-  --fg:#ECEFF4;--mut:#9AA3B2;--dim:#8A93A2;--off:#30353F;--track:#262B34;--hub:#1B1F27;
-  --inv:#ECEFF4;--invfg:#0B0D11;--onacc:#0B0D11;--nav:#0E1015;
+  --bg:#090A0E;--s1:#12151B;--s2:#1A1E26;--s3:#0B0D11;--s4:#14171D;--line:#252A34;--line2:#1E222A;--dash:#3A404C;
+  --fg:#EEF1F6;--mut:#98A1B0;--dim:#8B94A3;--faint:#6B7382;--off:#2A2F39;--track:#252A34;--hub:#1A1E26;
+  --inv:#EEF1F6;--invfg:#090A0E;--onacc:#090A0E;--nav:#0D0F14;--sheet:#12151B;--scrim:rgba(0,0,0,.6);
   --dyn:#F5B841;--drv:#FF7B3A;--amp:#FF5A5F;--ir:#D2A679;--eq:#C9D1DB;--mod:#B08CFF;--dly:#3FD99A;--rev:#47C8F5;
-  --ok:#3FD99A;--warn:#F5B841;--bad:#FF5A5F;--glow:.35;
+  --st:#47C8F5;--mono:rgba(201,208,219,.4);
+  --ok:#3FD99A;--warn:#F5B841;--bad:#FF5A5F;--glow:1;
 }
 :root[data-theme=light]{
-  --bg:#F3F4F7;--s1:#FFFFFF;--s2:#EEF0F4;--s3:#E7EAEF;--line:#D9DDE4;--line2:#E6E9EE;
-  --fg:#12151B;--mut:#555E6D;--dim:#5F6878;--off:#C9CED6;--track:#E1E4EA;--hub:#F1F3F6;
-  --inv:#12151B;--invfg:#FFFFFF;--onacc:#FFFFFF;--nav:#FFFFFF;
+  --bg:#F2F3F6;--s1:#FFFFFF;--s2:#EEF0F4;--s3:#E9ECF1;--s4:#FFFFFF;--line:#D9DDE4;--line2:#E4E7EC;--dash:#B9BFC9;
+  --fg:#12151B;--mut:#555E6D;--dim:#5F6878;--faint:#7A8392;--off:#CDD2DA;--track:#E1E4EA;--hub:#F1F3F6;
+  --inv:#12151B;--invfg:#FFFFFF;--onacc:#FFFFFF;--nav:#FFFFFF;--sheet:#FFFFFF;--scrim:rgba(20,24,32,.35);
   --dyn:#B87A00;--drv:#D9541A;--amp:#D7333A;--ir:#9A6A38;--eq:#5F6878;--mod:#7A4BE6;--dly:#0E9A60;--rev:#1488BE;
-  --ok:#0E9A60;--warn:#B87A00;--bad:#D7333A;--glow:.18;
+  --st:#1488BE;--mono:rgba(60,68,80,.35);
+  --ok:#0E9A60;--warn:#B87A00;--bad:#D7333A;--glow:.45;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:15px/1.35 Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
-button,input,select{font:inherit;color:inherit}
-button{cursor:pointer;background:var(--s2);border:1px solid var(--line);border-radius:12px;min-height:40px;padding:0 12px}
-button:active{transform:translateY(1px)}
+button{font:inherit;color:inherit;cursor:pointer;background:var(--s2);border:1px solid var(--line);border-radius:12px;min-height:40px;padding:0 12px}
+button:disabled{opacity:.4;cursor:default}
+button.prim{background:var(--inv);color:var(--invfg);border-color:var(--inv);font-weight:700}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .g{font-family:'Space Grotesk',Inter,sans-serif}
-.cap{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:var(--mut)}
-.mut{color:var(--mut)}
-.small{font-size:12px}
-.hid{display:none!important}
+.cap{font-size:11px;letter-spacing:2px;color:var(--mut);font-weight:500;text-transform:uppercase}
+.small{font-size:12px}.mut{color:var(--mut)}.sp{flex:1;min-width:0}.hid{display:none!important}
+.row{display:flex;align-items:center;gap:10px}
+.note{font-size:12px;color:var(--mut);line-height:1.45}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* barra in alto */
-.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 14px 8px;background:var(--bg)}
-.logo{width:34px;height:34px;border-radius:10px;background:var(--inv);color:var(--invfg);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:15px;flex:none}
+header.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 16px 8px;background:var(--bg)}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--inv);color:var(--invfg);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:14px;flex:none}
 .ttl{flex:1;min-width:0;display:flex;flex-direction:column}
-.ttl b{font-family:'Space Grotesk';font-weight:700;font-size:20px;line-height:1.1}
-.ttl span{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pill{display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:999px;background:var(--s1);border:1px solid var(--line);font-size:12px;color:var(--mut);flex:none}
-.pill b{color:var(--fg);font-family:'Space Grotesk';font-weight:600}
-.led{width:8px;height:8px;border-radius:50%;background:var(--off);flex:none}
-.led.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
-.led.busy{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.ttl b{font-family:'Space Grotesk';font-size:20px;line-height:1.1}
+.ttl span{font-size:11px;color:var(--mut);letter-spacing:.5px}
+.pill{display:flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:16px;background:var(--s1);border:1px solid var(--line);font-size:12px;color:var(--mut);flex:none;white-space:nowrap}
+.pill b{font-family:'Space Grotesk';color:var(--fg)}
+.led{width:8px;height:8px;border-radius:4px;background:var(--off);flex:none}
+.led.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}.led.busy{background:var(--warn)}
 .ib{width:40px;height:40px;min-height:40px;padding:0;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--s1);flex:none}
-.ib svg{width:20px;height:20px;stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib svg{width:20px;height:20px}
 
-main{max-width:560px;margin:0 auto;padding:4px 14px calc(100px + env(safe-area-inset-bottom))}
-.view{display:none;flex-direction:column;gap:12px}
-.view.on{display:flex}
-.card{background:var(--s1);border:1px solid var(--line);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px}
-.row{display:flex;align-items:center;gap:10px}
-.sp{flex:1;min-width:0}
+main{padding:4px 16px calc(100px + env(safe-area-inset-bottom));max-width:620px;margin:0 auto}
+.view{display:none;flex-direction:column;gap:14px}.view.on{display:flex}
 
-/* barra delle sezioni */
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:8px 6px calc(10px + env(safe-area-inset-bottom));background:var(--nav);border-top:1px solid var(--line2)}
-nav.tabs button{background:none;border:none;min-height:52px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--dim)}
-nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-nav.tabs button.on{color:var(--fg);font-weight:600}
+/* tab */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:8px 8px calc(10px + env(safe-area-inset-bottom));background:var(--nav);border-top:1px solid var(--line2)}
+nav.tabs button{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--dim);min-height:52px;padding:0}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button.on{color:var(--fg);font-weight:700}
 
-/* live */
-.preset{gap:12px}
-.pnav{width:48px;height:48px;border-radius:14px;padding:0;display:flex;align-items:center;justify-content:center;flex:none}
-.pnav svg{width:20px;height:20px;stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.pname{display:flex;flex-direction:column;align-items:center;min-width:0;flex:1}
-.pname b{font-family:'Space Grotesk';font-weight:700;font-size:28px;letter-spacing:-.5px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.capline{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--mut);min-width:0}
-.capline span.n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
-.badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:6px;border:1px solid var(--line);color:var(--mut);flex:none}
-.badge.amp{border-color:color-mix(in srgb,var(--amp) 45%,transparent);color:var(--amp)}
-.badge.ir{border-color:color-mix(in srgb,var(--ir) 45%,transparent);color:var(--ir)}
-.chain{display:flex;align-items:center;justify-content:space-between}
-.chain i{flex:1;height:2px;background:var(--off);margin:0 2px;min-width:3px}
-.chain b{height:30px;min-width:30px;padding:0 4px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:11px;background:var(--s2);color:var(--dim);border:1px solid var(--line)}
-.chain b.on{background:var(--c);color:var(--onacc);border-color:var(--c);box-shadow:0 0 12px color-mix(in srgb,var(--c) calc(var(--glow)*100%),transparent)}
-.bgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.bt{min-height:44px;height:44px;padding:0 4px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:.5px;background:var(--s2);color:var(--dim);border:1px solid var(--line);min-width:0}
-.bt i{width:8px;height:8px;border-radius:50%;background:var(--off);flex:none}
-.bt.on{background:color-mix(in srgb,var(--c) 18%,var(--s1));color:var(--fg);border-color:var(--c)}
-.bt.on i{background:var(--c);box-shadow:0 0 8px var(--c)}
-.prow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.prow button{height:44px;border-radius:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
-.prow svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.pname{background:none;border:none;min-height:0;padding:0;cursor:pointer}
-.fshd{display:flex;align-items:center;justify-content:space-between}
-.fshd button{min-height:34px;font-size:13px;font-weight:600}
-.fsw .m.multi{font-size:16px}
-.slist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.sl{min-height:58px;border-radius:14px;padding:8px 10px;display:flex;align-items:center;gap:10px;text-align:left;background:var(--s1);border:1px solid var(--line);min-width:0}
-.sl .no{font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--mut);flex:none}
-.sl b{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sl.empty{background:transparent;border:1px dashed var(--off)}
-.sl.empty b{color:var(--dim);font-weight:500}
-.sl.cur{border:2px solid var(--ok)}
-.asg{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--s1);border:1px solid var(--line)}
-.asg .k{display:flex;align-items:center;gap:10px}
-.asg .k b{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;border:2px solid var(--fg)}
-.meters{display:grid;grid-template-columns:30px minmax(0,1fr) 56px;gap:8px;align-items:center;font-size:12px;color:var(--mut);font-weight:600}
-.meters .mseg{display:flex;gap:2px}
-.meters .mseg i{flex:1;height:10px;border-radius:2px;background:var(--s3)}
-.meters .num{text-align:right;font-family:'Space Grotesk';color:var(--fg)}
-.fs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.fsw{height:118px;border-radius:20px;padding:12px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--s3);border:1.5px solid var(--line);min-width:0}
-.fsw .h{display:flex;justify-content:space-between;align-items:center;width:100%}
-.fsw .h span{font-family:'Space Grotesk';font-weight:700;font-size:11px;letter-spacing:2px;color:var(--dim)}
-.fsw .lamp{width:12px;height:12px;border-radius:50%;background:var(--off)}
-.fsw .m{font-family:'Space Grotesk';font-weight:600;font-size:19px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fsw .s{font-size:12px;color:var(--mut);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fsw .k{font-size:11px;letter-spacing:1px;color:var(--dim);margin-top:auto}
-.fsw.on{background:var(--s1);border-color:var(--c);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 15%,transparent),0 8px 24px color-mix(in srgb,var(--c) 12%,transparent)}
-.fsw.on .h span{color:var(--c)}
-.fsw.on .lamp{background:var(--c);box-shadow:0 0 10px var(--c)}
-.vol{flex-direction:row;align-items:center;gap:12px;padding:12px 14px;border-radius:18px}
-input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:30px;margin:0;flex:1;min-width:0}
-input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--track)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:var(--fg);border:4px solid var(--s1)}
-input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--track)}
-input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--fg);border:3px solid var(--s1)}
-.vv{font-family:'Space Grotesk';font-weight:600;font-size:15px;min-width:58px;text-align:right}
-.mute{font-size:12px;font-weight:700;letter-spacing:1px}
-.mute.on{background:var(--bad);border-color:var(--bad);color:#fff}
-.connect{align-items:center;text-align:center}
+/* PLAY */
+.connect{align-items:flex-start}
 .connect .big{font-family:'Space Grotesk';font-weight:700;font-size:18px}
+.phead{display:flex;align-items:center;gap:10px}
+.round{width:44px;height:44px;min-height:44px;border-radius:22px;padding:0;display:flex;align-items:center;justify-content:center;background:var(--s1);flex:none}
+.pname{flex:1;min-width:0;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0}
+.pname b{font-family:'Space Grotesk';font-size:28px;letter-spacing:-.5px;max-width:100%}
+.strip{display:flex;align-items:center;min-height:36px}
+.strip .w{flex:1;min-width:3px;height:2px;background:var(--mono)}
+.strip .w.st{height:6px;border-top:2px solid var(--st);border-bottom:2px solid var(--st);background:none}
+.strip .col{display:flex;flex-direction:column;gap:4px}
+.mt{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--dash);color:var(--faint);flex:none}
+.mt svg{width:17px;height:17px}
+.mt.on{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);box-shadow:0 0 12px color-mix(in srgb,var(--c) calc(28% * var(--glow)),transparent)}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--mut);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:5px}
+.fs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fsw{height:128px;padding:12px;border-radius:20px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;background:var(--s1);border:1px solid var(--line)}
+.fsw .h{display:flex;align-items:center;gap:8px;width:100%}
+.fsw .k{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:13px;background:var(--off);color:var(--fg)}
+.fsw .lamp{width:10px;height:10px;border-radius:5px;background:var(--off);margin-left:auto}
+.fsw .m{display:flex;align-items:center;gap:10px;width:100%;min-width:0}
+.fsw .t{width:44px;height:44px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--s2);color:var(--dim)}
+.fsw .t svg{width:24px;height:24px}
+.fsw .n{display:flex;flex-direction:column;min-width:0}
+.fsw .n b{font-family:'Space Grotesk';font-size:16px}
+.fsw .n span{font-size:12px;color:var(--mut)}
+.fsw .s{font-size:11px;letter-spacing:1.5px;font-weight:600;color:var(--dim)}
+.fsw.on{background:var(--s4);border:1.5px solid var(--c);box-shadow:0 0 22px color-mix(in srgb,var(--c) calc(18% * var(--glow)),transparent)}
+.fsw.on .k{background:var(--c);color:var(--onacc)}
+.fsw.on .lamp{background:var(--c);box-shadow:0 0 10px var(--c)}
+.fsw.on .t{background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.fsw.on .s{color:var(--c)}
+.fsw.empty .n b{color:var(--dim)}
+.quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.quick button{height:56px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;background:var(--s1)}
+.quick button svg{width:20px;height:20px}
+.quick button.on{background:var(--bad);border-color:var(--bad);color:var(--onacc)}
+.slider{display:flex;align-items:center;gap:12px}
+.slider .v{font-family:'Space Grotesk';font-weight:600;font-size:14px;min-width:60px;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:22px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--rc,var(--fg)) var(--p,50%),var(--track) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:12px;background:var(--fg);margin-top:-9px;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.meters{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:11px;color:var(--mut)}
+.mseg{display:grid;grid-template-columns:repeat(28,1fr);gap:2px;height:8px}
+.mseg i{border-radius:2px;background:var(--track)}
+.meters .num{font-family:'Space Grotesk';font-size:12px;min-width:46px;text-align:right;color:var(--fg)}
 
-/* rig */
-.hrow{display:flex;align-items:flex-end;gap:10px}
-.hrow .t{flex:1;display:flex;flex-direction:column}
-.hrow .t b{font-family:'Space Grotesk';font-weight:700;font-size:26px}
-.hrow .t span{font-size:12px;color:var(--mut);letter-spacing:1px}
-.prim{background:var(--inv);color:var(--invfg);border-color:var(--inv);font-weight:600}
+/* CHAIN */
 .load{display:flex;flex-direction:column;gap:6px}
-.load .bar{height:8px;border-radius:4px;background:var(--s2);overflow:hidden}
-.load .bar i{display:block;height:100%;background:var(--fg);border-radius:4px;transition:width .3s}
-.load .bar i.hot{background:var(--bad)}
-.blocks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.blk{height:66px;border-radius:16px;padding:6px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;background:var(--s1);border:1px solid var(--line)}
-.blk .d{width:8px;height:8px;border-radius:50%;background:var(--off)}
-.blk.on .d{background:var(--c);box-shadow:0 0 8px var(--c)}
-.blk b{font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:1px}
-.blk span{font-size:10px;color:var(--mut);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.blk:not(.on){opacity:.62}
-.blk.sel{background:var(--s2);border:2px solid var(--c);opacity:1;box-shadow:0 0 18px color-mix(in srgb,var(--c) calc(var(--glow)*80%),transparent)}
-.blk.out{background:transparent;border:1px dashed var(--off);opacity:1}
-.blk{position:relative}
-.blk .par,.orow .par{font-style:normal;font-weight:700;color:var(--c);font-size:13px;line-height:1}
-.blk .par{position:absolute;top:5px;right:7px}
-.ordb{display:flex;align-items:center;justify-content:center;gap:8px;height:44px;border-radius:14px;background:var(--s1);border:1px solid var(--line);font-family:'Space Grotesk';font-weight:700;font-size:13px;letter-spacing:.5px;color:var(--fg)}
-.ordb svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.orow{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:14px;background:var(--s1);border:1px solid var(--line)}
-.orow.amp{border-color:var(--amp);background:color-mix(in srgb,var(--amp) 10%,var(--s1))}
-.orow .no{width:20px;text-align:right;font-family:'Space Grotesk';font-weight:700;color:var(--dim);font-size:13px}
-.orow .d{width:9px;height:9px;border-radius:50%;background:var(--off);flex:none}
-.orow.on .d{background:var(--c);box-shadow:0 0 8px var(--c)}
-.orow .sp{display:flex;flex-direction:column;gap:2px;min-width:0}
-.orow .sp b{font-size:14px}
-.orow .ib:disabled{opacity:.3}
-.route{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;border:1px solid color-mix(in srgb,var(--c) 40%,var(--line));background:color-mix(in srgb,var(--c) 6%,transparent)}
-.route .rt{display:flex;align-items:center;gap:8px}
-.route .rt b{font-size:13px}
-.route .seg.sm{flex:0 0 170px}
-.bt{white-space:nowrap;overflow:hidden}
-.ed .hd{display:flex;align-items:center;gap:10px}
-.tag{font-family:'Space Grotesk';font-weight:700;font-size:11px;letter-spacing:2px;padding:4px 8px;border-radius:7px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
-.ed .nm{flex:1;min-width:0;font-family:'Space Grotesk';font-weight:700;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sw{width:52px;height:30px;min-height:30px;border-radius:15px;border:none;position:relative;padding:0;background:var(--off);flex:none}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
-.sw.on{background:var(--c,var(--ok))}
-.sw.on::after{left:25px}
+.bar{height:8px;border-radius:4px;background:var(--s2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--fg);border-radius:4px;transition:width .3s}
+.bar i.hot{background:var(--bad)}
+.flow{display:flex;flex-direction:column}
+.fr{display:flex;align-items:stretch;gap:12px}
+.gut{width:48px;flex:none;position:relative;display:flex;align-items:center;justify-content:center}
+.ln{position:absolute;left:23px;top:0;bottom:0;width:2px;background:var(--mono)}
+.ln.st{left:21px;width:6px;background:none;border-left:2px solid var(--st);border-right:2px solid var(--st)}
+.ln.top{bottom:50%}.ln.bot{top:50%}
+.node{position:relative;width:40px;height:40px;border-radius:20px;background:var(--s1);border:1px solid var(--dash);display:flex;align-items:center;justify-content:center;color:var(--fg)}
+.node svg{width:20px;height:20px}
+.tile{position:relative;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--bg);border:1.5px dashed var(--dash);color:var(--faint)}
+.tile svg{width:24px;height:24px}
+.tile.on{background:var(--s2);border:1.5px solid var(--c);color:var(--c);box-shadow:0 0 16px color-mix(in srgb,var(--c) calc(25% * var(--glow)),transparent)}
+.bc{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 12px;margin:3px 0;border-radius:16px;background:transparent;border:1px solid var(--line2);text-align:left;min-height:62px}
+.bc.on{background:var(--s4);border-color:var(--line)}
+.bc .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.bc .nm{display:flex;align-items:center;gap:6px;min-width:0}
+.bc .nm b{font-family:'Space Grotesk';font-size:15px;color:var(--mut)}
+.bc.on .nm b{color:var(--fg)}
+.bc .sub{font-size:12px;color:var(--mut)}
+.chip2{font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:6px;background:color-mix(in srgb,var(--cc,var(--mut)) 16%,transparent);color:var(--cc,var(--mut));white-space:nowrap;flex:none}
+.pwr{width:40px;height:40px;min-height:40px;padding:0;border-radius:20px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--s2);color:var(--dim);border:1px solid var(--off)}
+.pwr svg{width:18px;height:18px;stroke-width:2.3}
+.pwr.on{background:var(--c);color:var(--onacc);border-color:var(--c);box-shadow:0 0 12px color-mix(in srgb,var(--c) calc(40% * var(--glow)),transparent)}
+.pwr.sm{width:30px;height:30px;min-height:30px;border-radius:15px}.pwr.sm svg{width:14px;height:14px}
+.addr{height:34px}.addr .gut{height:34px}
+.plus{position:relative;width:24px;height:24px;min-height:24px;padding:0;border-radius:12px;background:var(--bg);border:1px solid var(--dash);display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.plus svg{width:14px;height:14px;stroke-width:2.4}
+.zone{height:30px;align-items:center}
+.zl{font-size:10px;font-weight:700;letter-spacing:1.5px;padding:4px 8px;border-radius:7px;background:color-mix(in srgb,var(--fg) 8%,transparent);color:var(--mut)}
+.zl.st{background:color-mix(in srgb,var(--st) 14%,transparent);color:var(--st)}
+.iol{display:flex;flex-direction:column;justify-content:center;min-height:56px}
+.iol b{font-weight:600;font-size:14px}.iol span{font-size:12px;color:var(--mut)}
+.pairc{flex:1;min-width:0;margin:3px 0;padding:10px;border-radius:18px;background:var(--s4);border:1px solid var(--c);display:flex;flex-direction:column;gap:8px}
+.pairc .hd{display:flex;align-items:center;gap:6px}
+.pairc .hd b{font-family:'Space Grotesk';font-size:15px;flex:1}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.mini{display:flex;align-items:center;gap:8px;padding:8px;border-radius:14px;background:var(--s3);border:1px dashed var(--dash);text-align:left;min-height:52px;min-width:0}
+.mini.on{background:var(--s2);border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
+.mini .mi{width:30px;height:30px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--s2);color:var(--faint)}
+.mini.on .mi{background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.mini .mi svg{width:19px;height:19px}
+.mini .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.mini .tx b{font-family:'Space Grotesk';font-size:13px;color:var(--mut)}
+.mini.on .tx b{color:var(--fg)}
+.mini .tx span{font-size:11px;color:var(--mut)}
+.mini.amp{border-style:solid;border-color:var(--amp)}
+.lanes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px;border-radius:22px;background:var(--s3);border:1px solid var(--line2);margin:2px 0}
+.lane{display:flex;flex-direction:column;gap:6px;position:relative;min-width:0}
+.lane .lh{display:flex;align-items:center;gap:6px;height:22px}
+.lane .lh b{font-family:'Space Grotesk';font-size:11px;letter-spacing:1px;color:var(--lc)}
+.lane .wire{position:absolute;left:22px;top:26px;bottom:20px;width:2px;background:color-mix(in srgb,var(--lc) 40%,transparent)}
+.lane .mini{position:relative}
+.ladd{position:relative;height:30px;min-height:30px;border-radius:10px;border:1px dashed var(--dash);background:var(--s3);display:flex;align-items:center;justify-content:center;gap:6px;color:var(--mut);font-size:12px;padding:0}
+.ladd svg{width:13px;height:13px;stroke-width:2.4}
+.spare{border:1px dashed var(--dash);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{min-height:36px;padding:0 12px;border-radius:10px;font-size:13px;background:var(--s2);color:var(--fg);border:1px solid var(--line);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chip.on{background:var(--c,var(--inv));color:var(--onacc);border-color:var(--c,var(--inv));font-weight:600}
-.chip.inv.on{background:var(--inv);color:var(--invfg);border-color:var(--inv)}
+.sc{display:flex;align-items:center;gap:6px;height:34px;min-height:34px;padding:0 10px 0 8px;border-radius:10px;background:var(--s1);font-size:12px;color:var(--fg)}
+.sc svg{width:16px;height:16px;color:var(--c)}
+.hbtn{display:flex;align-items:center;gap:6px;height:40px;border-radius:12px;font-size:13px;font-weight:600}
+.hbtn svg{width:16px;height:16px}
+
+/* fogli */
+.sheet{position:fixed;inset:0;z-index:20;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet .in{width:100%;max-width:620px;max-height:92vh;overflow:auto;background:var(--sheet);border-top:1px solid var(--line);border-radius:28px 28px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--dash);align-self:center;flex:none}
+.shd{display:flex;align-items:center;gap:12px}
+.shd .bt{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex:none;background:color-mix(in srgb,var(--c) 14%,transparent);border:1.5px solid var(--c);color:var(--c)}
+.shd .bt svg{width:28px;height:28px;stroke-width:1.7}
+.shd .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.shd .tx b{font-family:'Space Grotesk';font-size:22px}
+.close{width:40px;height:40px;min-height:40px;border-radius:20px;padding:0;display:flex;align-items:center;justify-content:center;flex:none}
+.close svg{width:18px;height:18px;stroke-width:2.2}
+.tabs3{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);padding:3px;border-radius:14px;background:var(--s3);border:1px solid var(--line)}
+.tabs3 button{height:38px;min-height:38px;border:none;border-radius:11px;background:transparent;color:var(--mut);font-size:13px;font-weight:600}
+.tabs3 button.on{background:var(--s2);color:var(--fg);box-shadow:0 1px 0 rgba(255,255,255,.05)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);padding:3px;border-radius:12px;background:var(--s3);border:1px solid var(--line)}
+.seg button{min-height:36px;height:36px;border:none;border-radius:9px;background:transparent;color:var(--mut);font-size:13px;font-weight:600;padding:0 6px}
+.seg button.on{background:var(--s2);color:var(--fg)}
+.segw{display:flex;flex-direction:column;gap:8px}
+.segw>span{font-size:13px;font-weight:600}
+.models{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:36px;min-height:36px;padding:0 12px;border-radius:10px;font-size:13px;background:var(--s2);color:var(--fg)}
+.chip.on{background:var(--c,var(--fg));border-color:var(--c,var(--fg));color:var(--onacc);font-weight:700}
 .knobs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 4px}
-.knob{display:flex;flex-direction:column;align-items:center;gap:2px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ns-resize}
+.knob{display:flex;flex-direction:column;align-items:center;gap:2px;touch-action:none;user-select:none;-webkit-user-select:none}
 .knob svg{width:64px;height:64px}
-.knob .v{font-family:'Space Grotesk';font-weight:600;font-size:14px;white-space:nowrap}
-.knob .l{font-size:11px;color:var(--mut);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.knob .v{font-family:'Space Grotesk';font-weight:600;font-size:14px}
+.knob .l{font-size:11px;color:var(--mut);text-align:center}
 .knob.drag .v{color:var(--c)}
-.segw{display:flex;align-items:center;gap:10px}
-.segw>span{font-size:12px;color:var(--mut);width:72px;flex:none}
-.seg{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);padding:3px;border-radius:12px;background:var(--s3);border:1px solid var(--line)}
-.seg button{min-height:34px;border-radius:9px;border:none;background:transparent;color:var(--mut);font-size:13px;font-weight:600;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.seg button.on{background:var(--s1);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.18)}
-:root:not([data-theme=light]) .seg button.on{background:#2A303B}
-.foot{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut)}
-.foot svg{width:16px;height:16px;stroke:var(--mut);fill:none;stroke-width:2;flex:none}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{padding:12px;border-radius:18px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--s3);border:1px solid var(--line);min-height:120px}
+.opt.on{background:var(--s2);border:1.5px solid var(--c);box-shadow:0 0 18px color-mix(in srgb,var(--c) calc(16% * var(--glow)),transparent)}
+.opt b{font-size:14px}.opt span{font-size:11.5px;color:var(--mut);line-height:1.35}
+.sch{display:flex;align-items:center;gap:4px;height:44px}
+.sch i{display:block}
+.sch .w{width:10px;height:2px;background:var(--mut)}
+.sch .bx{width:30px;height:22px;border-radius:6px;border:1.5px solid var(--c);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--c);font-style:normal}
+.sch .bx.s{height:18px}
+.sch .fk{width:8px;height:32px;border:2px solid var(--mut);border-right:none;border-radius:4px 0 0 4px}
+.sch .lr{display:flex;flex-direction:column;gap:14px;font-family:'Space Grotesk';font-weight:700;font-size:10px;color:var(--st)}
+.box{padding:14px;border-radius:18px;background:var(--s3);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.sl{display:flex;flex-direction:column;gap:6px}
+.sl .h{display:flex;align-items:center}
+.sl .h span{flex:1;font-size:13px;font-weight:600}
+.sl .h b{font-family:'Space Grotesk';font-size:14px}
+.sl .s{display:flex;justify-content:space-between;font-size:10px;color:var(--dim)}
+.warnbox{display:flex;gap:10px;padding:12px;border-radius:14px;background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);font-size:12px;line-height:1.45}
+.warnbox svg{width:18px;height:18px;color:var(--warn);flex:none;stroke-width:2}
 .list{display:flex;flex-direction:column;gap:8px}
-.it{display:flex;align-items:center;gap:10px;padding:10px 6px 10px 12px;border-radius:16px;background:var(--s1);border:1px solid var(--line);min-height:58px;text-align:left;width:100%}
-.it.act{border:1.5px solid var(--c)}
-.it .no{font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--mut);width:22px;flex:none}
-.it .bd{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-.it .bd b{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.it .bd div{display:flex;gap:6px;align-items:center}
-.it .use{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--ok);flex:none}
-.it .x{width:40px;height:40px;min-height:40px;padding:0;border:none;background:transparent;display:flex;align-items:center;justify-content:center;flex:none}
-.it .x svg{width:18px;height:18px;stroke:var(--mut);fill:none;stroke-width:2;stroke-linecap:round}
-.add{height:96px;border-radius:20px;background:transparent;border:1.5px dashed var(--off);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-align:center}
-.add input{display:none}
-.add b{font-size:14px}
-.add svg{width:24px;height:24px;stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round}
-.cells{display:flex;gap:3px}
-.cells i{flex:1;height:8px;border-radius:2px;background:var(--s3)}
-.cells i.on{background:var(--c)}
-.status{font-size:12px;color:var(--mut);min-height:16px}
-.status.err{color:var(--bad)}
+.radio{display:flex;align-items:center;gap:10px;min-height:54px;padding:6px 12px;border-radius:14px;background:var(--s3);border:1px solid var(--line);text-align:left;width:100%}
+.radio .dot{width:18px;height:18px;border-radius:9px;border:1.5px solid var(--dash);flex:none}
+.radio.on{background:var(--s2);border:1.5px solid var(--c,var(--fg))}
+.radio.on .dot{border:5px solid var(--c,var(--fg))}
+.radio .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.radio .tx b{font-size:13.5px;font-weight:600}.radio .tx span{font-size:11.5px;color:var(--mut)}
+.tag{font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 6px;border-radius:6px;background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);flex:none}
+.fsp{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.fsp button{height:52px;border-radius:14px;font-family:'Space Grotesk';font-weight:700;font-size:18px}
+.fsp button.on{background:var(--c);border-color:var(--c);color:var(--onacc)}
+.danger{color:var(--bad);background:transparent;border-color:color-mix(in srgb,var(--bad) 40%,transparent);height:46px;border-radius:14px;font-weight:600}
+.addg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ab{padding:12px;border-radius:18px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:var(--s3);border:1px solid var(--line);min-height:140px}
+.ab .t{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.ab .t svg{width:24px;height:24px}
+.ab b{font-family:'Space Grotesk';font-size:15px}
+.ab span{font-size:11.5px;color:var(--mut);line-height:1.4}
+.ab.on{background:var(--s2);border:1.5px solid var(--c);box-shadow:0 0 20px color-mix(in srgb,var(--c) calc(20% * var(--glow)),transparent)}
+.cta{height:54px;border-radius:16px;border:none;font-size:15px;font-weight:700;background:var(--c,var(--inv));color:var(--onacc)}
+.pedal{padding:16px 12px 12px;border-radius:18px;background:#1C1F26;border:1px solid #30353F;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 24px rgba(0,0,0,.35);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pedal button{display:flex;flex-direction:column;align-items:center;gap:8px;background:transparent;border:none;padding:0;min-height:0}
+.pedal .pl{width:8px;height:8px;border-radius:4px;background:#3A404C}
+.pedal .pk{width:52px;height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;background:#2B2F37;box-shadow:0 6px 12px rgba(0,0,0,.5)}
+.pedal .pk i{width:38px;height:38px;border-radius:19px;background:#3A3F49;box-shadow:inset 0 2px 0 rgba(255,255,255,.15),inset 0 -3px 6px rgba(0,0,0,.4)}
+.pedal .pn{font-family:'Space Grotesk';font-weight:700;font-size:14px;color:#8B94A3}
+.pedal button.on .pk{box-shadow:0 0 0 3px var(--c),0 6px 12px rgba(0,0,0,.5)}
+.pedal button.on .pn{color:#EEF1F6}
+.tg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tgb{height:48px;border-radius:14px;display:flex;align-items:center;gap:10px;padding:0 10px 0 12px;text-align:left}
+.tgb svg{width:20px;height:20px;color:var(--c)}
+.tgb span:not(.ck){flex:1;font-size:13px;font-weight:600}
+.tgb .ck{flex:none}
+.tgb .ck{width:22px;height:22px;border-radius:11px;border:1.5px solid var(--dash);display:flex;align-items:center;justify-content:center}
+.tgb .ck svg{width:12px;height:12px;stroke-width:3.5;color:var(--onacc);display:none}
+.tgb.on{background:var(--s2);border:1.5px solid var(--c)}
+.tgb.on .ck{background:var(--c);border-color:var(--c)}.tgb.on .ck svg{display:block}
 
 /* preset */
-.pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.ps{height:84px;border-radius:16px;padding:8px 8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;min-width:0;background:var(--s1);border:1px solid var(--line)}
-.ps .n{display:flex;justify-content:space-between;align-items:center;width:100%;font-family:'Space Grotesk';font-weight:700;font-size:12px;color:var(--mut)}
-.ps b{font-size:13px;font-weight:600;line-height:1.2;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
-.ps.empty{background:transparent;border:1px dashed var(--off)}
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ps{height:64px;border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:0 12px;text-align:left;background:var(--s1)}
+.ps .n{font-size:11px;color:var(--mut);display:flex;align-items:center;gap:6px;font-family:'Space Grotesk';font-weight:600}
+.ps b{font-family:'Space Grotesk';font-size:15px;max-width:100%}
 .ps.empty b{color:var(--dim);font-weight:500}
-.ps.sel{background:var(--s2);border:2px solid var(--fg)}
+.ps.sel{border:1.5px solid var(--fg)}
+.ps.cur{background:var(--s2)}
 .acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .acts button{height:46px;border-radius:14px;font-weight:600}
-.pedal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.pedal div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:14px;background:var(--s3);border:1px solid var(--line2);min-width:0}
-.pedal b{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:15px;border:2px solid var(--c);color:var(--c);background:var(--s1)}
-.pedal span{font-size:12px;color:var(--fg);text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slist{display:flex;flex-direction:column;gap:6px}
+.slt{display:flex;align-items:center;gap:12px;min-height:52px;border-radius:14px;text-align:left}
+.slt .no{font-family:'Space Grotesk';font-weight:600;color:var(--mut);width:22px}
+.slt.empty b{color:var(--dim);font-weight:500}
+.slt.cur{border-color:var(--fg)}
+
+/* libreria */
+.cells{display:grid;grid-template-columns:repeat(20,1fr);gap:3px}
+.cells i{height:8px;border-radius:2px;background:var(--track)}
+.cells i.on{background:var(--c)}
+.it{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 12px;border-radius:16px;background:var(--s1);border:1px solid var(--line);cursor:pointer}
+.it .no{font-family:'Space Grotesk';font-weight:600;color:var(--mut);width:22px}
+.it .bd{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.it .bd b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .bd div{display:flex;gap:6px;align-items:center}
+.it.act{border:1.5px solid var(--c)}
+.badge{font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:6px;background:var(--s2);color:var(--mut)}
+.badge.c{background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
+.use{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--c)}
+.x{width:38px;height:38px;min-height:38px;padding:0;border-radius:12px;background:transparent;border:none;color:var(--mut);display:flex;align-items:center;justify-content:center}
+.x svg{width:18px;height:18px}
+.add{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px;border-radius:18px;border:1.5px dashed var(--dash);cursor:pointer;text-align:center}
+.add svg{width:24px;height:24px}
+.add input{display:none}
+.status{font-size:13px;color:var(--mut);min-height:18px}.status.err{color:var(--bad)}
 
 /* setup */
-.opt{display:flex;align-items:center;gap:10px}
-.opt .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.opt .tx b{font-size:13px;font-weight:600}
-.opt .tx span{font-size:12px;color:var(--mut)}
-.bsz{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.bsz button{height:64px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--s3)}
-.bsz button b{font-family:'Space Grotesk';font-weight:700;font-size:20px}
-.bsz button span{font-size:11px;color:var(--mut)}
-.bsz button.on{background:var(--s2);border:2px solid var(--fg)}
+.wl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wl button{min-height:104px;padding:12px 10px;border-radius:18px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;background:var(--s1);color:var(--fg)}
+.wl button svg{width:22px;height:22px;color:var(--dim)}
+.wl button b{font-size:13px}.wl button span{font-size:10.5px;color:var(--mut);line-height:1.35}
+.wl button.on{background:var(--s2);border:1.5px solid var(--c);box-shadow:0 0 18px color-mix(in srgb,var(--c) calc(16% * var(--glow)),transparent)}
+.wl button.on svg{color:var(--c)}
+.sec{display:flex;align-items:center;gap:10px}
+.sec .si{width:38px;height:38px;border-radius:12px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex:none}
+.sec .si svg{width:20px;height:20px}
+.sec .tx{flex:1;display:flex;flex-direction:column}
+.sec .tx b{font-size:15px}.sec .tx span{font-size:12px;color:var(--mut)}
+.sw{width:52px;height:30px;min-height:30px;border-radius:15px;border:none;position:relative;padding:0;background:var(--off);flex:none}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:12px;background:#fff;transition:left .15s}
+.sw.on{background:var(--ok)}.sw.on::after{left:25px}
+.optr{display:flex;align-items:center;gap:10px}
+.optr .tx{flex:1;display:flex;flex-direction:column}
+.optr .tx b{font-size:13px;font-weight:600}.optr .tx span{font-size:11.5px;color:var(--mut)}
 .rows{padding:0;gap:0}
-.rows .cap{padding:14px 14px 4px}
-.rws{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 14px;background:transparent;border:none;border-top:1px solid var(--line2);border-radius:0;text-align:left;width:100%}
-.rws .a{flex:1;font-size:14px;font-weight:500}
-.rws .b{font-size:13px;color:var(--mut)}
-.rws svg{width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:2;flex:none}
-.rws:last-child{border-bottom-left-radius:22px;border-bottom-right-radius:22px}
-.note{font-size:12px;color:var(--mut);line-height:1.45}
-
-/* pannello a scomparsa (MIDI) */
-.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
-.sheet .in{width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--bg);border-radius:24px 24px 0 0;padding:16px 14px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
-.mrow{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--s1);border:1px solid var(--line)}
+.rw{display:flex;align-items:center;gap:12px;min-height:60px;padding:0 14px;background:transparent;border:none;border-radius:0;border-top:1px solid var(--line2);text-align:left;width:100%}
+.rw:first-child{border-top:none}
+.rw .ri{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);flex:none}
+.rw .ri svg{width:20px;height:20px}
+.rw .a{flex:1;font-size:14px;font-weight:600}
+.rw .b{font-size:12px;color:var(--mut)}
+.rw>svg{width:16px;height:16px;color:var(--faint)}
+.mrow{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--s3);border:1px solid var(--line)}
 .mrow .ctl{display:flex;flex-wrap:wrap;gap:6px}
-.mrow select,.mrow input{min-height:38px;border-radius:10px;border:1px solid var(--line);background:var(--s2);padding:0 8px;max-width:100%}
+.mrow select,.mrow input{min-height:38px;border-radius:10px;border:1px solid var(--line);background:var(--s2);color:var(--fg);padding:0 8px;max-width:100%;font:inherit;font-size:13px}
 .mrow input{width:76px}
 .learn{background:var(--warn)!important;color:#000!important;border-color:var(--warn)!important}
 
@@ -258,8 +335,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .tuner .tt{display:flex;align-items:center;gap:10px}
 .tuner .tt b{flex:1;font-family:'Space Grotesk';font-weight:700;font-size:22px}
 .tbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;max-width:520px;width:100%;margin:0 auto}
-.gauge{width:100%;max-width:420px}
-.gauge svg{width:100%;height:auto;display:block}
+.gauge{width:100%;max-width:420px}.gauge svg{width:100%;height:auto;display:block}
 .tnote{display:flex;align-items:flex-start;gap:4px;margin-top:4px}
 .tnote b{font-family:'Space Grotesk';font-weight:700;font-size:112px;line-height:1;letter-spacing:-3px;transition:color .15s}
 .tnote span{font-family:'Space Grotesk';font-weight:600;font-size:28px;margin-top:12px;color:var(--mut)}
@@ -274,146 +350,157 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .step{display:flex;align-items:center;gap:8px}
 .step button{width:44px;height:40px;padding:0;font-size:18px;font-weight:600}
 .step b{flex:1;text-align:center;font-family:'Space Grotesk';font-weight:600;font-size:16px;white-space:nowrap}
+.orow{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:14px;background:var(--s3);border:1px solid var(--line)}
+.orow.amp{border-color:var(--amp)}
+.orow .no{width:20px;text-align:right;font-family:'Space Grotesk';font-weight:700;color:var(--dim);font-size:13px}
+.orow .oi{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);flex:none}
+.orow .oi svg{width:18px;height:18px}
+.orow .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.orow .tx b{font-size:14px}
+.orow .ib{width:38px;height:38px;min-height:38px;background:var(--s2)}
 
-#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:40;background:var(--inv);color:var(--invfg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:88vw;text-align:center;transition:.2s}
+#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:40;background:var(--inv);color:var(--invfg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:88vw;text-align:center;transition:.2s}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 <header class="top">
   <div class="logo">VX</div>
-  <div class="ttl"><b id="vtitle">Live</b><span id="vsub">VoidX FX</span></div>
+  <div class="ttl"><b id="vtitle">Play</b><span id="vsub">VoidX FX</span></div>
   <div class="pill" id="connp"><span class="led busy" id="cled"></span><span id="ctext">…</span></div>
   <div class="pill">DSP <b id="dsp">–</b></div>
-  <button class="ib" id="btun" aria-label="Tuner"><svg viewBox="0 0 24 24"><path d="M9 2v8a3 3 0 006 0V2"/><path d="M12 13v9"/></svg></button>
-  <button class="ib" id="bthm" aria-label="Light or dark theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+  <button class="ib" id="btun" aria-label="Tuner"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 2v7.5a3.5 3.5 0 0 0 7 0V2M12 13v9"/></svg></button>
 </header>
 
 <main>
-  <!-- LIVE -->
-  <section class="view on" id="v-live">
+  <!-- PLAY -->
+  <section class="view on" id="v-play">
     <div class="card connect hid" id="conncard">
       <span class="big">Not connected</span>
       <span class="small mut" id="conntxt">Searching for the pedal over Bluetooth…</span>
       <button class="prim" id="bconn">Connect</button>
     </div>
-    <div class="card preset">
-      <div class="row">
-        <button class="pnav" id="pprev" aria-label="Previous preset"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <button class="pname" id="pname" aria-label="Choose a preset"><span class="cap" id="pslot">PRESET</span><b id="pnm">–</b></button>
-        <button class="pnav" id="pnext" aria-label="Next preset"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
-      </div>
-      <div class="capline"><span class="led" id="capled" style="border-radius:2px;background:var(--amp)"></span><span class="n" id="capnm">–</span><span class="badge amp" id="capeng">–</span></div>
-      <div class="prow">
-        <button id="lload"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Presets</button>
-        <button id="lsave" class="prim"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg>Save</button>
-      </div>
+    <div class="phead">
+      <button class="round" id="pprev" aria-label="Previous preset"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="pname" id="pname" aria-label="Choose a preset"><span class="cap" id="pslot">PRESET</span><b class="ell" id="pnm">–</b></button>
+      <button class="round" id="pnext" aria-label="Next preset"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
-    <div class="bgrid" id="bgrid" aria-label="Blocks on and off"></div>
-    <div class="meters" aria-label="Levels">
-      <span>IN</span><div class="mseg" id="min"></div><span class="num" id="nin">–</span>
-      <span>OUT</span><div class="mseg" id="mout"></div><span class="num" id="nout">–</span>
+    <div class="card" style="gap:10px">
+      <div class="row"><span class="cap sp">Signal</span><button class="hbtn" id="gochain" style="background:none;border:none;color:var(--st);padding:0">Edit chain<svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+      <div class="strip" id="strip" aria-label="Signal chain summary"></div>
+      <div class="legend"><span><span class="mt on" style="--c:var(--fg);width:10px;height:10px;border-radius:3px"></span>on</span><span><span class="mt" style="width:10px;height:10px;border-radius:3px"></span>bypassed</span><span><i style="width:14px;height:6px;border-top:2px solid var(--st);border-bottom:2px solid var(--st)"></i>stereo</span></div>
     </div>
-    <div class="fshd"><span class="cap">FOOTSWITCH</span><button id="fsedit">Assign blocks</button></div>
+    <div class="row"><span class="cap sp">Footswitches</span><button class="hbtn" id="fsedit" style="height:32px;min-height:32px">Assign</button></div>
     <div class="fs" id="fs" aria-label="Footswitches"></div>
-    <div class="card vol">
-      <span class="cap">VOLUME</span>
-      <input type="range" id="vol" aria-label="Volume">
-      <span class="vv" id="volv">–</span>
-      <button class="mute" id="bmute">MUTE</button>
+    <div class="quick">
+      <button id="qtun"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 2v7.5a3.5 3.5 0 0 0 7 0V2M12 13v9"/></svg>Tuner</button>
+      <button id="qsave"><svg class="i" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-6h8v6"/></svg>Save</button>
+      <button id="bmute" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM17 9l5 6M22 9l-5 6"/></svg><span id="mutet">Mute</span></button>
     </div>
+    <div class="slider"><svg class="i" viewBox="0 0 24 24" style="color:var(--mut)"><path d="M4 9h4l5-4v14l-5-4H4zM16.5 9a4 4 0 0 1 0 6"/></svg><input type="range" id="vol" aria-label="Volume"><span class="v" id="volv">–</span></div>
+    <div class="meters" aria-label="Levels"><span>IN</span><div class="mseg" id="min"></div><span class="num" id="nin">–</span><span>OUT</span><div class="mseg" id="mout"></div><span class="num" id="nout">–</span></div>
   </section>
 
-  <!-- RIG -->
-  <section class="view" id="v-rig">
+  <!-- CHAIN -->
+  <section class="view" id="v-chain">
     <div class="load">
-      <div class="row small mut"><span class="sp">DSP load · block <span id="rblk">–</span></span><b class="g" id="rdsp" style="color:var(--fg)">–</b></div>
+      <div class="row small mut"><span class="sp">Processor · block <span id="rblk">–</span></span><b class="g" id="rdsp" style="color:var(--fg);font-size:14px">–</b></div>
       <div class="bar"><i id="rbar" style="width:0"></i></div>
     </div>
-    <div class="blocks" id="blocks" aria-label="Chain"></div>
-    <button class="ordb hid" id="rordb"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg>Chain order</button>
-    <div class="card ed" id="editor"></div>
-  </section>
-
-  <!-- PRESETS -->
-  <section class="view" id="v-presets">
-    <div class="pgrid" id="pgrid"></div>
-    <div class="acts">
-      <button class="prim" id="pload">Load</button>
-      <button id="psave">Save here</button>
-      <button id="pdel">Delete</button>
+    <div class="row">
+      <button class="hbtn sp" id="bord"><svg class="i" viewBox="0 0 24 24"><path d="M8 4v16M8 4 5 7M8 4l3 3M16 20V4M16 20l-3-3M16 20l3-3"/></svg>Reorder</button>
+      <button class="hbtn sp prim" id="csave"><svg class="i" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-6h8v6"/></svg>Save preset</button>
     </div>
-    <div class="card" id="pedalcard">
-      <div class="row">
-        <svg viewBox="0 0 24 24" width="22" height="22" style="stroke:var(--fg);fill:none;stroke-width:2;stroke-linecap:round;flex:none"><rect x="2" y="7" width="20" height="10" rx="3"/><circle cx="7" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="17" cy="12" r="1.5"/></svg>
-        <div class="sp" style="display:flex;flex-direction:column"><b style="font-size:14px" id="pedn">Bluetooth footswitch</b><span class="small mut" id="peds">–</span></div>
-        <button class="sw" id="pen" aria-label="Bluetooth footswitch on or off"></button>
-      </div>
-      <div class="pedal" id="pedal"></div>
-      <div class="row small mut"><span class="sp" id="pedhint">A+B · previous preset</span><button id="pscan">Search</button></div>
-    </div>
+    <div class="flow" id="flow" aria-label="Signal chain, from the guitar to the output"></div>
+    <div class="spare" id="spare"></div>
   </section>
 
   <!-- LIBRARY -->
   <section class="view" id="v-lib">
-    <div class="seg" role="tablist" style="flex:none"><button class="on" id="ltcap">Amp captures</button><button id="ltir">Cabinet IRs</button></div>
-    <div class="load"><div class="row small mut"><span class="sp" id="lused">–</span><span id="lhint"></span></div><div class="cells" id="lcells"></div></div>
-    <div class="list" id="llist"></div>
-    <label class="add" id="ladd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><b id="laddt">Add</b><span class="small mut" id="laddn"></span><input type="file" id="lfile"></label>
-    <div class="status" id="lst"></div>
+    <div class="tabs3" role="tablist"><button class="on" data-l="ps">Presets</button><button data-l="cap">Amps</button><button data-l="ir">Cabs</button></div>
+    <div id="lps" class="view on" style="gap:12px">
+      <div class="pgrid" id="pgrid"></div>
+      <div class="acts"><button class="prim" id="pload">Load</button><button id="psave">Save here</button><button id="pdel">Delete</button></div>
+      <span class="note">Tap a slot to select it, double-tap to load it. Saving stores the whole chain, the footswitch layout stays the same for all presets.</span>
+    </div>
+    <div id="lfiles" class="view" style="gap:12px">
+      <div class="load"><div class="row small mut"><span class="sp" id="lused">–</span><span id="lhint"></span></div><div class="cells" id="lcells"></div></div>
+      <div class="list" id="llist"></div>
+      <label class="add" id="ladd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><b id="laddt">Add</b><span class="small mut" id="laddn"></span><input type="file" id="lfile"></label>
+      <div class="status" id="lst"></div>
+    </div>
   </section>
 
   <!-- SETUP -->
   <section class="view" id="v-setup">
+    <span class="cap">Wireless</span>
+    <div class="wl" id="swl"></div>
+    <span class="note" id="swln"></span>
     <div class="card">
-      <span class="cap">CONNECTION</span>
-      <div class="seg" id="sconn"></div>
-      <span class="small mut" id="sconnn"></span>
+      <div class="sec"><div class="si"><svg class="i" viewBox="0 0 24 24"><path d="M2 12h6M8 8.5h4.5a3.5 3.5 0 0 1 0 7H8zM16 12h6"/></svg></div><div class="tx"><b>Guitar input</b><span>Where the guitar is plugged in</span></div></div>
+      <div class="list" id="sin"></div>
+      <button id="brefc" class="hid">Calibrate the reference (3 s, guitar silent)</button>
+      <div class="slider"><b style="font-size:13px;width:60px">In gain</b><input type="range" id="sgain" aria-label="In gain"><span class="v" id="sgainv">–</span></div>
+      <div class="segw"><span>Output</span><div class="seg" id="sout"></div></div>
     </div>
     <div class="card">
-      <span class="cap">AUDIO I/O</span>
-      <b style="font-size:13px">Input</b>
-      <div class="chips" id="sin"></div>
-      <span class="note" id="sinn"></span>
-      <div class="opt hid" id="srefc" style="padding:10px 12px;border-radius:14px;background:var(--s3);border:1px solid var(--line)">
-        <div class="tx"><b>Input calibration</b><span>3 s with the guitar silent (volume at 0)</span></div>
-        <button class="prim" id="brefc">Calibrate</button>
-      </div>
-      <div class="row"><b style="font-size:13px;width:64px">In gain</b><input type="range" id="sgain" aria-label="In gain"><span class="vv" id="sgainv">–</span></div>
-      <div class="row"><b style="font-size:13px" class="sp">Output</b><div class="seg" id="sout" style="flex:none;width:230px"></div></div>
-    </div>
-    <div class="card">
-      <span class="cap">PERFORMANCE</span>
-      <div class="bsz" id="sblk"></div>
-      <div class="opt"><div class="tx"><b>Margin</b><span>Safe adds one block of headroom</span></div><div class="seg" id="slat" style="flex:none;width:140px"></div></div>
-      <div class="opt"><div class="tx"><b>Constant load</b><span>Steadier current, lower block tone</span></div><button class="sw" id="scl" aria-label="Constant load"></button></div>
-    </div>
-    <div class="card">
-      <span class="cap">APPEARANCE</span>
-      <div class="opt"><div class="tx"><b>Theme</b><span>Auto follows the phone setting</span></div><div class="seg" id="sthm" style="flex:none;width:200px"><button data-t="auto">Auto</button><button data-t="dark">Dark</button><button data-t="light">Light</button></div></div>
+      <div class="sec"><div class="si"><svg class="i" viewBox="0 0 24 24"><path d="M7 7h10v10H7zM9.5 3v4M14.5 3v4M9.5 17v4M14.5 17v4M3 9.5h4M3 14.5h4M17 9.5h4M17 14.5h4"/></svg></div><div class="tx"><b>Processor</b><span>Latency against room for effects</span></div></div>
+      <div class="segw"><span>Block size</span><div class="seg" id="sblk"></div></div>
+      <div class="segw"><span>Safety margin</span><div class="seg" id="slat"></div></div>
+      <div class="optr"><div class="tx"><b>Steady power draw</b><span>Keeps the load constant: less tone in the input</span></div><button class="sw" id="scl" aria-label="Steady power draw"></button></div>
     </div>
     <div class="card rows">
-      <span class="cap">MIDI · SYSTEM</span>
-      <button class="rws" id="rmidi"><span class="a">MIDI mappings</span><span class="b" id="rmidiv">–</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
-      <button class="rws" id="reng"><span class="a">Amp engine</span><span class="b" id="rengv">–</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
-      <button class="rws" id="rtun"><span class="a">Tuner</span><span class="b" id="rtunv">A4 = 440 Hz</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
-      <button class="rws" id="rcal"><span class="a">Calibrate DSP</span><span class="b">about 2 min</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
-      <button class="rws" id="rsave"><span class="a">Save as startup settings</span><span class="b">loaded at power-on</span><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="rw" id="rfs" style="--c:var(--drv)"><span class="ri"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M6 20l1.6-8.5h8.8L18 20M9 11.5V9a3 3 0 0 1 6 0v2.5"/></svg></span><span class="a">Footswitches</span><span class="b" id="rfsv">–</span><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="rw" id="rmidi" style="--c:var(--eq)"><span class="ri"><svg class="i" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM7.5 12h.01M16.5 12h.01M9 8.5h.01M15 8.5h.01M12 7h.01M10 16h4"/></svg></span><span class="a">MIDI mappings</span><span class="b" id="rmidiv">–</span><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="rw" id="rtun" style="--c:var(--ok)"><span class="ri"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 2v7.5a3.5 3.5 0 0 0 7 0V2M12 13v9"/></svg></span><span class="a">Tuner</span><span class="b" id="rtunv">A4 = 440 Hz</span><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="rw" id="reng" style="--c:var(--amp)"><span class="ri"><svg class="i" viewBox="0 0 24 24"><path d="M9 6V4h6v2M3 6h18v14H3zM3 10h18M7 8h.01M10 8h.01M6.5 13.5h11M6.5 16.5h11"/></svg></span><span class="a">Amp model</span><span class="b" id="rengv">–</span><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="rw" id="rsave" style="--c:var(--rev)"><span class="ri"><svg class="i" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-6h8v6"/></svg></span><span class="a">Save as startup</span><span class="b">loaded at power-on</span><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="rw" id="rcal" style="--c:var(--warn)"><span class="ri"><svg class="i" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><span class="a">Measure DSP costs</span><span class="b">about 2 min</span><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+    <div class="card">
+      <div class="optr"><div class="tx"><b>Theme</b><span>Auto follows the phone</span></div><div class="seg" id="sthm" style="width:200px"><button data-t="auto">Auto</button><button data-t="dark">Dark</button><button data-t="light">Light</button></div></div>
     </div>
   </section>
 </main>
 
 <nav class="tabs" aria-label="Sections">
-  <button class="on" data-v="live"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Live</button>
-  <button data-v="rig"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="5" height="8" rx="1.5"/><rect x="10" y="8" width="5" height="8" rx="1.5"/><rect x="17" y="8" width="4" height="8" rx="1.5"/></svg>Rig</button>
-  <button data-v="presets"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Presets</button>
-  <button data-v="lib"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Library</button>
-  <button data-v="setup"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Setup</button>
+  <button class="on" data-v="play"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h16M6 20l1.6-8.5h8.8L18 20M9 11.5V9a3 3 0 0 1 6 0v2.5"/></svg>Play</button>
+  <button data-v="chain"><svg class="i" viewBox="0 0 24 24"><path d="M2 12h3M19 12h3M5 8.5h5v7H5zM14 8.5h5v7h-5zM10 12h4"/></svg>Chain</button>
+  <button data-v="lib"><svg class="i" viewBox="0 0 24 24"><path d="M4 4h4v16H4zM10 4h4v16h-4zM15.8 5.2l3.9-1 3.6 14.6-3.9 1z"/></svg>Library</button>
+  <button data-v="setup"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4"/></svg>Setup</button>
 </nav>
 
+<!-- editor di un blocco -->
+<div class="sheet hid" id="esheet"><div class="in" id="ein"></div></div>
+<!-- aggiunta di un blocco -->
+<div class="sheet hid" id="asheet"><div class="in" id="ain"></div></div>
+<!-- footswitch -->
+<div class="sheet hid" id="fsheet"><div class="in" id="fin"></div></div>
+<!-- ordine -->
+<div class="sheet hid" id="osheet"><div class="in">
+  <div class="grab"></div>
+  <div class="shd"><div class="tx"><b>Reorder</b><span class="small mut">Move any block, also across the amp. Before the amp the signal is mono.</span></div><button class="close" id="oclose" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="list" id="olist"></div>
+  <div class="acts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button id="odef">Default order</button><button class="prim" id="oapply">Apply</button></div>
+</div></div>
+<!-- preset: scelta e salvataggio -->
+<div class="sheet hid" id="psheet"><div class="in">
+  <div class="grab"></div>
+  <div class="shd"><div class="tx"><b id="pst">Presets</b><span class="small mut" id="psn"></span></div><button class="close" id="psclose" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <button class="prim hid" id="psupd" style="height:50px;border-radius:14px"></button>
+  <div class="slist" id="pslist"></div>
+</div></div>
+<!-- MIDI -->
+<div class="sheet hid" id="sheet"><div class="in">
+  <div class="grab"></div>
+  <div class="shd"><div class="tx"><b>MIDI mappings</b><span class="small mut" id="mlast"></span></div><button class="close" id="mclose" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="list" id="mlist"></div>
+  <div class="acts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button id="madd">+ Mapping</button><button id="mdef">Chocolate defaults</button></div>
+  <span class="note">Wireless needs the Bluetooth connection (Chocolate in "Manufacturer Control" mode: A, B, C, D = CC 20–23). The MIDI IN jack (TRS type A) always works with the same mappings. "Learn" assigns the next message received.</span>
+</div></div>
 <!-- accordatore -->
 <div class="tuner hid" id="tuner" role="dialog" aria-label="Tuner">
-  <div class="tt"><b>Tuner</b><span class="pill" id="tlvl">IN –</span><button class="ib" id="tclose" aria-label="Close the tuner"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="tt"><b>Tuner</b><span class="pill" id="tlvl">IN –</span><button class="close" id="tclose" aria-label="Close the tuner"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="tbody">
     <div class="gauge">
       <svg viewBox="0 0 320 190" aria-hidden="true">
@@ -429,45 +516,8 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     <div class="strings" id="tstr"></div>
   </div>
   <div class="tctl">
-    <div class="card"><span class="cap">REFERENCE A4</span><div class="step"><button id="trm" aria-label="Lower reference">−</button><b id="tref">440 Hz</b><button id="trp" aria-label="Raise reference">+</button></div></div>
-    <div class="card"><span class="cap">OUTPUT</span><div class="opt"><div class="tx"><b>Mute while tuning</b></div><button class="sw" id="tmute" aria-label="Mute while tuning"></button></div></div>
-  </div>
-</div>
-
-<!-- MIDI -->
-<div class="sheet hid" id="sheet">
-  <div class="in">
-    <div class="row"><b class="sp g" style="font-size:20px">MIDI mappings</b><button class="ib" id="mclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <span class="note" id="mlast"></span>
-    <div class="list" id="mlist"></div>
-    <div class="acts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button id="madd">+ Mapping</button><button id="mdef">Chocolate defaults</button></div>
-    <span class="note">Wireless: needs the Bluetooth connection (Chocolate in "Manufacturer Control" mode: A, B, C, D = CC 20–23). Wired: the MIDI IN jack (TRS type A) always works, with the same mappings. "Learn" assigns the next message received.</span>
-  </div>
-</div>
-<!-- scelta / salvataggio preset -->
-<div class="sheet hid" id="psheet">
-  <div class="in">
-    <div class="row"><b class="sp g" style="font-size:20px" id="pst">Presets</b><button class="ib" id="psclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <button class="prim hid" id="psupd" style="height:50px;border-radius:14px"></button>
-    <span class="note" id="psn"></span>
-    <div class="slist" id="pslist"></div>
-  </div>
-</div>
-<!-- assegnazione dei pedali -->
-<div class="sheet hid" id="fsheet">
-  <div class="in">
-    <div class="row"><b class="sp g" style="font-size:20px">Assign blocks</b><button class="ib" id="fsclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <span class="note">Each switch of the Chocolate (Manufacturer Control: A, B, C, D = CC 20–23) switches on and off the blocks you pick here, one or more. With more blocks, a press follows the first one: they all go on or all go off together.</span>
-    <div class="list" id="fslist"></div>
-  </div>
-</div>
-<!-- ordine della catena -->
-<div class="sheet hid" id="osheet">
-  <div class="in">
-    <div class="row"><b class="sp g" style="font-size:20px">Chain order</b><button class="ib" id="oclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <span class="note">Move any block anywhere, also across the amp. Blocks before the amp run in mono. The pedal checks the DSP before accepting a new order.</span>
-    <div class="list" id="olist"></div>
-    <div class="acts" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button id="odef">Default order</button><button class="prim" id="oapply">Apply</button></div>
+    <div class="card"><span class="cap">Reference A4</span><div class="step"><button id="trm" aria-label="Lower reference">−</button><b id="tref">440 Hz</b><button id="trp" aria-label="Raise reference">+</button></div></div>
+    <div class="card"><span class="cap">Output</span><div class="optr"><div class="tx"><b>Mute while tuning</b></div><button class="sw" id="tmute" aria-label="Mute while tuning"></button></div></div>
   </div>
 </div>
 <div id="toast"></div>
@@ -499,7 +549,7 @@ if (APP){
   window.vxStatus = (st, txt) => {
     connected = st === 2;
     $('#cled').className = 'led' + (st === 2 ? ' on' : st === 1 ? ' busy' : '');
-    $('#ctext').textContent = st === 2 ? 'BLE' : st === 1 ? '…' : 'off';
+    $('#ctext').textContent = st === 2 ? 'Bluetooth' : st === 1 ? '…' : 'off';
     $('#conncard').classList.toggle('hid', st === 2);
     $('#conntxt').textContent = txt;
     $('#bconn').classList.toggle('hid', st !== 0);
@@ -508,7 +558,37 @@ if (APP){
 }
 async function getj(u){ const r = await fetch(u, {cache:'no-store'}); return r.json(); }
 let toastT = null;
-function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2600); }
+function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2800); }
+
+/* ===================== icone ===================== */
+const IC = {
+  gate: 'M4 4v16M20 4v16M4 12h2.5l2-5 3 10 3-10 2 5H20',
+  comp: 'M3 8h18M3 16h18M12 2.5V6M9.5 3.5 12 6l2.5-2.5M12 21.5V18M9.5 20.5 12 18l2.5 2.5',
+  drv: 'M2 13c1.2-4.5 2.2-7 3.6-7H9c1.4 0 1.8 7 3 7s1.6 6 3 6h3.4c1.4 0 2.4-2.5 3.6-6',
+  amp: 'M9 6V4h6v2M3 6h18v14H3zM3 10h18M7 8h.01M10 8h.01M6.5 13.5h11M6.5 16.5h11',
+  ir: 'M4 3h16v18H4zM12 10.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 1 0 0-9zM12 14.2a.8.8 0 1 0 0 1.6.8.8 0 1 0 0-1.6zM12 6.5h.01',
+  eq: 'M6 3v18M12 3v18M18 3v18M3.5 8h5M9.5 15h5M15.5 10h5',
+  mod: 'M2 9c2.5-4.5 5-4.5 7.5 0s5 4.5 7.5 0 3.3-4.5 5-3.5M2 15c2.5 4.5 5 4.5 7.5 0s5-4.5 7.5 0 3.3 4.5 5 3.5',
+  dly: 'M4 5v14M9.3 7.5v9M14.6 9.5v5M19.9 11v2',
+  rev: 'M5.6 18.4a9 9 0 0 1 0-12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.8 15.2a4.5 4.5 0 0 1 0-6.4M15.2 8.8a4.5 4.5 0 0 1 0 6.4M12 12h.01',
+  input: 'M2 12h6M8 8.5h4.5a3.5 3.5 0 0 1 0 7H8zM16 12h6',
+  out: 'M4 9h4l5-4v14l-5-4H4zM16.5 9a4 4 0 0 1 0 6M19.5 6a8.5 8.5 0 0 1 0 12',
+  split: 'M3 12h5l4-5h9M8 12l4 5h9',
+  merge: 'M3 7h9l4 5h5M3 17h9l4-5',
+  power: 'M12 3v8M6.3 6.9a8 8 0 1 0 11.4 0',
+  plus: 'M12 5v14M5 12h14',
+  close: 'M6 6l12 12M18 6L6 18',
+  check: 'M5 12.5l4.5 4.5L19 7',
+  bt: 'M7 7l10 10-5 4V3l5 4L7 17',
+  wifi: 'M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M12 19h.01',
+  radiooff: 'M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M12 20h.01M5 12.5a10 10 0 0 1 5.2-2.8M2 8.8a15 15 0 0 1 4.2-2.7M16.8 12.4A10 10 0 0 1 19 13.9M22 8.8a15 15 0 0 0-11.2-3.7',
+  info: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM12 8v5M12 16h.01',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6', chev: 'M9 6l6 6-6 6'
+};
+/* ridisegna solo se il contenuto cambia: i tocchi non vanno persi durante il poll */
+function put(el, h){ if (el._h === h) return false; el.innerHTML = h; el._h = h; return true; }
+const svg = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + IC[k] + '"/></svg>';
 
 /* ===================== tema ===================== */
 const mq = window.matchMedia('(prefers-color-scheme: light)');
@@ -522,50 +602,49 @@ function applyTheme(){
 }
 function setTheme(t){ themePref = t; try { localStorage.setItem('vxTheme', t); } catch(e) {} applyTheme(); }
 mq.addEventListener && mq.addEventListener('change', applyTheme);
-$('#bthm').onclick = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
 document.querySelectorAll('#sthm button').forEach(b => b.onclick = () => setTheme(b.dataset.t));
 applyTheme();
 
 /* ===================== dati ===================== */
 let P = [], G = [], PK = {}, S = null, PS = [], psCur = -1, CAPS = [], capAct = -1, capInfo = {}, IRS = [], irAct = -1, MD = null;
-let started = false, dragging = null, pending = {}, timer = null, engCur = 0, view = 'live', rigSel = 'drv', psSel = -1, libTab = 'cap';
+let started = false, dragging = null, pending = {}, timer = null, engCur = 0, view = 'play', psSel = -1, libTab = 'ps';
 const BLK = {
-  gate: {ab: 'GATE', cat: 'DYN', c: 'dyn', mini: 'GT', name: 'Noise gate'},
-  comp: {ab: 'COMP', cat: 'DYN', c: 'dyn', mini: 'CP', name: 'Compressor'},
-  drv:  {ab: 'DRIVE', cat: 'DRIVE', c: 'drv', mini: 'DR', name: 'Drive'},
-  amp:  {ab: 'AMP', cat: 'AMP', c: 'amp', mini: 'AMP', name: 'Amp'},
-  ir:   {ab: 'CAB', cat: 'CAB', c: 'ir', mini: 'IR', name: 'Cabinet IR'},
-  eq:   {ab: 'EQ', cat: 'EQ', c: 'eq', mini: 'EQ', name: '4-band EQ'},
-  mod:  {ab: 'MOD', cat: 'MOD', c: 'mod', mini: 'MD', name: 'Modulation'},
-  dly:  {ab: 'DELAY', cat: 'DELAY', c: 'dly', mini: 'DL', name: 'Delay'},
-  rev:  {ab: 'REV', cat: 'REVERB', c: 'rev', mini: 'RV', name: 'Reverb'},
-  drv2: {ab: 'DRIVE 2', cat: 'DRIVE 2', c: 'drv', mini: 'D2', name: 'Drive 2'},
-  mod2: {ab: 'MOD 2', cat: 'MOD 2', c: 'mod', mini: 'M2', name: 'Modulation 2'},
-  dly2: {ab: 'DELAY 2', cat: 'DELAY 2', c: 'dly', mini: 'L2', name: 'Delay 2'},
-  ir2:  {ab: 'CAB 2', cat: 'CAB 2', c: 'ir', mini: 'I2', name: 'Cabinet IR 2'},
-  amp2: {ab: 'AMP 2', cat: 'AMP 2', c: 'amp', mini: 'A2', name: 'Amp 2'}
+  gate: {ab: 'GATE', c: 'dyn', i: 'gate', name: 'Noise gate', d: 'Silences hiss and hum when you stop playing.'},
+  comp: {ab: 'COMP', c: 'dyn', i: 'comp', name: 'Compressor', d: 'Evens out the level: more sustain, softer peaks.'},
+  drv:  {ab: 'DRIVE', c: 'drv', i: 'drv', name: 'Drive', d: 'Overdrive, distortion, fuzz or a clean boost.'},
+  amp:  {ab: 'AMP', c: 'amp', i: 'amp', name: 'Amp', d: 'Your NAM capture.'},
+  ir:   {ab: 'CAB', c: 'ir', i: 'ir', name: 'Cab IR', d: 'Speaker cabinet. Not needed when the capture includes a cab.'},
+  eq:   {ab: 'EQ', c: 'eq', i: 'eq', name: 'EQ', d: 'Four bands to shape bass, mids and treble.'},
+  mod:  {ab: 'MOD', c: 'mod', i: 'mod', name: 'Modulation', d: 'Chorus, phaser, flanger, tremolo, vibrato and more.'},
+  dly:  {ab: 'DELAY', c: 'dly', i: 'dly', name: 'Delay', d: 'Echoes: digital, analog, tape, ping-pong and more.'},
+  rev:  {ab: 'REV', c: 'rev', i: 'rev', name: 'Reverb', d: 'Space: room, hall, plate, spring, shimmer.'},
+  drv2: {ab: 'DRIVE 2', c: 'drv', i: 'drv', name: 'Drive 2', d: 'A second drive: stack it, or run it beside Drive.'},
+  mod2: {ab: 'MOD 2', c: 'mod', i: 'mod', name: 'Modulation 2', d: 'A second modulation, after or beside the first.'},
+  dly2: {ab: 'DELAY 2', c: 'dly', i: 'dly', name: 'Delay 2', d: 'A second delay, for example a dotted eighth beside the first.'},
+  ir2:  {ab: 'CAB 2', c: 'ir', i: 'ir', name: 'Cab IR 2', d: 'A second cabinet, mixed with or beside the first.'},
+  amp2: {ab: 'AMP 2', c: 'amp', i: 'amp', name: 'Amp 2', d: 'A second NAM amp: beside the first (two paths, stereo) or after it.'}
 };
-/* catena: ordine dei blocchi (AMP compreso) e coppie che possono andare in parallelo, dal firmware (v48+) */
+const ADD_ORDER = ['gate', 'comp', 'drv', 'drv2', 'amp2', 'ir', 'ir2', 'eq', 'mod', 'mod2', 'dly', 'dly2', 'rev'];
 let ORD = [], PAIRS = [], LV = -1;
-const DEF_ORD = ['gate', 'comp', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'dly', 'dly2', 'rev', 'eq'];   /* amp2 segue sempre amp */
+const DEF_ORD = ['gate', 'comp', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'dly', 'dly2', 'rev', 'eq'];
 const noAmp2 = o => o.filter(b => b !== 'amp2');
 const pairOf = b => PAIRS.find(x => x[0] === b || x[1] === b);
 const isPar = b => { const q = pairOf(b); return !!(q && PK[q[0] + '.par'] && PK[q[0] + '.par'].v > 0.5); };
-const isPre = b => { const a = ORD.indexOf('amp'), i = ORD.indexOf(b); return a >= 0 && i >= 0 && i < a; };
 const cvar = b => 'var(--' + (BLK[b] ? BLK[b].c : 'fg') + ')';
-const blocks = () => { const l = G.map((g, i) => ({ blk: g.blk, g: i })).filter(x => x.blk !== 'glob' && BLK[x.blk]);
-  if (ORD.length) l.sort((a, b) => (ORD.indexOf(a.blk) + 99) % 99 - (ORD.indexOf(b.blk) + 99) % 99);   /* nell'ordine della catena */
-  return l; };
 const bparams = b => { const gi = G.findIndex(g => g.blk === b); return P.filter(p => p.g === gi); };
 const onP = b => PK[b + '.on'];
 const isOn = b => { const p = onP(b); return p ? p.v > 0.5 : false; };
 const modelP = b => bparams(b).find(p => p.t === 'model');
+const hasBlk = b => G.some(g => g.blk === b);
+/* due percorsi: secondo ampli acceso e in parallelo */
+const dual = () => isOn('amp') && isOn('amp2') && isPar('amp');
+const laneOf = b => { if (!dual() || b === 'amp' || b === 'amp2') return 0; const p = PK[b + '.lane']; return p ? Math.round(p.v) : 0; };
 function fhz(v){ return v < 1000 ? Math.round(v) + ' Hz' : (v / 1000).toFixed(v % 1000 ? 1 : 0) + ' kHz'; }
 function fmt(p, v){
   if (p.n) return p.n[Math.round(v)] ?? '?';
   if (!p.n && p.min === 0 && p.max === 1 && p.step === 1) return v > 0.5 ? 'On' : 'Off';
   if (p.u === 'Hz') return fhz(v);
-  if (/\.pan[12]$/.test(p.k)) { const r = Math.round(v); return r === 0 ? 'C' : (r < 0 ? 'L' : 'R') + Math.abs(r); }
+  if (/\.pan[12]$/.test(p.k)) { const r = Math.round(v); return r === 0 ? 'Center' : (r < 0 ? 'Left ' : 'Right ') + Math.abs(r); }
   const s = p.step < 1 ? (+v).toFixed(1) : String(Math.round(v));
   if (p.u === ':1') return s + ':1';
   if (p.u === 'dB') return (v > 0 && p.min < 0 ? '+' : '') + s + ' dB';
@@ -574,13 +653,14 @@ function fmt(p, v){
 function short(b){
   if (b === 'amp'){ const c = CAPS[capAct]; return c ? c.name : 'no capture'; }
   if (b === 'amp2'){ const s = PK['amp2.cap'], c = s ? CAPS[Math.round(s.v)] : null; return c ? c.name : 'no capture'; }
-  if (b === 'ir' || b === 'ir2'){ const s = PK[b + '.slot'], c = s ? IRS[Math.round(s.v)] : null; return c ? c.name : 'empty'; }
-  if (b === 'eq'){ const p = PK['eq.pos']; return p ? fmt(p, p.v) : '4-band'; }
+  if (b === 'ir' || b === 'ir2'){ const s = PK[b + '.slot'], c = s ? IRS[Math.round(s.v)] : null; return c ? c.name : 'no IR chosen'; }
   if (b === 'gate') return 'Gate';
+  if (b === 'eq') return '4-band';
   const m = modelP(b); return m ? fmt(m, m.v) : BLK[b].name;
 }
 function blockSub(b){
-  return bparams(b).filter(p => p.t === 'knob' && !p.n && !/\.slot$/.test(p.k)).slice(0, 2).map(p => p.l + ' ' + fmt(p, p.v)).join(' · ');
+  const k = bparams(b).filter(p => p.t === 'knob' && !p.n && !/\.slot$/.test(p.k)).slice(0, 2).map(p => p.l + ' ' + fmt(p, p.v));
+  return [short(b)].concat(k.slice(0, 1)).join(' · ');
 }
 
 /* invio dei valori: al massimo ~16 richieste al secondo, le piu' recenti vincono */
@@ -597,11 +677,15 @@ async function flush(){
       const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v);
       const p = PK[k];
       if (r.err){ toast(r.err); if (p) { p.v = r.v; refresh(); } }
-      if (p && (p.t === 'model' || p.t === 'route')) await reload();
+      if (p && (p.t === 'model' || p.t === 'route' || p.t === 'lane' || k === 'amp2.on')) await reload();
     } catch(e) {}
   }
 }
 function setv(k, v){ const p = PK[k]; if (!p) return; p.v = v; send(k, v); refresh(); }
+async function setNow(k, v){
+  const p = PK[k]; if (!p) return false;
+  try { const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v); if (r.err) { toast(r.err); return false; } p.v = r.v; return true; } catch(e) { toast('Not sent: check the connection'); return false; }
+}
 
 /* ===================== manopola ===================== */
 const KT = 122.5, KC = 163.4;
@@ -641,23 +725,21 @@ function bindKnob(el){
     if (!moved) return;
     const nv = snap(p, v0 + dy * (p.max - p.min) / 220);
     if (nv !== p.v){
-      p.v = nv; knobSet(el, p); send(k, nv); refreshLight();
-      document.querySelectorAll('#editor .knob').forEach(o => { const q = PK[o.dataset.k]; if (q && q.lf === k) knobSet(o, q); });
+      p.v = nv; knobSet(el, p); send(k, nv);
+      document.querySelectorAll('#ein .knob').forEach(o => { const q = PK[o.dataset.k]; if (q && q.lf === k) knobSet(o, q); });
     }
   });
   const end = () => { clearTimeout(lp); id = null; el.classList.remove('drag'); setTimeout(() => { if (dragging === k) dragging = null; }, 350); };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
 }
-
-/* ===================== LIVE ===================== */
-const segs = n => '<i></i>'.repeat(n);
-$('#min').innerHTML = segs(28); $('#mout').innerHTML = segs(28);
-function meter(id, nid, db){
-  const n = Math.max(0, Math.min(28, Math.round((db + 60) / 60 * 28)));
-  $(id).querySelectorAll('i').forEach((e, i) => { e.style.background = i >= n ? '' : i >= 25 ? 'var(--bad)' : i >= 20 ? 'var(--warn)' : 'var(--ok)'; });
-  $(nid).textContent = db <= -119 ? '−∞' : Math.round(db) + ' dB';
+/* cursore orizzontale: --p per il riempimento */
+function rangeFill(r){ const f = (r.value - r.min) / ((r.max - r.min) || 1); r.style.setProperty('--p', (f * 100).toFixed(1) + '%'); }
+function bindRange(r, k){
+  r.oninput = () => { const p = PK[k]; if (!p) return; dragging = k; p.v = +r.value; rangeFill(r); const o = r.parentElement.querySelector('.rv'); if (o) o.textContent = fmt(p, p.v); send(k, p.v); };
+  r.onchange = () => setTimeout(() => { if (dragging === k) dragging = null; }, 350);
 }
-/* pedali: per ogni tasto A..D i blocchi delle mappature "Block on/off" su CC 20..23, nell'ordine della tabella */
+
+/* ===================== pedali: per ogni tasto A..D i blocchi "Block on/off" su CC 20..23 ===================== */
 function fsGroups(){
   const g = [0, 1, 2, 3].map(i => ({ key: 'ABCD'[i], cc: 20 + i, blks: [], idx: [] }));
   if (MD && MD.map) MD.map.forEach((m, i) => {
@@ -665,42 +747,12 @@ function fsGroups(){
   });
   return g;
 }
+const fsOf = b => fsGroups().filter(f => f.blks.includes(b)).map(f => f.key);
 function toggleGroup(blks){
   if (!blks.length) return;
   const nv = isOn(blks[0]) ? 0 : 1;
   blks.forEach(b => { const p = onP(b); if (p) { p.v = nv; send(p.k, nv); } });
   refresh();
-}
-function renderLive(){
-  const ps = PS[psCur];
-  $('#pslot').textContent = psCur >= 0 && ps ? 'PRESET ' + String(psCur + 1).padStart(2, '0') : 'CURRENT SETTINGS';
-  $('#pnm').textContent = ps ? ps.name : 'Unsaved';
-  const c = CAPS[capAct];
-  $('#capnm').textContent = (c ? c.name : 'no capture') + (isOn('amp2') ? ' + ' + short('amp2') : '');
-  $('#capeng').textContent = capInfo.lite ? 'LITE' : 'FULL';
-  $('#capeng').classList.toggle('hid', !c);
-  $('#bgrid').innerHTML = blocks().map(x => '<button class="bt' + (isOn(x.blk) ? ' on' : '') + '" data-b="' + x.blk + '" style="--c:' + cvar(x.blk) + '" aria-pressed="' + isOn(x.blk) + '" aria-label="' + BLK[x.blk].name + '"><i></i>' + BLK[x.blk].ab + '</button>').join('');
-  $('#bgrid').querySelectorAll('.bt').forEach(e => e.onclick = () => toggleGroup([e.dataset.b]));
-  $('#fs').innerHTML = fsGroups().map(f => {
-    if (!f.blks.length) return '<button class="fsw" data-k="' + f.key + '" style="--c:var(--fg)"><div class="h"><span>SWITCH ' + f.key + '</span><i class="lamp"></i></div><span class="m" style="color:var(--dim)">Not assigned</span><span class="s">Tap to assign blocks</span><span class="k">CC ' + f.cc + '</span></button>';
-    const on = isOn(f.blks[0]), multi = f.blks.length > 1;
-    return '<button class="fsw' + (on ? ' on' : '') + '" data-k="' + f.key + '" aria-pressed="' + on + '" style="--c:' + cvar(f.blks[0]) + '">' +
-      '<div class="h"><span>' + esc(f.blks.map(b => BLK[b].ab).join(' + ')) + '</span><i class="lamp"></i></div>' +
-      '<span class="m' + (multi ? ' multi' : '') + '">' + esc(multi ? f.blks.map(short).join(' · ') : short(f.blks[0])) + '</span>' +
-      '<span class="s">' + esc(multi ? f.blks.map(b => BLK[b].name + (isOn(b) ? ' on' : ' off')).join(', ') : blockSub(f.blks[0])) + '</span><span class="k">SWITCH ' + f.key + '</span></button>';
-  }).join('');
-  const G4 = fsGroups();
-  $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => { const f = G4['ABCD'.indexOf(e.dataset.k)]; if (f.blks.length) toggleGroup(f.blks); else openAssign(); });
-  const v = PK['out.vol']; if (v && dragging !== 'out.vol'){ const r = $('#vol'); r.min = v.min; r.max = v.max; r.step = v.step; r.value = v.v; $('#volv').textContent = fmt(v, v.v); }
-}
-/* assegnazione: ogni cambio aggiunge o toglie una mappatura "Block on/off" sul CC del tasto */
-function openAssign(){ $('#fsheet').classList.remove('hid'); renderAssign(); midiApi('/api/midi'); }
-function renderAssign(){
-  if ($('#fsheet').classList.contains('hid')) return;
-  const bl = blocks();
-  $('#fslist').innerHTML = fsGroups().map(f => '<div class="asg"><div class="k"><b>' + f.key + '</b><span class="sp small mut">CC ' + f.cc + ' · ' + (f.blks.length ? f.blks.map(b => BLK[b].name).join(' + ') : 'nothing') + '</span></div><div class="chips">' +
-    bl.map(x => '<button class="chip' + (f.blks.includes(x.blk) ? ' on' : '') + '" style="--c:' + cvar(x.blk) + '" data-k="' + f.key + '" data-b="' + x.blk + '">' + BLK[x.blk].ab + '</button>').join('') + '</div></div>').join('');
-  $('#fslist').querySelectorAll('.chip').forEach(e => e.onclick = () => assignToggle(e.dataset.k, e.dataset.b));
 }
 let asgBusy = false;
 async function assignToggle(key, blk){
@@ -714,12 +766,382 @@ async function assignToggle(key, blk){
       if (i < 0) toast('MIDI table full: delete a mapping in Setup');
       else await midiApi('/api/midiset?i=' + i + '&t=0&n=' + f.cc + '&m=0&a=0&k=' + blk);
     }
-  } finally { asgBusy = false; renderAssign(); }
+  } finally { asgBusy = false; renderFs(); refresh(); }
 }
-$('#fsedit').onclick = openAssign;
-$('#fsclose').onclick = () => { $('#fsheet').classList.add('hid'); refresh(); };
-$('#fsheet').onclick = ev => { if (ev.target.id === 'fsheet') { $('#fsheet').classList.add('hid'); refresh(); } };
-/* scelta e salvataggio dei preset dalla schermata Live */
+
+/* ===================== catena: cosa c'e' e in che ordine ===================== */
+/* nella catena: l'ampli sempre; gli altri se accesi o comandati da un pedale (allora in bypass quando spenti) */
+const inChain = b => b === 'amp' || isOn(b) || fsOf(b).length > 0;
+function chainParts(){
+  const o = noAmp2(ORD.length ? ORD : DEF_ORD).filter(b => hasBlk(b)), ai = o.indexOf('amp');
+  return { pre: o.slice(0, ai).filter(inChain), post: o.slice(ai + 1).filter(inChain), all: o };
+}
+
+/* ===================== PLAY ===================== */
+const segs = n => '<i></i>'.repeat(n);
+$('#min').innerHTML = segs(28); $('#mout').innerHTML = segs(28);
+function meter(id, nid, db){
+  const n = Math.max(0, Math.min(28, Math.round((db + 60) / 60 * 28)));
+  $(id).querySelectorAll('i').forEach((e, i) => { e.style.background = i >= n ? '' : i >= 25 ? 'var(--bad)' : i >= 20 ? 'var(--warn)' : 'var(--ok)'; });
+  $(nid).textContent = db <= -119 ? '−∞' : Math.round(db) + ' dB';
+}
+const mt = b => '<span class="mt' + (isOn(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '" title="' + esc(BLK[b].name) + (isOn(b) ? '' : ' (bypassed)') + '">' + svg(BLK[b].i) + '</span>';
+function renderStrip(){
+  const { pre, post } = chainParts(), D = dual(), am2 = isOn('amp2');
+  let h = '<span style="color:var(--mut);display:flex">' + svg('input') + '</span>', st = false;
+  const wire = () => '<span class="w' + (st ? ' st' : '') + '"></span>';
+  const col = bs => '<span class="col">' + bs.map(mt).join('') + '</span>';
+  if (D){
+    pre.filter(b => !laneOf(b)).forEach(b => { h += wire() + col([b]); });
+    const l1 = pre.filter(b => laneOf(b) === 1).concat(['amp'], post.filter(b => laneOf(b) === 1));
+    const l2 = pre.filter(b => laneOf(b) === 2).concat(['amp2'], post.filter(b => laneOf(b) === 2));
+    h += wire() + '<span class="col"><span style="display:flex;gap:3px">' + l1.map(mt).join('') + '</span><span style="display:flex;gap:3px">' + l2.map(mt).join('') + '</span></span>';
+    st = true;
+    post.filter(b => !laneOf(b)).forEach(b => { h += wire() + col([b]); });
+  } else {
+    pre.forEach(b => { h += wire() + col([b]); });
+    h += wire() + col(am2 ? ['amp', 'amp2'] : ['amp']);
+    post.forEach(b => { h += wire() + col([b]); if (isOn(b) && /^(mod|dly|rev)/.test(b)) st = true; });
+  }
+  h += '<span class="w' + (st ? ' st' : '') + '"></span><span class="g" style="font-weight:700;font-size:11px;margin-left:4px">' + (st ? 'L R' : 'OUT') + '</span>';
+  put($('#strip'), h);
+}
+function renderPlay(){
+  const ps = PS[psCur];
+  $('#pslot').textContent = psCur >= 0 && ps ? 'PRESET ' + String(psCur + 1).padStart(2, '0') : 'CURRENT SETTINGS';
+  $('#pnm').textContent = ps ? ps.name : 'Unsaved';
+  renderStrip();
+  const G4 = fsGroups();
+  const fsH = G4.map(f => {
+    if (!f.blks.length) return '<button class="fsw empty" data-k="' + f.key + '"><div class="h"><span class="k">' + f.key + '</span><i class="lamp"></i></div><div class="m"><span class="t">' + svg('plus') + '</span><span class="n"><b>Empty</b><span>Tap to assign</span></span></div><span class="s">CC ' + f.cc + '</span></button>';
+    const b0 = f.blks[0], on = isOn(b0), multi = f.blks.length > 1;
+    return '<button class="fsw' + (on ? ' on' : '') + '" data-k="' + f.key + '" aria-pressed="' + on + '" style="--c:' + cvar(b0) + '"><div class="h"><span class="k">' + f.key + '</span><i class="lamp"></i></div>' +
+      '<div class="m"><span class="t">' + svg(BLK[b0].i) + '</span><span class="n"><b class="ell">' + esc(multi ? f.blks.map(b => BLK[b].ab).join(' + ') : BLK[b0].name) + '</b><span class="ell">' + esc(multi ? f.blks.map(short).join(' · ') : short(b0)) + '</span></span></div>' +
+      '<span class="s">' + (on ? 'ON' : 'BYPASSED') + '</span></button>';
+  }).join('');
+  if (put($('#fs'), fsH)) $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => { const f = fsGroups()['ABCD'.indexOf(e.dataset.k)]; if (f.blks.length) toggleGroup(f.blks); else openFs(e.dataset.k); });
+  const v = PK['out.vol']; if (v && dragging !== 'out.vol'){ const r = $('#vol'); r.min = v.min; r.max = v.max; r.step = v.step; r.value = v.v; rangeFill(r); $('#volv').textContent = fmt(v, v.v); }
+}
+$('#gochain').onclick = () => show('chain');
+$('#fsedit').onclick = () => openFs('A');
+$('#qtun').onclick = () => openTuner();
+$('#qsave').onclick = () => openPresets('save');
+$('#vol').oninput = ev => { const p = PK['out.vol']; if (!p) return; dragging = 'out.vol'; p.v = +ev.target.value; rangeFill(ev.target); $('#volv').textContent = fmt(p, p.v); send('out.vol', p.v); };
+$('#vol').onchange = () => setTimeout(() => { if (dragging === 'out.vol') dragging = null; }, 350);
+$('#bmute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
+function nextSlot(dir){ for (let k = 1; k <= 16; k++){ const i = ((psCur < 0 ? (dir > 0 ? -1 : 0) : psCur) + dir * k + 32) % 16; if (PS[i]) return i; } return -1; }
+async function loadPreset(i){ if (i < 0) return toast('No presets stored'); try { const d = await getj('/api/pload?s=' + i); if (d.err) toast(d.err); else { psCur = i; setTimeout(reload, 400); } } catch(e) {} }
+$('#pprev').onclick = () => loadPreset(nextSlot(-1));
+$('#pnext').onclick = () => loadPreset(nextSlot(1));
+$('#pname').onclick = () => openPresets('load');
+$('#bconn').onclick = () => { try { VXBridge.connect(); } catch(e) {} };
+
+/* ===================== CHAIN ===================== */
+const gut = (ln, inner) => '<div class="gut">' + ln + (inner || '') + '</div>';
+const LN = (st, part) => '<span class="ln' + (st ? ' st' : '') + (part ? ' ' + part : '') + '"></span>';
+function rowBlock(b, st){
+  const on = isOn(b), sw = fsOf(b);
+  let chips = sw.map(k => '<span class="chip2">SWITCH ' + k + '</span>').join('');
+  if (!on) chips += '<span class="chip2" style="--cc:var(--dim)">BYPASSED</span>';
+  return '<div class="fr">' + gut(LN(st), '<span class="tile' + (on ? ' on' : '') + '" style="--c:' + cvar(b) + '">' + svg(BLK[b].i) + '</span>') +
+    '<div class="bc' + (on ? ' on' : '') + '" data-ed="' + b + '" role="button" tabindex="0"><div class="tx"><div class="nm"><b>' + esc(BLK[b].name) + '</b>' + chips + '</div><span class="sub ell">' + esc(blockSub(b)) + '</span></div>' +
+    '<button class="pwr' + (on ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-pw="' + b + '" aria-pressed="' + on + '" aria-label="' + esc(BLK[b].name) + (on ? ' on, tap to bypass' : ' bypassed, tap to switch on') + '">' + svg('power') + '</button></div></div>';
+}
+function miniHTML(b, extra){
+  const on = isOn(b);
+  return '<div class="mini' + (on ? ' on' : '') + (extra || '') + '" style="--c:' + cvar(b) + '" data-ed="' + b + '" role="button" tabindex="0"><span class="mi">' + svg(BLK[b].i) + '</span><span class="tx"><b class="ell">' + esc(BLK[b].name) + '</b><span class="ell">' + esc(short(b)) + '</span></span>' +
+    '<button class="pwr sm' + (on ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-pw="' + b + '" aria-pressed="' + on + '" aria-label="' + esc(BLK[b].name) + ' on or off">' + svg('power') + '</button></div>';
+}
+function rowPair(q, st){
+  const [a, b] = q;
+  return '<div class="fr">' + gut(LN(st), '<span class="node" style="border-color:' + cvar(a) + ';color:' + cvar(a) + '">' + svg('split') + '</span>') +
+    '<div class="pairc" style="--c:' + cvar(a) + '"><div class="hd"><b>' + esc(BLK[a].name) + ' + ' + esc(BLK[b].name) + '</b><span class="chip2" style="--cc:' + cvar(a) + '">BESIDE EACH OTHER</span></div>' +
+    '<div class="duo">' + miniHTML(a) + miniHTML(b) + '</div><span class="note">Same input into both, then mixed · <button class="hbtn" data-ed="' + a + '" data-tab="route" style="display:inline;height:auto;min-height:0;padding:0;border:none;background:none;color:var(--st);font-size:12px">Mix</button></span></div></div>';
+}
+const rowAdd = (st, after, lane) => '<div class="fr addr">' + gut(LN(st), '<button class="plus" data-add="' + (after || '') + '" data-lane="' + (lane || 0) + '" aria-label="Add a block here">' + svg('plus') + '</button>') + '<span></span></div>';
+const rowZone = (st, txt) => '<div class="fr zone">' + gut(LN(st)) + '<span class="zl' + (st ? ' st' : '') + '">' + esc(txt) + '</span></div>';
+function rowIO(kind, st){
+  const inp = kind === 'in', pin = PK['io.in'], pout = PK['io.out'];
+  const sub = inp ? (pin ? fmt(pin, pin.v) : 'Guitar') + ' · mono' : (pout ? fmt(pout, pout.v) : 'Stereo') + (PK['out.vol'] ? ' · ' + fmt(PK['out.vol'], PK['out.vol'].v) : '');
+  return '<div class="fr">' + gut(LN(st, inp ? 'bot' : 'top'), '<span class="node">' + svg(inp ? 'input' : 'out') + '</span>') + '<div class="iol"><b>' + (inp ? 'Guitar in' : 'Output') + '</b><span>' + esc(sub) + '</span></div></div>';
+}
+/* sequenza di blocchi (in serie, con le coppie affiancate quando sono in parallelo e entrambe nella catena) */
+function seqHTML(list, st, lastAnchor){
+  let h = '', done = {}, prev = lastAnchor;
+  list.forEach(b => {
+    if (done[b]) return;
+    const q = pairOf(b);
+    if (q && isPar(b) && list.includes(q[0]) && list.includes(q[1])) { done[q[0]] = done[q[1]] = 1; h += rowPair(q, st); prev = q[1]; }
+    else { done[b] = 1; h += rowBlock(b, st); prev = b; }
+    h += rowAdd(st, prev);
+  });
+  return h;
+}
+function renderChain(){
+  const bs = PK['blk.size']; if (bs && bs.n) $('#rblk').textContent = bs.n[Math.round(bs.v)];
+  const { pre, post } = chainParts(), D = dual();
+  let h = rowIO('in', false);
+  if (D){
+    const sp = pre.filter(b => !laneOf(b));
+    h += rowZone(false, 'MONO · into both paths') + rowAdd(false, '') + seqHTML(sp, false, '');
+    h += '<div class="fr">' + gut(LN(false, 'top'), '<span class="node">' + svg('split') + '</span>') + '<div class="iol"><b style="letter-spacing:1px;font-size:13px">SPLIT INTO TWO PATHS</b><span>Each path is its own mono rig</span></div></div>';
+    const lane = (n, amp, col, side) => {
+      const lp = pre.filter(b => laneOf(b) === n), lq = post.filter(b => laneOf(b) === n);
+      return '<div class="lane" style="--lc:' + col + '"><span class="wire"></span><div class="lh"><b>PATH ' + n + '</b><span class="small mut">→ ' + side + '</span></div>' +
+        lp.map(b => miniHTML(b)).join('') + '<button class="ladd" data-add="' + (lp.length ? lp[lp.length - 1] : '') + '" data-before="amp" data-lane="' + n + '">' + svg('plus') + 'Add</button>' +
+        miniHTML(amp, ' amp') + lq.map(b => miniHTML(b)).join('') + '<button class="ladd" data-add="' + (lq.length ? lq[lq.length - 1] : 'amp') + '" data-lane="' + n + '">' + svg('plus') + 'Add</button></div>';
+    };
+    h += '<div class="lanes">' + lane(1, 'amp', 'var(--drv)', 'left') + lane(2, 'amp2', 'var(--mod)', 'right') + '</div>';
+    const pa = PK['amp.pmix'];
+    h += '<div class="fr">' + gut(LN(true, 'bot'), '<span class="node" style="border-color:var(--st);color:var(--st)">' + svg('merge') + '</span>') +
+      '<div class="iol sp"><b style="letter-spacing:1px;font-size:13px">MERGE · STEREO</b><span>' + esc(panTxt()) + (pa ? ' · balance ' + fmtBal(pa.v) : '') + '</span></div>' +
+      '<button class="hbtn" data-ed="amp" data-tab="route" style="align-self:center">Mix</button></div>';
+    const sq = post.filter(b => !laneOf(b));
+    h += rowAdd(true, 'amp') + seqHTML(sq, true, 'amp');
+  } else {
+    h += rowZone(false, 'MONO · before the amp') + rowAdd(false, '') + seqHTML(pre, false, '');
+    const am2 = inChain('amp2');
+    h += '<div class="fr">' + gut(LN(false), '<span class="tile on" style="--c:var(--amp)">' + svg('amp') + '</span>') +
+      '<div class="bc on" data-ed="amp" role="button" tabindex="0"><div class="tx"><div class="nm"><b>Amp</b><span class="chip2" style="--cc:var(--amp)">' + (capInfo.lite ? 'LITE' : 'FULL') + '</span></div><span class="sub ell">' + esc(short('amp')) + '</span></div>' +
+      '<button class="pwr' + (isOn('amp') ? ' on' : '') + '" style="--c:var(--amp)" data-pw="amp" aria-label="Amp on or off">' + svg('power') + '</button></div></div>';
+    if (am2) h += rowBlock('amp2', false);
+    const stpost = post.some(b => isOn(b) && /^(mod|dly|rev)/.test(b));
+    h += rowAdd(false, 'amp') + rowZone(stpost, stpost ? 'STEREO · after the amp' : 'AFTER THE AMP') + seqHTML(post, stpost, 'amp');
+  }
+  h += rowIO('out', D || post.some(b => isOn(b) && /^(mod|dly|rev)/.test(b)));
+  const F = $('#flow');
+  if (put(F, h)) {
+  F.querySelectorAll('[data-ed]').forEach(e => e.onclick = ev => { if (ev.target.closest('[data-pw]')) return; openEditor(e.dataset.ed, e.dataset.tab); });
+  F.querySelectorAll('[data-pw]').forEach(e => e.onclick = ev => { ev.stopPropagation(); const p = onP(e.dataset.pw); if (p) setv(p.k, p.v > 0.5 ? 0 : 1); });
+  F.querySelectorAll('[data-add]').forEach(e => e.onclick = () => openAdd(e.dataset.add, +e.dataset.lane, e.dataset.before));
+  }
+  const sp = ADD_ORDER.filter(b => hasBlk(b) && !inChain(b));
+  if (put($('#spare'), '<div class="row"><span class="cap sp">Not in the chain</span><button class="hbtn" id="spadd" style="height:32px;min-height:32px">Add</button></div><div class="chips">' +
+    (sp.map(b => '<button class="sc" style="--c:' + cvar(b) + '" data-sp="' + b + '">' + svg(BLK[b].i) + esc(BLK[b].name) + '</button>').join('') || '<span class="note">Every block is in use.</span>') + '</div>')) {
+  $('#spadd').onclick = () => openAdd(lastAnchor(), 0);
+  $('#spare').querySelectorAll('[data-sp]').forEach(e => e.onclick = () => openAdd(lastAnchor(), 0, null, e.dataset.sp));
+  }
+}
+function lastAnchor(){ const { post } = chainParts(); return post.length ? post[post.length - 1] : 'amp'; }
+function fmtBal(v){ const r = Math.round(v); return r === 50 ? '50 / 50' : r < 50 ? 'more Amp' : 'more Amp 2'; }
+function panTxt(){ const a = PK['amp.pan1'], b = PK['amp.pan2']; if (!a || !b) return 'Path 1 left, path 2 right'; const s = v => v < -30 ? 'left' : v > 30 ? 'right' : 'center'; return 'Path 1 ' + s(a.v) + ', path 2 ' + s(b.v); }
+$('#bord').onclick = openOrder;
+$('#csave').onclick = () => openPresets('save');
+
+/* ===================== aggiunta di un blocco ===================== */
+let addCtx = null;
+function openAdd(after, lane, before, pick){
+  const sp = ADD_ORDER.filter(b => hasBlk(b) && !inChain(b));
+  if (!sp.length) return toast('Every block is already in the chain');
+  addCtx = { after: after || '', lane: lane || 0, before: before || '', sel: pick && sp.includes(pick) ? pick : sp[0] };
+  $('#asheet').classList.remove('hid'); renderAdd();
+}
+function addWhere(){
+  const a = addCtx;
+  if (a.lane) return 'Path ' + a.lane + (a.before === 'amp' ? ', before the amp' : ', after the amp');
+  if (!a.after) return 'Right after the guitar input' + (dual() ? ' · into both paths' : ' · mono');
+  if (a.after === 'amp') return dual() ? 'After the merge · stereo' : 'Right after the amp';
+  return 'After ' + BLK[a.after].name;
+}
+function renderAdd(){
+  const sp = ADD_ORDER.filter(b => hasBlk(b) && !inChain(b)), a = addCtx;
+  const ok = b => !(a.lane && b === 'amp2');
+  $('#ain').innerHTML = '<div class="grab"></div><div class="shd"><div class="tx"><b>Add a block</b><span class="small mut">' + esc(addWhere()) + '</span></div><button class="close" data-x aria-label="Close">' + svg('close') + '</button></div>' +
+    '<div class="addg">' + sp.filter(ok).map(b => '<button class="ab' + (b === a.sel ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-b="' + b + '" aria-pressed="' + (b === a.sel) + '"><span class="t">' + svg(BLK[b].i) + '</span><b>' + esc(BLK[b].name) + '</b><span>' + esc(BLK[b].d) + '</span></button>').join('') + '</div>' +
+    '<div class="row small mut">' + svg('info') + '<span class="sp">Processor now ' + (S ? S.dsp : '–') + '%. If a block does not fit, the pedal says so and leaves it off.</span></div>' +
+    '<button class="cta" id="adogo" style="--c:' + cvar(a.sel) + '">Add ' + esc(BLK[a.sel].name) + '</button>';
+  $('#ain').querySelector('[data-x]').onclick = closeAdd;
+  $('#ain').querySelectorAll('.ab').forEach(e => e.onclick = () => { addCtx.sel = e.dataset.b; renderAdd(); });
+  $('#adogo').onclick = doAdd;
+}
+function closeAdd(){ $('#asheet').classList.add('hid'); }
+$('#asheet').onclick = ev => { if (ev.target.id === 'asheet') closeAdd(); };
+async function doAdd(){
+  const a = addCtx, b = a.sel;
+  closeAdd();
+  if (b === 'amp2'){ if (await setNow('amp2.on', 1)) { toast('Amp 2 added: loading…'); await reload(); } return; }
+  const o = noAmp2(ORD.length ? ORD : DEF_ORD).filter(x => x !== b);
+  let i = a.before ? o.indexOf(a.before) : (a.after ? o.indexOf(a.after) + 1 : 0);
+  if (a.before && a.after && o.indexOf(a.after) >= 0 && o.indexOf(a.after) < i) i = o.indexOf(a.after) + 1;
+  if (i < 0) i = o.length;
+  o.splice(i, 0, b);
+  try {
+    if (o.join() !== noAmp2(ORD).join()) { const d = await getj('/api/order?o=' + o.join(',')); if (!d.ok) return toast(d.err || 'Not added'); }
+    await reload();
+    if (dual() && PK[b + '.lane']) await setNow(b + '.lane', a.lane || 0);
+    if (await setNow(b + '.on', 1)) toast(BLK[b].name + ' added');
+    await reload();
+    openEditor(b);
+  } catch(e) { toast('Not added: check the connection'); }
+}
+
+/* ===================== editor di un blocco ===================== */
+let edB = null, edTab = 'sound';
+function openEditor(b, tab){ edB = b; edTab = tab || 'sound'; $('#esheet').classList.remove('hid'); renderEditor(); }
+function closeEditor(){ $('#esheet').classList.add('hid'); edB = null; refresh(); }
+$('#esheet').onclick = ev => { if (ev.target.id === 'esheet') closeEditor(); };
+function tabsFor(b){
+  const t = [['sound', 'Sound']];
+  if (pairOf(b) || (dual() && PK[b + '.lane'])) t.push(['route', 'Routing']);
+  if (b !== 'amp') t.push(['switch', 'Switch']);
+  return t;
+}
+function capList(key, cur, needLite){
+  const list = CAPS.map((c, i) => c ? '<button class="radio' + (i === cur ? ' on' : '') + '" style="--c:var(--amp)" data-cap="' + i + '"' + (needLite && !c.lite ? ' disabled' : '') + '><span class="dot"></span><span class="tx"><b class="ell">' + esc(c.name) + '</b><span>' + [c.full ? 'Full' : '', c.lite ? 'Lite' : '', c.cab ? 'cab included' : ''].filter(Boolean).join(' · ') + (needLite && !c.lite ? ' · no Lite version' : '') + '</span></span><span class="small mut">' + String(i + 1).padStart(2, '0') + '</span></button>' : '').join('');
+  return '<div class="list" data-ck="' + key + '">' + (list || '<span class="note">No captures: add one in Library › Amps.</span>') + '</div>';
+}
+function renderEditor(){
+  const b = edB, E = $('#ein'); if (!b || !BLK[b]) return;
+  const M = BLK[b], on = onP(b), ps = bparams(b), tabs = tabsFor(b);
+  if (!tabs.find(t => t[0] === edTab)) edTab = 'sound';
+  const title = M.name;
+  let h = '<div class="grab"></div><div class="shd" style="--c:' + cvar(b) + '"><span class="bt">' + svg(M.i) + '</span><div class="tx"><b class="ell">' + esc(title) + '</b><span class="small mut ell">' + esc(short(b)) + '</span></div>' +
+    (on && b !== 'amp' ? '<button class="pwr' + (on.v > 0.5 ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-tog aria-pressed="' + (on.v > 0.5) + '" aria-label="On or off">' + svg('power') + '</button>' : '') +
+    '<button class="close" data-x aria-label="Close">' + svg('close') + '</button></div>';
+  if (tabs.length > 1) h += '<div class="tabs3" role="tablist">' + tabs.map(t => '<button role="tab" class="' + (t[0] === edTab ? 'on' : '') + '" data-t="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>';
+  if (edTab === 'sound'){
+    const mp = modelP(b);
+    if (mp) h += '<div class="models" style="--c:' + cvar(b) + '">' + mp.n.map((n, i) => '<button class="chip' + (Math.round(mp.v) === i ? ' on' : '') + '" data-k="' + mp.k + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div>';
+    if (b === 'amp') h += capList('amp.cap', capAct, isOn('amp2'));
+    if (b === 'amp2') {
+      h += capList('amp2.cap', PK['amp2.cap'] ? Math.round(PK['amp2.cap'].v) : -1, true);
+      if (capInfo.st2 === 2 && capInfo.msg2) h += '<span class="note" style="color:var(--bad)">' + esc(capInfo.msg2) + '</span>';
+      else if (capInfo.st2 === 1) h += '<span class="note">Loading the capture…</span>';
+    }
+    if (b === 'ir' || b === 'ir2'){
+      const sk = b + '.slot', cur = PK[sk] ? Math.round(PK[sk].v) : -1;
+      const list = IRS.map((c, i) => c ? '<button class="radio' + (i === cur ? ' on' : '') + '" style="--c:var(--ir)" data-k="' + sk + '" data-v="' + i + '"><span class="dot"></span><span class="tx"><b class="ell">' + esc(c.name) + '</b><span>' + c.n + ' samples</span></span></button>' : '').join('');
+      h += '<div class="list">' + (list || '<span class="note">No IRs: add one in Library › Cabs.</span>') + '</div>';
+    }
+    const kn = ps.filter(p => (p.t === 'knob' || ((b === 'amp' || b === 'amp2') && p.t === 'amp' && !/\.(on|cap)$/.test(p.k))) && !p.n && !/\.slot$/.test(p.k));
+    if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
+    ps.filter(p => p.n && p.t !== 'model' && p.t !== 'route' && p.t !== 'lane' && p.t !== 'on').forEach(p => {
+      h += '<div class="segw"><span>' + esc(p.t === 'pos' ? 'Position' : p.l) + '</span><div class="seg">' + p.n.map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-k="' + p.k + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div></div>';
+    });
+    if (b === 'amp' && !isOn('amp2')) h += '<div class="segw"><span>Model</span><div class="seg"><button class="' + (engCur !== 2 ? 'on' : '') + '" data-eng="1">Full</button><button class="' + (engCur === 2 ? 'on' : '') + '" data-eng="2">Lite</button></div><span class="note">In use now: ' + (capInfo.lite ? 'Lite' : 'Full') + '. Lite leaves more DSP for effects. Switching restarts the pedal.</span></div>';
+    if (b === 'amp2' || (b === 'amp' && isOn('amp2'))) h += '<div class="warnbox">' + svg('info') + '<span>With Amp 2 on, both amps run the lighter A2-Lite model and Wi-Fi is not available (Bluetooth works). Switching Amp 2 on or off reloads the amps: half a second of silence.</span></div>';
+    if (!kn.length && !mp && b === 'gate') h += '<span class="note">No settings.</span>';
+    h += '<span class="note">Drag a knob up or down. Long-press to type a value.</span>';
+  }
+  if (edTab === 'route') h += routeHTML(b);
+  if (edTab === 'switch'){
+    const sw = fsOf(b);
+    h += '<span style="font-size:13px;color:var(--mut)">Which footswitches turn ' + esc(M.name) + ' on and off</span><div class="fsp" style="--c:' + cvar(b) + '">' +
+      'ABCD'.split('').map(k => '<button class="' + (sw.includes(k) ? 'on' : '') + '" data-fs="' + k + '" aria-pressed="' + sw.includes(k) + '">' + k + '</button>').join('') + '</div>' +
+      '<span class="note">A switch can hold more than one block: they go on and off together. Blocks on a switch stay in the chain even when off (bypassed).</span>';
+  }
+  if (b !== 'amp') h += '<button class="danger" data-rm>' + (b === 'amp2' ? 'Remove Amp 2' : 'Remove from the chain') + '</button>';
+  E.innerHTML = h;
+  E.querySelector('[data-x]').onclick = closeEditor;
+  E.querySelectorAll('[data-t]').forEach(e => e.onclick = () => { edTab = e.dataset.t; renderEditor(); });
+  E.querySelectorAll('.knob').forEach(el => { knobSet(el, PK[el.dataset.k]); bindKnob(el); });
+  E.querySelectorAll('[data-tog]').forEach(e => e.onclick = () => { const p = onP(b); setv(p.k, p.v > 0.5 ? 0 : 1); renderEditor(); });
+  E.querySelectorAll('button[data-k]').forEach(e => e.onclick = () => { setv(e.dataset.k, +e.dataset.v); renderEditor(); });
+  E.querySelectorAll('[data-cap]').forEach(e => e.onclick = () => { const k = e.closest('[data-ck]').dataset.ck; if (k === 'amp.cap') selectCap(+e.dataset.cap); else setv(k, +e.dataset.cap); renderEditor(); });
+  E.querySelectorAll('[data-eng]').forEach(e => e.onclick = () => switchEngine(+e.dataset.eng));
+  E.querySelectorAll('[data-fs]').forEach(e => e.onclick = async () => { await assignToggle(e.dataset.fs, b); renderEditor(); });
+  E.querySelectorAll('input[type=range][data-r]').forEach(r => { rangeFill(r); bindRange(r, r.dataset.r); });
+  E.querySelectorAll('[data-route]').forEach(e => e.onclick = () => { const q = pairOf(b); setv(q[0] + '.par', +e.dataset.route); setTimeout(renderEditor, 50); });
+  E.querySelectorAll('[data-lane]').forEach(e => e.onclick = () => { setv(b + '.lane', +e.dataset.lane); setTimeout(renderEditor, 50); });
+  const rm = E.querySelector('[data-rm]'); if (rm) rm.onclick = () => removeBlock(b);
+}
+function sliderHTML(k, label, a, m, z, color){
+  const p = PK[k]; if (!p) return '';
+  return '<div class="sl"><div class="h"><span>' + esc(label) + '</span><b class="rv">' + esc(fmt(p, p.v)) + '</b></div><input type="range" data-r="' + k + '" min="' + p.min + '" max="' + p.max + '" step="' + p.step + '" value="' + p.v + '" style="--rc:' + color + '" aria-label="' + esc(label) + '"><div class="s"><span>' + esc(a) + '</span><span>' + esc(m) + '</span><span>' + esc(z) + '</span></div></div>';
+}
+function routeHTML(b){
+  let h = '';
+  const q = pairOf(b);
+  if (q){
+    const [a, c] = q, par = isPar(b), col = cvar(a), A = BLK[a].name, C = BLK[c].name, amps = a === 'amp';
+    h += '<span style="font-size:13px;color:var(--mut)">How ' + esc(A) + ' and ' + esc(C) + ' are connected</span><div class="opts" style="--c:' + col + '">' +
+      '<button class="opt' + (par ? '' : ' on') + '" data-route="0"><span class="sch"><i class="w"></i><i class="bx">1</i><i class="w"></i><i class="bx">2</i><i class="w"></i></span><b>Series</b><span>' + (amps ? 'Amp feeds Amp 2 (preamp into amp). One line, mono.' : esc(A) + ' then ' + esc(C) + ', in chain order.') + '</span></button>' +
+      '<button class="opt' + (par ? ' on' : '') + '" data-route="1"><span class="sch"><i class="w"></i><i class="fk"></i><span style="display:flex;flex-direction:column;gap:6px"><i class="bx s">1</i><i class="bx s">2</i></span><span class="lr"><span>L</span><span>R</span></span></span><b>' + (amps ? 'Two paths' : 'Beside each other') + '</b><span>' + (amps ? 'Same guitar into both, each with its own blocks. Stereo.' : 'Same input into both, then mixed.') + '</span></button></div>';
+    if (par) {
+      h += '<div class="box">' + sliderHTML(a + '.pmix', 'Balance', 'Only ' + A, amps ? 'Both full' : 'Half and half', 'Only ' + C, col) +
+        sliderHTML(a + '.pan1', A + ' position', 'Left', 'Center', 'Right', col) + sliderHTML(a + '.pan2', C + ' position', 'Left', 'Center', 'Right', col) + '</div>';
+      if (amps) h += '<span class="note">Blocks before and after the amps can sit on path 1, path 2, or on both: open a block and pick Routing › Where.</span>';
+      else h += '<span class="note">A block switched off passes the dry signal on its side.</span>';
+    }
+  }
+  if (dual() && PK[b + '.lane']){
+    const v = Math.round(PK[b + '.lane'].v);
+    h += '<div class="segw"><span>Where</span><div class="seg">' + ['Both paths', 'Path 1 (Amp)', 'Path 2 (Amp 2)'].map((n, i) => '<button class="' + (v === i ? 'on' : '') + '" data-lane="' + i + '">' + n + '</button>').join('') + '</div>' +
+      '<span class="note">Both paths: before the split (mono, into both amps) or after the merge (stereo). Path 1 or 2: only on that amp\'s path.</span></div>';
+  }
+  return h;
+}
+async function removeBlock(b){
+  const sw = fsOf(b);
+  for (const k of sw) await assignToggle(k, b);
+  await setNow(b + '.on', 0);
+  closeEditor(); await reload(); toast(BLK[b].name + ' removed from the chain');
+}
+
+/* ===================== ordine ===================== */
+let ordDraft = [];
+function openOrder(){ ordDraft = noAmp2(ORD.length ? ORD : DEF_ORD); $('#osheet').classList.remove('hid'); renderOrder(); }
+function closeOrder(){ $('#osheet').classList.add('hid'); }
+function renderOrder(){
+  const ai = ordDraft.indexOf('amp'), dirty = ordDraft.join() !== noAmp2(ORD).join();
+  $('#olist').innerHTML = ordDraft.map((b, i) => { const M = BLK[b] || {name: b, c: 'fg', i: 'eq'}, used = inChain(b);
+    return '<div class="orow' + (b === 'amp' ? ' amp' : '') + '" style="--c:' + cvar(b) + (used ? '' : ';opacity:.55') + '"><span class="no">' + (i + 1) + '</span><span class="oi">' + svg(M.i) + '</span><div class="tx"><b>' + esc(b === 'amp' && isOn('amp2') ? 'Amp + Amp 2' : M.name) + '</b><span class="small mut">' +
+      (b === 'amp' ? 'mono before, stereo after' : (i < ai ? 'before the amp' : 'after the amp') + (used ? '' : ' · not in the chain')) + '</span></div>' +
+      '<button class="ib" data-i="' + i + '" data-d="-1" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>' + svg('up') + '</button>' +
+      '<button class="ib" data-i="' + i + '" data-d="1" aria-label="Move down"' + (i === ordDraft.length - 1 ? ' disabled' : '') + '>' + svg('down') + '</button></div>'; }).join('');
+  $('#olist').querySelectorAll('button[data-d]').forEach(e => e.onclick = () => { const i = +e.dataset.i, j = i + +e.dataset.d; if (j < 0 || j >= ordDraft.length) return; [ordDraft[i], ordDraft[j]] = [ordDraft[j], ordDraft[i]]; renderOrder(); });
+  $('#oapply').disabled = !dirty;
+  $('#odef').disabled = ordDraft.join() === DEF_ORD.join();
+}
+async function applyOrder(){
+  try {
+    const d = await getj('/api/order?o=' + ordDraft.join(','));
+    if (!d.ok) return toast(d.err || 'Order refused');
+    await reload(); closeOrder(); toast('New order applied');
+  } catch(e) { toast('Order not sent: check the connection'); }
+}
+$('#oclose').onclick = closeOrder;
+$('#osheet').onclick = ev => { if (ev.target.id === 'osheet') closeOrder(); };
+$('#odef').onclick = () => { ordDraft = DEF_ORD.slice(); renderOrder(); };
+$('#oapply').onclick = applyOrder;
+function switchEngine(to){
+  if (to === engCur) return;
+  if (!confirm('Switch the amp to ' + (to === 2 ? 'Lite' : 'Full') + '?\n\n' + (to === 2 ? 'Lite: the lighter A2-Lite model, more DSP left for the effects.' : 'Full: the Full model of the capture when present (best accuracy), otherwise the Lite.') + '\n\nThe pedal restarts.')) return;
+  getj('/api/engine?e=' + to).then(() => toast('Restarting with the ' + (to === 2 ? 'Lite' : 'Full') + ' model…')).catch(() => {});
+}
+
+/* ===================== footswitch ===================== */
+let fsSel = 'A';
+const PSTATE = ['off', 'searching…', 'connecting…', 'connected'];
+function openFs(k){ fsSel = k || 'A'; $('#fsheet').classList.remove('hid'); renderFs(); midiApi('/api/midi'); }
+function closeFs(){ $('#fsheet').classList.add('hid'); refresh(); }
+$('#fsheet').onclick = ev => { if (ev.target.id === 'fsheet') closeFs(); };
+function renderFs(){
+  if ($('#fsheet').classList.contains('hid')) return;
+  const G4 = fsGroups(), cur = G4['ABCD'.indexOf(fsSel)];
+  const conn = PK['wifi.on'] ? Math.round(PK['wifi.on'].v) : 0;
+  const pst = !MD ? '–' : !MD.pen ? 'Bluetooth footswitch off' : conn !== 2 ? 'Needs the Bluetooth connection' : PSTATE[MD.ped] || '–';
+  const blks = noAmp2(ORD.length ? ORD : DEF_ORD).concat(['amp2']).filter(b => b !== 'amp' && hasBlk(b) && (inChain(b) || cur.blks.includes(b)));
+  const nx = MD && MD.map.find(m => m && m.a === 3), pv = MD && MD.map.find(m => m && m.a === 4);
+  let h = '<div class="grab"></div><div class="shd"><div class="tx"><b>Footswitches</b><span class="small mut">' + esc(MD && MD.ped === 3 && MD.pname ? MD.pname : 'Bluetooth footswitch') + ' · ' + esc(pst) + '</span></div><button class="close" data-x aria-label="Close">' + svg('close') + '</button></div>' +
+    '<div class="pedal">' + G4.map(f => { const c = f.blks.length ? cvar(f.blks[0]) : '#3A404C';
+      return '<button class="' + (f.key === fsSel ? 'on' : '') + '" style="--c:' + c + '" data-pk="' + f.key + '" aria-pressed="' + (f.key === fsSel) + '" aria-label="Switch ' + f.key + '"><span class="pl" style="background:' + c + ';box-shadow:0 0 8px ' + c + '"></span><span class="pk"><i></i></span><span class="pn">' + f.key + '</span></button>'; }).join('') + '</div>' +
+    '<span class="note">' + ((pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–16 recalls the presets') + '</span>' +
+    '<div class="row"><b class="g sp" style="font-size:18px">Switch ' + fsSel + ' turns on and off</b><span class="small mut">' + (cur.blks.length === 1 ? '1 block' : cur.blks.length + ' blocks') + '</span></div>' +
+    '<div class="tg">' + blks.map(b => '<button class="tgb' + (cur.blks.includes(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-tb="' + b + '" aria-pressed="' + cur.blks.includes(b) + '">' + svg(BLK[b].i) + '<span>' + esc(BLK[b].name) + '</span><span class="ck">' + svg('check') + '</span></button>').join('') + '</div>' +
+    '<span class="note">Pick more than one to switch them together, for example Drive 2 + Delay for a solo. Only blocks in the chain are listed.</span>' +
+    '<div class="row"><button class="sp" id="fpen">' + (MD && MD.pen ? 'Turn the Bluetooth footswitch off' : 'Turn the Bluetooth footswitch on') + '</button><button id="fscan">Search</button></div>' +
+    '<button id="fmidi">Wired MIDI and custom mappings</button>';
+  const E = $('#fin'); E.innerHTML = h;
+  E.querySelector('[data-x]').onclick = closeFs;
+  E.querySelectorAll('[data-pk]').forEach(e => e.onclick = () => { fsSel = e.dataset.pk; renderFs(); });
+  E.querySelectorAll('[data-tb]').forEach(e => e.onclick = () => assignToggle(fsSel, e.dataset.tb));
+  $('#fpen').onclick = () => midiApi('/api/pedal?en=' + (MD && MD.pen ? 0 : 1));
+  $('#fscan').onclick = () => midiApi('/api/pedal?scan=1');
+  $('#fmidi').onclick = () => { closeFs(); openMidi(); };
+}
+
+/* ===================== preset ===================== */
 let psMode = 'load';
 function openPresets(mode){ psMode = mode; $('#psheet').classList.remove('hid'); renderPsheet(); }
 function renderPsheet(){
@@ -727,10 +1149,10 @@ function renderPsheet(){
   $('#pst').textContent = save ? 'Save preset' : 'Load a preset';
   $('#psupd').classList.toggle('hid', !(save && cur));
   if (save && cur) $('#psupd').textContent = 'Update "' + cur.name + '" (' + String(psCur + 1).padStart(2, '0') + ')';
-  $('#psn').textContent = save ? (cur ? 'Or pick another slot to save a copy with a new name.' : 'Pick a slot and give the preset a name.') : 'Tap a preset to load it.';
+  $('#psn').textContent = save ? (cur ? 'Or pick another slot to save a copy.' : 'Pick a slot and give the preset a name.') : 'Tap a preset to load it.';
   $('#pslist').innerHTML = Array.from({ length: 16 }, (_, i) => { const p = PS[i];
-    return '<button class="sl' + (p ? '' : ' empty') + (i === psCur ? ' cur' : '') + '" data-i="' + i + '"><span class="no">' + String(i + 1).padStart(2, '0') + '</span><b>' + esc(p ? p.name : (save ? 'Empty · save here' : 'Empty')) + '</b></button>'; }).join('');
-  $('#pslist').querySelectorAll('.sl').forEach(e => e.onclick = () => { const i = +e.dataset.i; save ? savePreset(i, false) : (PS[i] ? (loadPreset(i), closePs()) : null); });
+    return '<button class="slt' + (p ? '' : ' empty') + (i === psCur ? ' cur' : '') + '" data-i="' + i + '"><span class="no">' + String(i + 1).padStart(2, '0') + '</span><b>' + esc(p ? p.name : (save ? 'Empty · save here' : 'Empty')) + '</b></button>'; }).join('');
+  $('#pslist').querySelectorAll('.slt').forEach(e => e.onclick = () => { const i = +e.dataset.i; save ? savePreset(i, false) : (PS[i] ? (loadPreset(i), closePs()) : null); });
 }
 function closePs(){ $('#psheet').classList.add('hid'); }
 async function savePreset(i, keepName){
@@ -748,165 +1170,21 @@ async function savePreset(i, keepName){
   } catch(e) { toast('Save failed: check the connection'); }
 }
 $('#psupd').onclick = () => savePreset(psCur, true);
-$('#pname').onclick = () => openPresets('load');
-$('#lload').onclick = () => openPresets('load');
-$('#lsave').onclick = () => openPresets('save');
 $('#psclose').onclick = closePs;
 $('#psheet').onclick = ev => { if (ev.target.id === 'psheet') closePs(); };
-$('#vol').oninput = ev => { const p = PK['out.vol']; if (!p) return; dragging = 'out.vol'; p.v = +ev.target.value; $('#volv').textContent = fmt(p, p.v); send('out.vol', p.v); };
-$('#vol').onchange = () => setTimeout(() => { if (dragging === 'out.vol') dragging = null; }, 350);
-$('#bmute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
-function nextSlot(dir){ for (let k = 1; k <= 16; k++){ const i = ((psCur < 0 ? (dir > 0 ? -1 : 0) : psCur) + dir * k + 32) % 16; if (PS[i]) return i; } return -1; }
-async function loadPreset(i){ if (i < 0) return toast('No presets stored'); try { const d = await getj('/api/pload?s=' + i); if (d.err) toast(d.err); else { psCur = i; await reload(); } } catch(e) {} }
-$('#pprev').onclick = () => loadPreset(nextSlot(-1));
-$('#pnext').onclick = () => loadPreset(nextSlot(1));
-$('#bconn').onclick = () => { try { VXBridge.connect(); } catch(e) {} };
-
-/* ===================== RIG ===================== */
-function renderRig(){
-  const bl = blocks();
-  if (!bl.find(x => x.blk === rigSel) && bl.length) rigSel = bl[0].blk;
-  const out = PK['io.out'];
-  $('#blocks').innerHTML = bl.map(x => '<button class="blk' + (isOn(x.blk) ? ' on' : '') + (x.blk === rigSel ? ' sel' : '') + (x.blk === 'amp' ? ' ampb' : '') + '" data-b="' + x.blk + '" style="--c:' + cvar(x.blk) + '" aria-pressed="' + (x.blk === rigSel) + '">' +
-      (isPar(x.blk) ? '<em class="par" title="In parallel">∥</em>' : '') + '<i class="d"></i><b>' + BLK[x.blk].ab + '</b><span>' + esc(short(x.blk)) + '</span></button>').join('') +
-    '<button class="blk out" data-b="out"><i class="d" style="background:var(--mut)"></i><b>OUT</b><span>' + esc(out ? fmt(out, out.v) : 'Stereo') + '</span></button>';
-  $('#blocks').querySelectorAll('.blk').forEach(e => e.onclick = () => { if (e.dataset.b === 'out') return show('setup'); rigSel = e.dataset.b; renderRig(); });
-  $('#rordb').classList.toggle('hid', !ORD.length);
-  renderEditor();
-}
-function chipsHTML(p, cls){
-  return '<div class="chips">' + p.n.map((n, i) => '<button class="chip ' + (cls || '') + (Math.round(p.v) === i ? ' on' : '') + '" data-k="' + esc(p.k) + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div>';
-}
-function segHTML(p, label){
-  return '<div class="segw"><span>' + esc(label || p.l) + '</span><div class="seg">' + p.n.map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-k="' + esc(p.k) + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div></div>';
-}
-function renderEditor(){
-  const b = rigSel, E = $('#editor'); if (!BLK[b]) { E.innerHTML = ''; return; }
-  const ps = bparams(b), on = onP(b), M = BLK[b];
-  let h = '<div class="hd" style="--c:' + cvar(b) + '"><span class="tag">' + M.cat + '</span><span class="nm">' + esc(b === 'amp' || b === 'amp2' || b === 'ir' || b === 'ir2' ? short(b) : (modelP(b) ? short(b) : M.name)) + '</span>' +
-    (on ? '<button class="sw' + (on.v > 0.5 ? ' on' : '') + '" data-tog="' + on.k + '" aria-label="Block on or off" aria-pressed="' + (on.v > 0.5) + '"></button>' : '') + '</div>';
-  const mp = modelP(b);
-  if (mp) h += '<div style="--c:' + cvar(b) + '">' + chipsHTML(mp) + '</div>';
-  if (b === 'amp'){
-    const list = CAPS.map((c, i) => c ? '<button class="chip' + (i === capAct ? ' on' : '') + '" data-cap="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
-    h += '<div style="--c:var(--amp)" class="chips">' + (list || '<span class="note">No captures: add one in Library.</span>') + '</div>';
-  }
-  if (b === 'amp2'){
-    const cv = PK['amp2.cap'] ? Math.round(PK['amp2.cap'].v) : -1;
-    const list = CAPS.map((c, i) => c ? '<button class="chip' + (i === cv ? ' on' : '') + '" data-k="amp2.cap" data-v="' + i + '"' + (c.lite ? '' : ' disabled') + '>' + (i + 1) + ' · ' + esc(c.name) + (c.lite ? '' : ' (no Lite)') + '</button>' : '').join('');
-    h += '<div style="--c:var(--amp)" class="chips">' + (list || '<span class="note">No captures: add one in Library.</span>') + '</div>';
-    if (capInfo.st2 === 2 && capInfo.msg2) h += '<span class="note" style="color:var(--bad)">' + esc(capInfo.msg2) + '</span>';
-    else if (capInfo.st2 === 1) h += '<span class="note">Loading…</span>';
-  }
-  if (b === 'ir' || b === 'ir2'){
-    const sk = b + '.slot';
-    const list = IRS.map((c, i) => c ? '<button class="chip' + (PK[sk] && Math.round(PK[sk].v) === i ? ' on' : '') + '" data-k="' + sk + '" data-v="' + i + '">' + (i + 1) + ' · ' + esc(c.name) + '</button>' : '').join('');
-    h += '<div style="--c:var(--ir)" class="chips">' + (list || '<span class="note">No IRs: add one in Library.</span>') + '</div>';
-  }
-  const kn = ps.filter(p => (p.t === 'knob' || ((b === 'amp' || b === 'amp2') && p.t === 'amp' && !/\.(on|cap)$/.test(p.k))) && !p.n && !/\.slot$/.test(p.k));
-  if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
-  ps.filter(p => p.n && p.t !== 'model' && p.t !== 'route').forEach(p => { h += segHTML(p, p.t === 'pos' ? 'Position' : p.l); });
-  h += routingHTML(b);
-  if (b === 'amp' && !isOn('amp2')) h += '<div class="segw"><span>Engine</span><div class="seg"><button class="' + (engCur !== 2 ? 'on' : '') + '" data-eng="1">Full</button><button class="' + (engCur === 2 ? 'on' : '') + '" data-eng="2">Lite</button></div></div>';
-  if (b === 'amp2') h += '<span class="note">While Amp 2 is on, both amps run the A2-Lite model (the Full needs too much DSP and RAM for two). Amp 2 works with Bluetooth or with the radio off, not with Wi-Fi. Switching it on or off reloads the amps: a short silence.</span>';
-  h += '<div class="foot"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span class="sp">' + (b === 'amp' ? 'In use: ' + (capInfo.lite ? 'Lite' : 'Full') + ' model · ' : '') + 'Drag knobs up or down, long-press to type a value</span></div>';
-  E.innerHTML = h;
-  E.querySelectorAll('.knob').forEach(el => { knobSet(el, PK[el.dataset.k]); bindKnob(el); });
-  E.querySelectorAll('[data-tog]').forEach(e => e.onclick = () => { const p = PK[e.dataset.tog]; setv(p.k, p.v > 0.5 ? 0 : 1); });
-  E.querySelectorAll('button[data-k]').forEach(e => e.onclick = () => setv(e.dataset.k, +e.dataset.v));
-  E.querySelectorAll('[data-cap]').forEach(e => e.onclick = () => selectCap(+e.dataset.cap));
-  E.querySelectorAll('[data-eng]').forEach(e => e.onclick = () => switchEngine(+e.dataset.eng));
-}
-/* routing di una coppia (Drive, Mod, IR, Delay): i parametri stanno sul primo blocco della coppia */
-function routingHTML(b){
-  const q = pairOf(b); if (!q) return '';
-  const a = q[0], rp = PK[a + '.par']; if (!rp) return '';
-  const other = q[0] === b ? q[1] : q[0], par = rp.v > 0.5;
-  const ia = ORD.indexOf(q[0]), ib = ORD.indexOf(q[1]);
-  let h = '<div class="route" style="--c:' + cvar(b) + '"><div class="rt"><b>Routing with ' + esc(BLK[other].name) + '</b><span class="sp"></span>' +
-    '<div class="seg sm">' + ['Series', 'Parallel'].map((n, i) => '<button class="' + (Math.round(rp.v) === i ? 'on' : '') + '" data-k="' + a + '.par" data-v="' + i + '">' + n + '</button>').join('') + '</div></div>';
-  if (a === 'amp'){
-    if (par){
-      const kn = ['pmix', 'pan1', 'pan2'].map(k => PK[a + '.' + k]).filter(Boolean);
-      h += '<span class="note">Both amps get the same guitar. Mix 1/2 at 50% keeps both at full level; towards 0% or 100% the other one fades out. Pan 1 and Pan 2: by default Amp left, Amp 2 right.</span>';
-      if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
-    } else h += '<span class="note">In series: Amp 2 takes the output of Amp (for example a preamp capture into an amp capture). It all runs on one core, so it costs more DSP than parallel.</span>';
-    return h + '</div>';
-  }
-  if (par){
-    const kn = ['pmix', 'pan1', 'pan2'].map(k => PK[a + '.' + k]).filter(Boolean);
-    h += '<span class="note">Both blocks get the same input' + (Math.min(ia, ib) >= 0 ? ', at the position of ' + esc(BLK[ORD[Math.min(ia, ib)]].name) : '') + '. Mix 1/2: 0% = only ' + esc(BLK[q[0]].name) + ', 100% = only ' + esc(BLK[q[1]].name) + '. A block switched off passes the dry signal on its branch.</span>';
-    if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
-  } else h += '<span class="note">In series, in chain order. Tap Parallel to run both on the same input and mix them (Mix 1/2, pan for each branch).</span>';
-  return h + '</div>';
-}
-/* ordine della catena: frecce su/giu', poi "Apply" (il pedale controlla il DSP prima di accettare) */
-let ordDraft = [];
-function openOrder(){ ordDraft = noAmp2(ORD.length ? ORD : DEF_ORD); $('#osheet').classList.remove('hid'); renderOrder(); }
-function closeOrder(){ $('#osheet').classList.add('hid'); }
-function renderOrder(){
-  const ai = ordDraft.indexOf('amp'), dirty = ordDraft.join() !== noAmp2(ORD).join();
-  $('#olist').innerHTML = ordDraft.map((b, i) => { const M = BLK[b] || {ab: b, name: b, c: 'fg'}, q = pairOf(b);
-    return '<div class="orow' + (b === 'amp' ? ' amp' : '') + (isOn(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '"><span class="no">' + (i + 1) + '</span><i class="d"></i><div class="sp"><b>' + esc(b === 'amp' && isOn('amp2') ? 'Amp + Amp 2' : M.name) + (isPar(b) && b !== 'amp' ? ' <em class="par">∥</em>' : '') + '</b><span class="small mut">' +
-      (b === 'amp' ? 'NAM amp: mono before, stereo after' : (i < ai ? 'before the amp · mono' : 'after the amp') + (q && isPar(b) ? ' · parallel with ' + BLK[q[0] === b ? q[1] : q[0]].name : '')) + '</span></div>' +
-      '<button class="ib" data-i="' + i + '" data-d="-1" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>' +
-      '<button class="ib" data-i="' + i + '" data-d="1" aria-label="Move down"' + (i === ordDraft.length - 1 ? ' disabled' : '') + '><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>'; }).join('');
-  $('#olist').querySelectorAll('button[data-d]').forEach(e => e.onclick = () => { const i = +e.dataset.i, j = i + +e.dataset.d; if (j < 0 || j >= ordDraft.length) return; [ordDraft[i], ordDraft[j]] = [ordDraft[j], ordDraft[i]]; renderOrder(); });
-  $('#oapply').disabled = !dirty;
-  $('#odef').disabled = ordDraft.join() === DEF_ORD.join();
-}
-async function applyOrder(){
-  try {
-    const d = await getj('/api/order?o=' + ordDraft.join(','));
-    if (!d.ok) return toast(d.err || 'Order refused');
-    await reload(); closeOrder(); toast('Chain order applied');
-  } catch(e) { toast('Order not sent: check the connection'); }
-}
-$('#rordb').onclick = openOrder;
-$('#oclose').onclick = closeOrder;
-$('#osheet').onclick = ev => { if (ev.target.id === 'osheet') closeOrder(); };
-$('#odef').onclick = () => { ordDraft = DEF_ORD.slice(); renderOrder(); };
-$('#oapply').onclick = applyOrder;
-function switchEngine(to){
-  if (to === engCur) return;
-  if (!confirm('Switch to the ' + (to === 2 ? 'Lite' : 'Full') + ' engine?\n\n' + (to === 2 ? 'Lite: always the A2-Lite model, the lightest: more DSP left for the effects.' : 'Full: the Full model of the capture when present (best accuracy), otherwise the Lite.') + '\n\nThe pedal restarts.')) return;
-  getj('/api/engine?e=' + to).then(() => toast('Restarting with the ' + (to === 2 ? 'Lite' : 'Full') + ' engine…')).catch(() => {});
-}
-
-/* ===================== PRESET ===================== */
-function renderPresets(){
+function renderPresetsTab(){
   if (psSel < 0) psSel = psCur >= 0 ? psCur : 0;
   $('#pgrid').innerHTML = Array.from({ length: 16 }, (_, i) => { const p = PS[i];
-    return '<button class="ps' + (p ? '' : ' empty') + (i === psSel ? ' sel' : '') + '" data-i="' + i + '" aria-pressed="' + (i === psSel) + '"><span class="n">' + String(i + 1).padStart(2, '0') + (i === psCur ? '<i class="led on"></i>' : '') + '</span><b>' + esc(p ? p.name : 'Empty') + '</b></button>'; }).join('');
-  $('#pgrid').querySelectorAll('.ps').forEach(e => { e.onclick = () => { psSel = +e.dataset.i; renderPresets(); }; e.ondblclick = () => { if (PS[+e.dataset.i]) loadPreset(+e.dataset.i); }; });
+    return '<button class="ps' + (p ? '' : ' empty') + (i === psSel ? ' sel' : '') + (i === psCur ? ' cur' : '') + '" data-i="' + i + '" aria-pressed="' + (i === psSel) + '"><span class="n">' + String(i + 1).padStart(2, '0') + (i === psCur ? '<i class="led on"></i>' : '') + '</span><b class="ell">' + esc(p ? p.name : 'Empty') + '</b></button>'; }).join('');
+  $('#pgrid').querySelectorAll('.ps').forEach(e => { e.onclick = () => { psSel = +e.dataset.i; renderPresetsTab(); }; e.ondblclick = () => { if (PS[+e.dataset.i]) loadPreset(+e.dataset.i); }; });
   $('#pload').disabled = !PS[psSel]; $('#pdel').disabled = !PS[psSel];
-  const used = PS.filter(Boolean).length;
-  if (view === 'presets') $('#vsub').textContent = '16 slots · ' + used + ' used';
-  renderPedal();
 }
 $('#pload').onclick = () => loadPreset(psSel);
-$('#psave').onclick = async () => {
-  const n = prompt('Preset name for slot ' + (psSel + 1) + ':', PS[psSel] ? PS[psSel].name : ''); if (n === null) return;
-  if (PS[psSel] && !confirm('Overwrite "' + PS[psSel].name + '" with the current settings?')) return;
-  try { const d = await getj('/api/psave?s=' + psSel + '&n=' + encodeURIComponent(n.slice(0, 15))); if (d.err) toast(d.err); else { PS = d.slots; psCur = d.cur; renderPresets(); renderLive(); toast('Saved to slot ' + (psSel + 1)); } } catch(e) {}
-};
+$('#psave').onclick = () => savePreset(psSel, false);
 $('#pdel').onclick = async () => {
   const p = PS[psSel]; if (!p || !confirm('Delete preset ' + (psSel + 1) + ' "' + p.name + '"?')) return;
-  try { const d = await getj('/api/pdel?s=' + psSel); PS = d.slots; renderPresets(); renderLive(); } catch(e) {}
+  try { const d = await getj('/api/pdel?s=' + psSel); PS = d.slots; refresh(); } catch(e) {}
 };
-const PSTATE = ['off', 'searching…', 'connecting…', 'connected'];
-function renderPedal(){
-  if (!MD) return;
-  const conn = PK['wifi.on'] ? Math.round(PK['wifi.on'].v) : 0;
-  $('#pedn').textContent = MD.ped === 3 && MD.pname ? MD.pname : 'Bluetooth footswitch';
-  $('#peds').textContent = !MD.pen ? 'off' : conn !== 2 ? 'needs the Bluetooth connection' : 'Bluetooth MIDI · ' + PSTATE[MD.ped];
-  $('#pen').classList.toggle('on', !!MD.pen);
-  $('#pedal').innerHTML = fsGroups().map(f => '<div style="--c:' + (f.blks.length ? cvar(f.blks[0]) : 'var(--dim)') + '"><b>' + f.key + '</b><span>' + esc(f.blks.length ? f.blks.map(b => BLK[b].ab).join(' + ') : '–') + '</span></div>').join('');
-  const nx = MD.map.find(m => m && m.a === 3), pv = MD.map.find(m => m && m.a === 4);
-  $('#pedhint').textContent = (pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–16 recalls the presets';
-}
-$('#pen').onclick = () => midiApi('/api/pedal?en=' + (MD && MD.pen ? 0 : 1));
-$('#pscan').onclick = () => midiApi('/api/pedal?scan=1');
 
 /* ===================== LIBRERIA ===================== */
 const KS=[6,6,6,6,6,6,6,6,6,6,6,6,6,6,15,15,6,6,6,6,6,6,6], DS=[1,3,7,17,41,101,239,1,3,7,17,41,101,239,1,13,1,3,7,17,41,101,239];
@@ -1001,19 +1279,24 @@ function irToVxi(x, name){
 }
 function lstat(t, err){ const e = $('#lst'); e.textContent = t || ''; e.classList.toggle('err', !!err); }
 function renderLib(){
+  document.querySelectorAll('#v-lib .tabs3 button').forEach(b => b.classList.toggle('on', b.dataset.l === libTab));
+  $('#lps').classList.toggle('on', libTab === 'ps'); $('#lfiles').classList.toggle('on', libTab !== 'ps');
+  if (libTab === 'ps') return renderPresetsTab();
   const cap = libTab === 'cap', list = cap ? CAPS : IRS, total = cap ? 20 : 10, used = list.filter(Boolean).length;
-  $('#ltcap').classList.toggle('on', cap); $('#ltir').classList.toggle('on', !cap);
   const c = cap ? 'var(--amp)' : 'var(--ir)';
-  $('#lused').textContent = used + ' of ' + total + ' slots used'; $('#lhint').textContent = 'Tap to use';
+  $('#lused').textContent = used + ' of ' + total + ' slots used'; $('#lhint').textContent = cap ? 'Tap to use on Amp' : 'Tap to use on Cab IR';
   $('#lcells').style.setProperty('--c', c);
+  $('#lcells').style.gridTemplateColumns = 'repeat(' + total + ',1fr)';
   $('#lcells').innerHTML = Array.from({ length: total }, (_, i) => '<i class="' + (list[i] ? 'on' : '') + '"></i>').join('');
   const act = cap ? capAct : (PK['ir.slot'] ? Math.round(PK['ir.slot'].v) : -1);
+  const act2 = cap ? (isOn('amp2') && PK['amp2.cap'] ? Math.round(PK['amp2.cap'].v) : -1) : (isOn('ir2') && PK['ir2.slot'] ? Math.round(PK['ir2.slot'].v) : -1);
   $('#llist').innerHTML = list.map((it, i) => {
     if (!it) return '';
-    const tags = cap ? (it.full ? '<span class="badge amp">FULL</span>' : '') + (it.lite ? '<span class="badge">LITE</span>' : '') + (it.cab ? '<span class="badge">CAB</span>' : '')
-                     : '<span class="badge ir">' + it.n + '</span><span class="small mut">' + (it.n / 48).toFixed(0) + ' ms</span>';
-    return '<div class="it' + (i === act ? ' act' : '') + '" style="--c:' + c + '" data-i="' + i + '"><span class="no">' + String(i + 1).padStart(2, '0') + '</span><div class="bd"><b>' + esc(it.name) + '</b><div>' + tags + '</div></div>' +
-      (i === act ? '<span class="use">IN USE</span>' : '<button class="x" data-del="' + i + '" aria-label="Delete"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg></button>') + '</div>';
+    const tags = cap ? (it.full ? '<span class="badge c">FULL</span>' : '') + (it.lite ? '<span class="badge">LITE</span>' : '') + (it.cab ? '<span class="badge">CAB</span>' : '')
+                     : '<span class="badge c">' + it.n + '</span><span class="small mut">' + (it.n / 48).toFixed(0) + ' ms</span>';
+    const inuse = i === act ? (cap ? 'AMP' : 'CAB') : i === act2 ? (cap ? 'AMP 2' : 'CAB 2') : '';
+    return '<div class="it' + (inuse ? ' act' : '') + '" style="--c:' + c + '" data-i="' + i + '"><span class="no">' + String(i + 1).padStart(2, '0') + '</span><div class="bd"><b>' + esc(it.name) + '</b><div>' + tags + '</div></div>' +
+      (inuse ? '<span class="use">' + inuse + '</span>' : '<button class="x" data-del="' + i + '" aria-label="Delete">' + svg('trash') + '</button>') + '</div>';
   }).join('') || '<span class="note">' + (cap ? 'No captures stored.' : 'No IRs stored.') + '</span>';
   $('#llist').querySelectorAll('.it').forEach(e => e.onclick = ev => {
     const i = +e.dataset.i;
@@ -1025,8 +1308,7 @@ function renderLib(){
   $('#laddn').textContent = cap ? 'A2 file · Full and Lite versions read from it' : 'Resampled to 48 kHz, up to 2048 samples';
   $('#lfile').accept = cap ? '.nam,application/json' : '.wav,audio/wav';
 }
-$('#ltcap').onclick = () => { libTab = 'cap'; lstat(''); renderLib(); };
-$('#ltir').onclick = () => { libTab = 'ir'; lstat(''); renderLib(); };
+document.querySelectorAll('#v-lib .tabs3 button').forEach(b => b.onclick = () => { libTab = b.dataset.l; lstat(''); renderLib(); });
 async function delItem(i){
   const cap = libTab === 'cap', it = (cap ? CAPS : IRS)[i];
   if (!it || !confirm('Delete "' + it.name + '"?')) return;
@@ -1061,68 +1343,74 @@ $('#lfile').onchange = async ev => {
 async function loadCaps(){
   try { const d = await getj('/api/caps'); CAPS = d.slots || []; capAct = d.active; capInfo = d;
     if (libTab === 'cap') lstat(d.st === 1 ? 'Loading…' : d.st === 2 ? d.msg : '' , d.st === 2);
-    refresh(); } catch(e){}
+    refresh(); if (edB) renderEditor(); } catch(e){}
 }
 async function loadIrs(){ try { const d = await getj('/api/irs'); IRS = d.slots || []; irAct = d.active; refresh(); } catch(e){} }
 
 /* ===================== SETUP ===================== */
-const CONN_NOTE = ['Radio off: lowest noise and DSP load.', 'Access point VoidX-FX: open 192.168.4.1 in a browser. The app\'s Bluetooth link drops.', 'App and BLE-MIDI footswitch over Bluetooth.'];
-const IN_NOTE = ['Guitar on IN1.', 'Guitar on IN2.', 'Average of both inputs (−6 dB). Mixes two sources.', 'Guitar on IN2, IN1 left empty as noise reference: cancels the board hum and the radio clicks.', 'Guitar on IN1, IN2 left empty as noise reference.'];
+const WL = [[2, 'Bluetooth', 'App and footswitch', 'bt', 'var(--rev)'], [1, 'Wi-Fi', 'Web page, big uploads', 'wifi', 'var(--ok)'], [0, 'Off', 'Quietest, most DSP', 'radiooff', 'var(--eq)']];
+const WL_NOTE = ['Radio off: lowest noise and DSP load. To get the app back, choose Bluetooth on the pedal menu.', 'Access point VoidX-FX: open 192.168.4.1 in a browser. The app\'s Bluetooth link drops.', 'App and BLE-MIDI footswitch over Bluetooth.'];
+const IN_OPT = [[3, 'Input 2 + reference', 'Guitar in 2, input 1 empty: cancels hum and radio clicks', 'BEST'], [4, 'Input 1 + reference', 'Guitar in 1, input 2 empty: cancels hum', ''], [0, 'Input 1', 'Simplest, more hum', ''], [1, 'Input 2', 'Simplest, more hum', ''], [2, 'Inputs 1 + 2', 'Average of both (−6 dB): two sources together', '']];
 function segFor(id, k, names){
-  const p = PK[k], E = $(id); if (!p) { E.innerHTML = ''; return; }
-  E.innerHTML = (names || p.n).map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-v="' + i + '">' + esc(n) + '</button>').join('');
-  E.querySelectorAll('button').forEach(b => b.onclick = () => {
-    const v = +b.dataset.v; if (v === Math.round(p.v)) return;
-    if (k === 'wifi.on' && !confirm('Changing the connection drops the app\'s Bluetooth link' + (v === 1 ? ' (then use a browser on the pedal Wi-Fi).' : '.') + ' Continue?')) return;
-    setv(k, v);
-  });
+  const p = PK[k], E = $(id); if (!p) { put(E, ''); return; }
+  if (put(E, (names || p.n).map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-v="' + i + '">' + esc(n) + '</button>').join('')))
+    E.querySelectorAll('button').forEach(b => b.onclick = () => { const v = +b.dataset.v, q = PK[k]; if (q && v !== Math.round(q.v)) setv(k, v); });
 }
 function renderSetup(){
-  segFor('#sconn', 'wifi.on');
-  const c = PK['wifi.on']; $('#sconnn').textContent = c ? CONN_NOTE[Math.round(c.v)] || '' : '';
+  const c = PK['wifi.on'], cv = c ? Math.round(c.v) : -1;
+  if (put($('#swl'), WL.map(([v, n, d, i, col]) => '<button class="' + (v === cv ? 'on' : '') + '" style="--c:' + col + '" data-w="' + v + '" aria-pressed="' + (v === cv) + '">' + svg(i) + '<b>' + n + '</b><span>' + d + '</span></button>').join('')))
+  $('#swl').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const v = +b.dataset.w, c = PK['wifi.on']; if (!c || v === Math.round(c.v)) return;
+    if (!confirm('Changing the wireless mode drops the app\'s Bluetooth link' + (v === 1 ? ' (then use a browser on the pedal Wi-Fi).' : '.') + ' Continue?')) return;
+    setv('wifi.on', v);
+  });
+  $('#swln').textContent = WL_NOTE[cv] || '';
   const pin = PK['io.in'];
   if (pin){
-    $('#sin').innerHTML = pin.n.map((n, i) => '<button class="chip inv' + (Math.round(pin.v) === i ? ' on' : '') + '" data-v="' + i + '">' + esc(n) + '</button>').join('');
+    const iv = Math.round(pin.v);
+    if (put($('#sin'), IN_OPT.map(([v, n, d, t]) => '<button class="radio' + (v === iv ? ' on' : '') + '" data-v="' + v + '"><span class="dot"></span><span class="tx"><b>' + n + '</b><span>' + d + '</span></span>' + (t ? '<span class="tag">' + t + '</span>' : '') + '</button>').join('')))
     $('#sin').querySelectorAll('button').forEach(b => b.onclick = () => setv('io.in', +b.dataset.v));
-    $('#sinn').textContent = IN_NOTE[Math.round(pin.v)] || '';
-    $('#srefc').classList.toggle('hid', Math.round(pin.v) < 3);
+    $('#brefc').classList.toggle('hid', iv < 3);
   }
-  const g = PK['in.gain']; if (g && dragging !== 'in.gain'){ const r = $('#sgain'); r.min = g.min; r.max = g.max; r.step = g.step; r.value = g.v; $('#sgainv').textContent = fmt(g, g.v); }
-  segFor('#sout', 'io.out', ['Stereo', 'Mono', 'OUT1', 'OUT2']);
+  const g = PK['in.gain']; if (g && dragging !== 'in.gain'){ const r = $('#sgain'); r.min = g.min; r.max = g.max; r.step = g.step; r.value = g.v; rangeFill(r); $('#sgainv').textContent = fmt(g, g.v); }
+  segFor('#sout', 'io.out', ['Stereo', 'Mono', 'Left only', 'Right only']);
   const bs = PK['blk.size'];
   if (bs){
-    const sub = ['lowest latency', 'more headroom', 'max headroom'];
-    $('#sblk').innerHTML = bs.n.map((n, i) => '<button class="' + (Math.round(bs.v) === i ? 'on' : '') + '" data-v="' + i + '"><b>' + n + '</b><span>' + sub[i] + '</span></button>').join('');
+    const sub = ['1.3 ms', '2.7 ms', '5.3 ms'];
+    if (put($('#sblk'), bs.n.map((n, i) => '<button class="' + (Math.round(bs.v) === i ? 'on' : '') + '" data-v="' + i + '" style="height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center"><b>' + esc(n) + '</b><span style="font-size:10px;color:var(--mut)">' + sub[i] + '</span></button>').join('')))
     $('#sblk').querySelectorAll('button').forEach(b => b.onclick = () => setv('blk.size', +b.dataset.v));
     $('#rblk').textContent = bs.n[Math.round(bs.v)];
   }
-  segFor('#slat', 'io.lat');
+  segFor('#slat', 'io.lat', ['Normal', 'Safe (+1 block)']);
   const cl = PK['io.cl']; $('#scl').classList.toggle('on', !!(cl && cl.v > 0.5));
-  $('#rengv').textContent = engCur === 2 ? 'Lite' : 'Full';
+  $('#rengv').textContent = isOn('amp2') ? 'Lite (two amps)' : engCur === 2 ? 'Lite' : 'Full';
   $('#rmidiv').textContent = MD ? MD.map.filter(Boolean).length + ' of ' + MD.map.length : '–';
+  $('#rfsv').textContent = MD && MD.ped === 3 ? 'connected' : MD && MD.pen ? 'not connected' : 'off';
   $('#rtunv').textContent = 'A4 = ' + tref + ' Hz';
 }
-$('#sgain').oninput = ev => { const p = PK['in.gain']; if (!p) return; dragging = 'in.gain'; p.v = +ev.target.value; $('#sgainv').textContent = fmt(p, p.v); send('in.gain', p.v); };
+$('#sgain').oninput = ev => { const p = PK['in.gain']; if (!p) return; dragging = 'in.gain'; p.v = +ev.target.value; rangeFill(ev.target); $('#sgainv').textContent = fmt(p, p.v); send('in.gain', p.v); };
 $('#sgain').onchange = () => setTimeout(() => { if (dragging === 'in.gain') dragging = null; }, 350);
 $('#scl').onclick = () => { const p = PK['io.cl']; if (p) setv('io.cl', p.v > 0.5 ? 0 : 1); };
 $('#brefc').onclick = async () => {
   if (!confirm('Input calibration: for 3 seconds keep the guitar silent (volume knob at 0), with nothing connected to the reference input. Proceed?')) return;
   try { await fetch('/api/refcal'); toast('Calibrating: 3 seconds of silence…'); setTimeout(() => toast('Input calibration done (result on the pedal display)'), 4200); } catch(e) {}
 };
-$('#reng').onclick = () => switchEngine(engCur === 2 ? 1 : 2);
-$('#rcal').onclick = async () => { if (!confirm('DSP calibration: for about 2 minutes the effects switch on one at a time. Turn the volume down. Proceed?')) return; try { await fetch('/api/calib'); toast('Calibration started: about 2 minutes'); } catch(e) {} };
+$('#reng').onclick = () => { if (isOn('amp2')) return toast('With Amp 2 on, both amps run Lite'); switchEngine(engCur === 2 ? 1 : 2); };
+$('#rcal').onclick = async () => { if (!confirm('DSP measurement: for about 2 minutes the effects switch on one at a time. Turn the volume down. Proceed?')) return; try { await fetch('/api/calib'); toast('Measuring: about 2 minutes'); } catch(e) {} };
 let saveWait = false;
 $('#rsave').onclick = async () => { saveWait = true; toast('Saving…'); try { await fetch('/api/save'); } catch(e) {} };
 $('#rtun').onclick = () => openTuner();
+$('#rfs').onclick = () => openFs('A');
 
 /* ===================== MIDI ===================== */
 const MTYPE = ['CC', 'PC', 'Note'], MMODE = ['toggle on press', 'follow (>=64 on)', 'continuous (pedal)', 'any value'];
 const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo', 'Tuner'];
-async function midiApi(u){ try { const d = await getj(u); if (d.err) toast(d.err); else if (d.map) { MD = d; renderPedal(); renderMidi(); renderAssign(); if (view === 'setup') renderSetup(); if (view === 'live') renderLive(); } return d; } catch(e) {} }
+async function midiApi(u){ try { const d = await getj(u); if (d.err) toast(d.err); else if (d.map) { MD = d; renderMidi(); renderFs(); if (view === 'setup') renderSetup(); if (view === 'play') renderPlay(); if (view === 'chain' && !dragging) renderChain(); } return d; } catch(e) {} }
+function openMidi(){ $('#sheet').classList.remove('hid'); renderMidi(); midiApi('/api/midi'); }
 function renderMidi(){
   if (!MD || $('#sheet').classList.contains('hid')) return;
   $('#mlast').textContent = MD.last ? 'Last message: ' + MD.last : 'No MIDI message received yet.';
-  const blks = blocks().filter(x => x.blk !== 'amp').map(x => [x.blk, BLK[x.blk].name]);
+  const blks = noAmp2(ORD.length ? ORD : DEF_ORD).concat(['amp2']).filter(b => b !== 'amp' && hasBlk(b)).map(b => [b, BLK[b].name]);
   const L = $('#mlist'); L.innerHTML = '';
   MD.map.forEach((m, i) => {
     if (!m) return;
@@ -1148,7 +1436,7 @@ function renderMidi(){
     L.appendChild(r);
   });
 }
-$('#rmidi').onclick = () => { $('#sheet').classList.remove('hid'); renderMidi(); midiApi('/api/midi'); };
+$('#rmidi').onclick = openMidi;
 $('#mclose').onclick = () => $('#sheet').classList.add('hid');
 $('#sheet').onclick = ev => { if (ev.target.id === 'sheet') $('#sheet').classList.add('hid'); };
 $('#madd').onclick = () => { const i = MD ? MD.map.findIndex(m => !m) : -1; if (i < 0) return toast('Table full'); midiApi('/api/midiset?i=' + i + '&t=0&n=0&m=0&a=0&k=drv'); };
@@ -1216,10 +1504,10 @@ $('#trp').onclick = () => getj('/api/tuner?ref=' + (tref + 1)).then(tunerShow).c
 $('#tmute').onclick = () => getj('/api/tuner?mute=' + (tmute ? 0 : 1)).then(tunerShow).catch(() => {});
 
 /* ===================== navigazione, aggiornamento ===================== */
-const TITLES = { live: 'Live', rig: 'Rig', presets: 'Presets', lib: 'Library', setup: 'Setup' };
+const TITLES = { play: 'Play', chain: 'Chain', lib: 'Library', setup: 'Setup' };
 function show(v){
   view = v;
-  document.querySelectorAll('.view').forEach(e => e.classList.toggle('on', e.id === 'v-' + v));
+  document.querySelectorAll('main > .view').forEach(e => e.classList.toggle('on', e.id === 'v-' + v));
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   $('#vtitle').textContent = TITLES[v];
   refresh();
@@ -1228,24 +1516,23 @@ function show(v){
 document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => show(b.dataset.v));
 function subtitle(){
   const ps = PS[psCur];
-  if (view === 'presets') return '16 slots · ' + PS.filter(Boolean).length + ' used';
-  if (view === 'lib') return CAPS.filter(Boolean).length + ' captures · ' + IRS.filter(Boolean).length + ' IRs';
-  if (view === 'setup') return 'Device · MIDI · system';
+  if (view === 'lib') return PS.filter(Boolean).length + ' presets · ' + CAPS.filter(Boolean).length + ' captures · ' + IRS.filter(Boolean).length + ' IRs';
+  if (view === 'setup') return 'Device and I/O';
   return (psCur >= 0 ? String(psCur + 1).padStart(2, '0') + ' · ' : '') + (ps ? ps.name : 'Unsaved settings');
 }
-function refreshLight(){ if (view === 'live') renderLive(); }
 function refresh(){
   if (!P.length) return;
   $('#vsub').textContent = subtitle();
-  if (view === 'live') renderLive();
-  else if (view === 'rig') { if (!dragging) renderRig(); }
-  else if (view === 'presets') renderPresets();
+  if (view === 'play') renderPlay();
+  else if (view === 'chain') { if (!dragging) renderChain(); }
   else if (view === 'lib') renderLib();
   else if (view === 'setup') renderSetup();
+  if (!$('#psheet').classList.contains('hid')) renderPsheet();
 }
 async function reload(){
   try { const d = await getj('/api/params'); G = d.groups; P = d.params; PK = {}; P.forEach(p => PK[p.k] = p);
-    ORD = Array.isArray(d.order) ? d.order : []; PAIRS = Array.isArray(d.pairs) ? d.pairs : []; if (d.lv !== undefined) LV = d.lv; refresh(); } catch(e) {}
+    ORD = Array.isArray(d.order) ? d.order : []; PAIRS = Array.isArray(d.pairs) ? d.pairs : []; if (d.lv !== undefined) LV = d.lv;
+    refresh(); if (edB && !dragging) renderEditor(); } catch(e) {}
 }
 let fails = 0, pollN = 0, lastSig = '';
 async function poll(){
@@ -1253,7 +1540,7 @@ async function poll(){
     const s = await getj('/api/state'); S = s; fails = 0;
     if (!APP) { $('#cled').className = 'led on'; $('#ctext').textContent = 'Wi-Fi'; }
     meter('#min', '#nin', s.in); meter('#mout', '#nout', s.out);
-    $('#bmute').classList.toggle('on', !!s.mute); $('#bmute').textContent = s.mute ? 'MUTED' : 'MUTE';
+    $('#bmute').classList.toggle('on', !!s.mute); $('#bmute').setAttribute('aria-pressed', !!s.mute); $('#mutet').textContent = s.mute ? 'Muted' : 'Mute';
     $('#dsp').textContent = s.dsp + '%'; $('#rdsp').textContent = s.dsp + '%';
     $('#rbar').style.width = Math.min(100, s.dsp) + '%'; $('#rbar').classList.toggle('hot', s.dsp > 95);
     let changed = false;
@@ -1266,7 +1553,7 @@ async function poll(){
     if (s.midi !== undefined && MD && (s.midi !== MD.count || MD.ped !== s.ped || MD.learn >= 0)) midiApi('/api/midi');
     if (saveWait && s.save !== -1) { saveWait = false; toast(s.save ? 'Settings saved' : 'Save error'); }
     const sig = JSON.stringify([s.v, psCur, engCur, capAct]);
-    if (changed || sig !== lastSig) { lastSig = sig; if (!(view === 'rig' && dragging)) refresh(); }
+    if (changed || sig !== lastSig) { lastSig = sig; if (!dragging) { refresh(); if (edB) renderEditor(); } }
     if (++pollN % 3 === 0 && !tOpen) { try { const t = await getj('/api/tuner'); if (t.on) openTuner(true); tref = Math.round(t.ref); } catch(e) {} }
   } catch(e){
     if (++fails > 2 && !APP) { $('#cled').className = 'led'; $('#ctext').textContent = 'offline'; }
