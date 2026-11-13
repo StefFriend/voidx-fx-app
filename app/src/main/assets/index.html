@@ -359,6 +359,37 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .orow .tx b{font-size:14px}
 .orow .ib{width:38px;height:38px;min-height:38px;background:var(--s2)}
 
+/* trascinamento */
+#flow,#spare{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.ctip{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);line-height:1.4}
+.ctip svg{width:16px;height:16px;color:var(--st);flex:none}
+.dzb{display:none}
+.addr .dzb{flex:1;align-self:center}
+.dz{height:2px;border-radius:10px;transition:height .12s}
+.dz span{display:none}
+body.dragging .addr{height:40px}
+body.dragging .addr .plus{opacity:0}
+body.dragging .addr .dzb,body.dragging .dz span{display:flex}
+body.dragging .addr .dzb,body.dragging .dz{height:32px;border:1.5px dashed var(--dash);border-radius:10px;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;color:var(--faint);background:color-mix(in srgb,var(--fg) 3%,transparent)}
+body.dragging .dz{display:flex;align-items:center;justify-content:center;height:30px}
+body.dragging .ladd{border-color:var(--dash);color:var(--faint)}
+body.dragging .ladd svg{display:none}
+body.dragging .ladd span::after{content:' · drop here'}
+body.dragging .addr.hot .dzb,body.dragging .dz.hot,body.dragging .ladd.hot{border:1.5px solid var(--dc);color:var(--dc);background:color-mix(in srgb,var(--dc) 14%,transparent)}
+body.dragging .spare{border-color:color-mix(in srgb,var(--bad) 55%,transparent)}
+body.dragging .spare .dzb.rm{display:flex;flex-basis:100%;height:40px;align-items:center;justify-content:center;border-radius:10px;border:1.5px dashed color-mix(in srgb,var(--bad) 55%,transparent);color:var(--bad);font-size:12px;font-weight:600}
+body.dragging .spare.hot .dzb.rm{background:color-mix(in srgb,var(--bad) 14%,transparent);border-style:solid}
+body.dragging .spare.nodrop{opacity:.4}
+.src{opacity:.3}
+.tw{position:relative;outline:2px dashed var(--dc);outline-offset:3px}
+.tw::after{content:attr(data-twl);position:absolute;right:8px;top:-10px;font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:6px;background:var(--dc);color:var(--onacc);white-space:nowrap}
+.tw.hot{outline-style:solid;box-shadow:0 0 22px color-mix(in srgb,var(--dc) 45%,transparent)}
+.ghost{position:fixed;left:0;top:0;z-index:50;pointer-events:none;display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:14px;background:var(--s2);border:1.5px solid var(--dc);color:var(--fg);box-shadow:0 12px 30px rgba(0,0,0,.45),0 0 20px color-mix(in srgb,var(--dc) 30%,transparent);font-family:'Space Grotesk';font-weight:700;font-size:14px}
+.ghost .gi{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--dc) 16%,transparent);color:var(--dc)}
+.ghost .gi svg{width:18px;height:18px}
+.dhint{pointer-events:none;position:fixed;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:49;display:none;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--inv);color:var(--invfg);font-size:13.5px;font-weight:600;box-shadow:0 10px 26px rgba(0,0,0,.35);max-width:600px;margin:0 auto}
+.dhint i{width:10px;height:10px;border-radius:5px;background:var(--dc);flex:none}
+body.dragging .dhint{display:flex}
 #toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:40;background:var(--inv);color:var(--invfg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:88vw;text-align:center;transition:.2s}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -411,6 +442,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
       <button class="hbtn sp" id="bord"><svg class="i" viewBox="0 0 24 24"><path d="M8 4v16M8 4 5 7M8 4l3 3M16 20V4M16 20l-3-3M16 20l3-3"/></svg>Reorder</button>
       <button class="hbtn sp prim" id="csave"><svg class="i" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-6h8v6"/></svg>Save preset</button>
     </div>
+    <div class="ctip" id="ctip"></div>
     <div class="flow" id="flow" aria-label="Signal chain, from the guitar to the output"></div>
     <div class="spare" id="spare"></div>
   </section>
@@ -521,6 +553,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
   </div>
 </div>
 <div id="toast"></div>
+<div class="dhint" id="dhint"><i></i><span id="dhintt"></span></div>
 
 <script>
 /* ===================== trasporto: nell'app le richieste passano dal Bluetooth (VXBridge) ===================== */
@@ -584,6 +617,7 @@ const IC = {
   radiooff: 'M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M12 20h.01M5 12.5a10 10 0 0 1 5.2-2.8M2 8.8a15 15 0 0 1 4.2-2.7M16.8 12.4A10 10 0 0 1 19 13.9M22 8.8a15 15 0 0 0-11.2-3.7',
   info: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM12 8v5M12 16h.01',
   trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  move: 'M8 4v16M8 4 5 7M8 4l3 3M16 20V4M16 20l-3-3M16 20l3-3',
   up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6', chev: 'M9 6l6 6-6 6'
 };
 /* ridisegna solo se il contenuto cambia: i tocchi non vanno persi durante il poll */
@@ -681,7 +715,7 @@ async function flush(){
     } catch(e) {}
   }
 }
-function setv(k, v){ const p = PK[k]; if (!p) return; p.v = v; send(k, v); refresh(); }
+function setv(k, v){ const p = PK[k]; if (!p) return; p.v = v; if (/\.on$/.test(k)) { const b = k.split('.')[0]; if (v > 0.5 && useP(b)) useP(b).v = 1; if (v < 0.5) kept.add(b); } send(k, v); refresh(); }
 async function setNow(k, v){
   const p = PK[k]; if (!p) return false;
   try { const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v); if (r.err) { toast(r.err); return false; } p.v = r.v; return true; } catch(e) { toast('Not sent: check the connection'); return false; }
@@ -771,7 +805,11 @@ async function assignToggle(key, blk){
 
 /* ===================== catena: cosa c'e' e in che ordine ===================== */
 /* nella catena: l'ampli sempre; gli altri se accesi o comandati da un pedale (allora in bypass quando spenti) */
-const inChain = b => b === 'amp' || isOn(b) || fsOf(b).length > 0;
+/* nella catena: l'ampli sempre; Amp 2 se acceso; gli altri finche' non li togli (spenti = in bypass).
+   Il pedale lo ricorda in "X.use" (firmware v48d); con un firmware piu' vecchio vale fino al cambio di preset */
+const kept = new Set();
+const useP = b => PK[b + '.use'];
+const inChain = b => b === 'amp' || isOn(b) || (b !== 'amp2' && (fsOf(b).length > 0 || (useP(b) ? useP(b).v > 0.5 : kept.has(b))));
 function chainParts(){
   const o = noAmp2(ORD.length ? ORD : DEF_ORD).filter(b => hasBlk(b)), ai = o.indexOf('amp');
   return { pre: o.slice(0, ai).filter(inChain), post: o.slice(ai + 1).filter(inChain), all: o };
@@ -858,7 +896,8 @@ function rowPair(q, st){
     '<div class="pairc" style="--c:' + cvar(a) + '"><div class="hd"><b>' + esc(BLK[a].name) + ' + ' + esc(BLK[b].name) + '</b><span class="chip2" style="--cc:' + cvar(a) + '">BESIDE EACH OTHER</span></div>' +
     '<div class="duo">' + miniHTML(a) + miniHTML(b) + '</div><span class="note">Same input into both, then mixed · <button class="hbtn" data-ed="' + a + '" data-tab="route" style="display:inline;height:auto;min-height:0;padding:0;border:none;background:none;color:var(--st);font-size:12px">Mix</button></span></div></div>';
 }
-const rowAdd = (st, after, lane) => '<div class="fr addr">' + gut(LN(st), '<button class="plus" data-add="' + (after || '') + '" data-lane="' + (lane || 0) + '" aria-label="Add a block here">' + svg('plus') + '</button>') + '<span></span></div>';
+const dropAttr = (after, before, lane, zone) => ' data-drop data-after="' + (after || '') + '" data-before="' + (before || '') + '" data-lane="' + (lane || 0) + '" data-zone="' + zone + '"';
+const rowAdd = (st, after, zone) => '<div class="fr addr"' + dropAttr(after, '', 0, zone) + '>' + gut(LN(st), '<button class="plus" data-add="' + (after || '') + '" data-lane="0" aria-label="Add a block here">' + svg('plus') + '</button>') + '<span class="dzb">Drop here</span></div>';
 const rowZone = (st, txt) => '<div class="fr zone">' + gut(LN(st)) + '<span class="zl' + (st ? ' st' : '') + '">' + esc(txt) + '</span></div>';
 function rowIO(kind, st){
   const inp = kind === 'in', pin = PK['io.in'], pout = PK['io.out'];
@@ -866,14 +905,14 @@ function rowIO(kind, st){
   return '<div class="fr">' + gut(LN(st, inp ? 'bot' : 'top'), '<span class="node">' + svg(inp ? 'input' : 'out') + '</span>') + '<div class="iol"><b>' + (inp ? 'Guitar in' : 'Output') + '</b><span>' + esc(sub) + '</span></div></div>';
 }
 /* sequenza di blocchi (in serie, con le coppie affiancate quando sono in parallelo e entrambe nella catena) */
-function seqHTML(list, st, lastAnchor){
+function seqHTML(list, st, lastAnchor, zone){
   let h = '', done = {}, prev = lastAnchor;
   list.forEach(b => {
     if (done[b]) return;
     const q = pairOf(b);
     if (q && isPar(b) && list.includes(q[0]) && list.includes(q[1])) { done[q[0]] = done[q[1]] = 1; h += rowPair(q, st); prev = q[1]; }
     else { done[b] = 1; h += rowBlock(b, st); prev = b; }
-    h += rowAdd(st, prev);
+    h += rowAdd(st, prev, zone);
   });
   return h;
 }
@@ -883,13 +922,16 @@ function renderChain(){
   let h = rowIO('in', false);
   if (D){
     const sp = pre.filter(b => !laneOf(b));
-    h += rowZone(false, 'MONO · into both paths') + rowAdd(false, '') + seqHTML(sp, false, '');
+    h += rowZone(false, 'MONO · into both paths') + rowAdd(false, '', 'pre') + seqHTML(sp, false, '', 'pre');
     h += '<div class="fr">' + gut(LN(false, 'top'), '<span class="node">' + svg('split') + '</span>') + '<div class="iol"><b style="letter-spacing:1px;font-size:13px">SPLIT INTO TWO PATHS</b><span>Each path is its own mono rig</span></div></div>';
     const lane = (n, amp, col, side) => {
       const lp = pre.filter(b => laneOf(b) === n), lq = post.filter(b => laneOf(b) === n);
+      const dz = (a, bf, z) => '<div class="dz"' + dropAttr(a, bf, n, z) + '><span>Drop here</span></div>';
       return '<div class="lane" style="--lc:' + col + '"><span class="wire"></span><div class="lh"><b>PATH ' + n + '</b><span class="small mut">→ ' + side + '</span></div>' +
-        lp.map(b => miniHTML(b)).join('') + '<button class="ladd" data-add="' + (lp.length ? lp[lp.length - 1] : '') + '" data-before="amp" data-lane="' + n + '">' + svg('plus') + 'Add</button>' +
-        miniHTML(amp, ' amp') + lq.map(b => miniHTML(b)).join('') + '<button class="ladd" data-add="' + (lq.length ? lq[lq.length - 1] : 'amp') + '" data-lane="' + n + '">' + svg('plus') + 'Add</button></div>';
+        lp.map(b => dz('', b, 'pre') + miniHTML(b)).join('') +
+        '<button class="ladd"' + dropAttr(lp.length ? lp[lp.length - 1] : '', 'amp', n, 'pre') + ' data-add="' + (lp.length ? lp[lp.length - 1] : '') + '" data-before="amp" data-lane="' + n + '">' + svg('plus') + '<span>Add</span></button>' +
+        miniHTML(amp, ' amp') + lq.map((b, i) => dz(i ? lq[i - 1] : 'amp', '', 'post') + miniHTML(b)).join('') +
+        '<button class="ladd"' + dropAttr(lq.length ? lq[lq.length - 1] : 'amp', '', n, 'post') + ' data-add="' + (lq.length ? lq[lq.length - 1] : 'amp') + '" data-lane="' + n + '">' + svg('plus') + '<span>Add</span></button></div>';
     };
     h += '<div class="lanes">' + lane(1, 'amp', 'var(--drv)', 'left') + lane(2, 'amp2', 'var(--mod)', 'right') + '</div>';
     const pa = PK['amp.pmix'];
@@ -897,29 +939,33 @@ function renderChain(){
       '<div class="iol sp"><b style="letter-spacing:1px;font-size:13px">MERGE · STEREO</b><span>' + esc(panTxt()) + (pa ? ' · balance ' + fmtBal(pa.v) : '') + '</span></div>' +
       '<button class="hbtn" data-ed="amp" data-tab="route" style="align-self:center">Mix</button></div>';
     const sq = post.filter(b => !laneOf(b));
-    h += rowAdd(true, 'amp') + seqHTML(sq, true, 'amp');
+    h += rowAdd(true, 'amp', 'post') + seqHTML(sq, true, 'amp', 'post');
   } else {
-    h += rowZone(false, 'MONO · before the amp') + rowAdd(false, '') + seqHTML(pre, false, '');
+    h += rowZone(false, 'MONO · before the amp') + rowAdd(false, '', 'pre') + seqHTML(pre, false, '', 'pre');
     const am2 = inChain('amp2');
     h += '<div class="fr">' + gut(LN(false), '<span class="tile on" style="--c:var(--amp)">' + svg('amp') + '</span>') +
       '<div class="bc on" data-ed="amp" role="button" tabindex="0"><div class="tx"><div class="nm"><b>Amp</b><span class="chip2" style="--cc:var(--amp)">' + (capInfo.lite ? 'LITE' : 'FULL') + '</span></div><span class="sub ell">' + esc(short('amp')) + '</span></div>' +
       '<button class="pwr' + (isOn('amp') ? ' on' : '') + '" style="--c:var(--amp)" data-pw="amp" aria-label="Amp on or off">' + svg('power') + '</button></div></div>';
     if (am2) h += rowBlock('amp2', false);
     const stpost = post.some(b => isOn(b) && /^(mod|dly|rev)/.test(b));
-    h += rowAdd(false, 'amp') + rowZone(stpost, stpost ? 'STEREO · after the amp' : 'AFTER THE AMP') + seqHTML(post, stpost, 'amp');
+    h += rowAdd(false, 'amp', 'post') + rowZone(stpost, stpost ? 'STEREO · after the amp' : 'AFTER THE AMP') + seqHTML(post, stpost, 'amp', 'post');
   }
   h += rowIO('out', D || post.some(b => isOn(b) && /^(mod|dly|rev)/.test(b)));
   const F = $('#flow');
   if (put(F, h)) {
-  F.querySelectorAll('[data-ed]').forEach(e => e.onclick = ev => { if (ev.target.closest('[data-pw]')) return; openEditor(e.dataset.ed, e.dataset.tab); });
+  F.querySelectorAll('[data-ed]').forEach(e => e.onclick = ev => { if (ev.target.closest('[data-pw]') || justDragged()) return; openEditor(e.dataset.ed, e.dataset.tab); });
   F.querySelectorAll('[data-pw]').forEach(e => e.onclick = ev => { ev.stopPropagation(); const p = onP(e.dataset.pw); if (p) setv(p.k, p.v > 0.5 ? 0 : 1); });
-  F.querySelectorAll('[data-add]').forEach(e => e.onclick = () => openAdd(e.dataset.add, +e.dataset.lane, e.dataset.before));
+  F.querySelectorAll('[data-add]').forEach(e => e.onclick = () => justDragged() || openAdd(e.dataset.add, +e.dataset.lane, e.dataset.before));
   }
+  const tip = (D ? 'Hold a block and drag it: into Path 1 or Path 2, or above the split / below the merge to share it.'
+    : hasBlk('amp2') ? 'Hold a block and drag it to move it. Drag Amp 2 onto Amp to split into two paths.' : 'Hold a block and drag it to move it.') +
+    ' The power button bypasses a block; drag it to "Not in the chain" to remove it.';
+  put($('#ctip'), svg('move') + '<span>' + esc(tip) + '</span>');
   const sp = ADD_ORDER.filter(b => hasBlk(b) && !inChain(b));
   if (put($('#spare'), '<div class="row"><span class="cap sp">Not in the chain</span><button class="hbtn" id="spadd" style="height:32px;min-height:32px">Add</button></div><div class="chips">' +
-    (sp.map(b => '<button class="sc" style="--c:' + cvar(b) + '" data-sp="' + b + '">' + svg(BLK[b].i) + esc(BLK[b].name) + '</button>').join('') || '<span class="note">Every block is in use.</span>') + '</div>')) {
+     '<span class="dzb rm">Drop here to remove</span>' + (sp.map(b => '<button class="sc" style="--c:' + cvar(b) + '" data-sp="' + b + '">' + svg(BLK[b].i) + esc(BLK[b].name) + '</button>').join('') || '<span class="note">Every block is in use.</span>') + '</div>')) {
   $('#spadd').onclick = () => openAdd(lastAnchor(), 0);
-  $('#spare').querySelectorAll('[data-sp]').forEach(e => e.onclick = () => openAdd(lastAnchor(), 0, null, e.dataset.sp));
+  $('#spare').querySelectorAll('[data-sp]').forEach(e => e.onclick = () => justDragged() || openAdd(lastAnchor(), 0, null, e.dataset.sp));
   }
 }
 function lastAnchor(){ const { post } = chainParts(); return post.length ? post[post.length - 1] : 'amp'; }
@@ -927,6 +973,173 @@ function fmtBal(v){ const r = Math.round(v); return r === 50 ? '50 / 50' : r < 5
 function panTxt(){ const a = PK['amp.pan1'], b = PK['amp.pan2']; if (!a || !b) return 'Path 1 left, path 2 right'; const s = v => v < -30 ? 'left' : v > 30 ? 'right' : 'center'; return 'Path 1 ' + s(a.v) + ', path 2 ' + s(b.v); }
 $('#bord').onclick = openOrder;
 $('#csave').onclick = () => openPresets('save');
+
+/* ===================== trascinamento dei blocchi ===================== */
+/* tieni premuto un blocco ~0,3 s, poi trascinalo: su uno spazio tra i blocchi, in un percorso,
+   sul suo gemello (affiancati) o in "Not in the chain" (tolto) */
+let DG = null, dragT = 0;
+const justDragged = () => Date.now() - dragT < 450;
+const twinOf = b => { const q = pairOf(b); return q ? (q[0] === b ? q[1] : q[0]) : null; };
+function dSrc(t){
+  const e = t.closest('#flow [data-ed]:not([data-tab]), #spare [data-sp]');
+  if (!e || t.closest('[data-pw]')) return null;
+  const b = e.dataset.ed || e.dataset.sp;
+  if (!BLK[b] || b === 'amp') return null;
+  return { el: e, b, spare: !!e.dataset.sp };
+}
+function slotOk(z){
+  const b = DG.b;
+  if (b === 'amp2') return z.dataset.after === 'amp' && !+z.dataset.lane;
+  return true;
+}
+function twinOk(){
+  const tw = DG.twin; if (!tw) return false;
+  if (DG.b === 'amp2') return true;
+  return inChain(tw) && !(dual() && laneOf(tw));
+}
+function dStart(x, y, t){
+  if (DG || view !== 'chain') return;
+  const s = dSrc(t); if (!s) return;
+  DG = Object.assign(s, { x0: x, y0: y, x, y, on: false, tg: null });
+  DG.tm = setTimeout(dBegin, 300);
+}
+function dBegin(){
+  if (!DG) return;
+  DG.on = true; DG.twin = twinOf(DG.b);
+  try { navigator.vibrate && navigator.vibrate(15); } catch(e) {}
+  document.body.style.setProperty('--dc', cvar(DG.b));
+  document.body.classList.add('dragging');
+  DG.el.classList.add('src');
+  const g = document.createElement('div'); g.className = 'ghost';
+  g.innerHTML = '<span class="gi">' + svg(BLK[DG.b].i) + '</span>' + esc(BLK[DG.b].name);
+  document.body.appendChild(g); DG.gh = g;
+  if (twinOk()) $('#flow').querySelectorAll('[data-ed="' + DG.twin + '"]:not([data-tab])').forEach(e => {
+    e.classList.add('tw'); e.dataset.twl = DG.b === 'amp2' ? 'DROP: TWO PATHS' : 'DROP: SIDE BY SIDE';
+  });
+  $('#spare').classList.toggle('nodrop', DG.spare);
+  dMove(DG.x, DG.y);
+  /* scorrimento automatico vicino ai bordi, solo dopo che il dito si e' mosso */
+  const scroll = () => { if (!DG || !DG.on) return; const h = innerHeight, top = 110, bot = h - 130;
+    if (Math.abs(DG.y - DG.y0) > 40 || DG.moved) { DG.moved = 1;
+      if (DG.y < top) scrollBy(0, -Math.ceil((top - DG.y) / 8)); else if (DG.y > bot) scrollBy(0, Math.ceil((DG.y - bot) / 8)); }
+    dHit(); requestAnimationFrame(scroll); };
+  requestAnimationFrame(scroll);
+}
+function dMove(x, y){
+  if (!DG) return;
+  DG.x = x; DG.y = y;
+  if (!DG.on){ if (Math.hypot(x - DG.x0, y - DG.y0) > 8) { clearTimeout(DG.tm); DG = null; } return; }
+  DG.gh.style.transform = 'translate(' + (x - 24) + 'px,' + (y - 58) + 'px) rotate(-2deg)';
+  dHit();
+}
+function dHit(){
+  const x = DG.x, y = DG.y;
+  DG.gh.style.display = 'none'; const e = document.elementFromPoint(x, y); DG.gh.style.display = '';
+  let tg = null;
+  if (e){
+    const tw = e.closest('.tw');
+    if (tw) tg = { kind: 'twin', el: tw };
+    else if (e.closest('#spare')) tg = DG.spare ? null : { kind: 'rm', el: $('#spare') };
+    else {
+      const z = e.closest('[data-drop]');
+      if (z && slotOk(z)) tg = { kind: 'slot', el: z };
+      else if (e.closest('#flow')) {
+        /* sopra un blocco: lo spazio libero piu' vicino */
+        let best = null, bd = 70;
+        $('#flow').querySelectorAll('[data-drop]').forEach(z => {
+          if (!slotOk(z)) return;
+          const r = z.getBoundingClientRect();
+          const dx = x < r.left ? r.left - x : x > r.right ? x - r.right : 0, dy = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
+          const d = Math.hypot(dx * 1.5, dy); if (d < bd) { bd = d; best = z; }
+        });
+        if (best) tg = { kind: 'slot', el: best };
+      }
+    }
+  }
+  if (tg && tg.kind === 'slot'){ const d = tg.el.dataset; Object.assign(tg, { after: d.after, before: d.before, lane: +d.lane, zone: d.zone }); }
+  if ((DG.tg && DG.tg.el) !== (tg && tg.el)){
+    if (DG.tg) DG.tg.el.classList.remove('hot');
+    if (tg) tg.el.classList.add('hot');
+  }
+  DG.tg = tg;
+  $('#dhintt').textContent = dHint(tg);
+}
+function whereTxt(t){
+  const amp = t.lane === 2 ? 'Amp 2' : 'Amp';
+  if (t.lane) return 'Path ' + t.lane + ' · ' + (t.zone === 'pre' ? 'before ' : 'after ') + amp + (t.lane === 1 ? ' (left)' : ' (right)');
+  if (dual()) return t.zone === 'pre' ? 'Before the split · into both paths' : 'After the merge · both paths, stereo';
+  return t.zone === 'pre' ? 'Before the amp · mono' : 'After the amp';
+}
+function dHint(t){
+  const n = BLK[DG.b].name;
+  if (!t) return DG.b === 'amp2' ? 'Drop Amp 2 on Amp for two paths, or right after Amp for series'
+    : n + ': drop it on a gap' + (twinOk() ? ', or on ' + BLK[DG.twin].name + ' to run them side by side' : '');
+  if (t.kind === 'rm') return 'Remove ' + n + ' from the chain';
+  if (t.kind === 'twin') return DG.b === 'amp2' ? 'Two paths: Amp left, Amp 2 right' : n + ' beside ' + BLK[DG.twin].name + ': same input, then mixed';
+  if (DG.b === 'amp2') return 'Amp 2 after Amp, in series (one line)';
+  return n + ' → ' + whereTxt(t);
+}
+function dClean(){
+  document.body.classList.remove('dragging');
+  if (DG){ DG.el.classList.remove('src'); if (DG.gh) DG.gh.remove(); if (DG.tg) DG.tg.el.classList.remove('hot'); }
+  document.querySelectorAll('.tw').forEach(e => { e.classList.remove('tw'); delete e.dataset.twl; });
+  $('#spare').classList.remove('nodrop');
+}
+function dEnd(cancel){
+  if (!DG) return;
+  clearTimeout(DG.tm);
+  const d = DG;
+  if (d.on){ dragT = Date.now(); dClean(); DG = null; if (!cancel && d.tg) dropOn(d.b, d.tg, d.spare); else refresh(); }
+  DG = null;
+}
+const MAIN = document.querySelector('main');
+MAIN.addEventListener('touchstart', ev => { if (ev.touches.length === 1) dStart(ev.touches[0].clientX, ev.touches[0].clientY, ev.target); else dEnd(true); }, { passive: true });
+document.addEventListener('touchmove', ev => { if (!DG) return; const t = ev.touches[0]; dMove(t.clientX, t.clientY); if (DG && DG.on && ev.cancelable) ev.preventDefault(); }, { passive: false });
+document.addEventListener('touchend', () => dEnd(false));
+document.addEventListener('touchcancel', () => dEnd(true));
+MAIN.addEventListener('mousedown', ev => { if (ev.button === 0 && !ev.sourceCapabilities?.firesTouchEvents) dStart(ev.clientX, ev.clientY, ev.target); });
+document.addEventListener('mousemove', ev => { if (DG) dMove(ev.clientX, ev.clientY); });
+document.addEventListener('mouseup', () => dEnd(false));
+MAIN.addEventListener('contextmenu', ev => { if (ev.target.closest('#flow, #spare')) ev.preventDefault(); });
+
+async function dropOn(b, t, fromSpare){
+  try {
+    if (t.kind === 'rm'){
+      if (b === 'amp2'){ await setNow('amp2.on', 0); await reload(); return toast('Amp 2 removed: one amp again'); }
+      return removeBlock(b);
+    }
+    if (b === 'amp2'){
+      const par = t.kind === 'twin' ? 1 : 0;
+      if (PK['amp.par'] && Math.round(PK['amp.par'].v) !== par && !await setNow('amp.par', par)) return reload();
+      if (!isOn('amp2')) { if (!await setNow('amp2.on', 1)) return reload(); toast('Amp 2: loading…'); }
+      await reload();
+      return toast(par ? 'Two paths: Amp left, Amp 2 right' : 'Amp 2 after Amp, in series');
+    }
+    const q = pairOf(b), tw = twinOf(b);
+    const old = noAmp2(ORD.length ? ORD : DEF_ORD), cur = old.indexOf(b), o = old.filter(x => x !== b);
+    let i;
+    if (t.kind === 'twin') i = o.indexOf(tw) + 1;
+    else if (t.before && t.before !== b) i = o.indexOf(t.before);
+    else if (t.after && t.after !== b) i = o.indexOf(t.after) + 1;
+    else if (t.after === b || t.before === b) i = cur;
+    else i = 0;
+    if (i < 0) i = o.length;
+    o.splice(i, 0, b);
+    const ln = t.kind === 'twin' ? 0 : (t.lane || 0);
+    /* subito sullo schermo, poi al pedale */
+    ORD = []; o.forEach(x => { ORD.push(x); if (x === 'amp') ORD.push('amp2'); });
+    if (PK[b + '.lane'] && dual()) PK[b + '.lane'].v = ln;
+    if (fromSpare && onP(b)) { onP(b).v = 1; if (useP(b)) useP(b).v = 1; }
+    renderChain();
+    if (q && isPar(b) && t.kind !== 'twin') await setNow(q[0] + '.par', 0);
+    if (o.join() !== old.join()){ const d = await getj('/api/order?o=' + o.join(',')); if (!d.ok) { toast(d.err || 'Move refused'); return reload(); } }
+    if (dual() && PK[b + '.lane']) { const r = await getj('/api/set?k=' + b + '.lane&v=' + ln); if (r.err) { toast(r.err); return reload(); } }
+    if (t.kind === 'twin' && q && !isPar(b)) { if (!await setNow(q[0] + '.par', 1)) return reload(); }
+    if (fromSpare) { const r = await getj('/api/set?k=' + b + '.on&v=1'); if (r.err) { toast(r.err); return reload(); } }
+    await reload();
+    toast(t.kind === 'twin' ? BLK[b].name + ' beside ' + BLK[tw].name : BLK[b].name + ' → ' + whereTxt(t));
+  } catch(e) { toast('Not moved: check the connection'); reload(); }
+}
 
 /* ===================== aggiunta di un blocco ===================== */
 let addCtx = null;
@@ -1028,7 +1241,7 @@ function renderEditor(){
     const sw = fsOf(b);
     h += '<span style="font-size:13px;color:var(--mut)">Which footswitches turn ' + esc(M.name) + ' on and off</span><div class="fsp" style="--c:' + cvar(b) + '">' +
       'ABCD'.split('').map(k => '<button class="' + (sw.includes(k) ? 'on' : '') + '" data-fs="' + k + '" aria-pressed="' + sw.includes(k) + '">' + k + '</button>').join('') + '</div>' +
-      '<span class="note">A switch can hold more than one block: they go on and off together. Blocks on a switch stay in the chain even when off (bypassed).</span>';
+      '<span class="note">A switch can hold more than one block: they go on and off together.</span>';
   }
   if (b !== 'amp') h += '<button class="danger" data-rm>' + (b === 'amp2' ? 'Remove Amp 2' : 'Remove from the chain') + '</button>';
   E.innerHTML = h;
@@ -1075,6 +1288,8 @@ async function removeBlock(b){
   const sw = fsOf(b);
   for (const k of sw) await assignToggle(k, b);
   await setNow(b + '.on', 0);
+  if (useP(b)) await setNow(b + '.use', 0);
+  kept.delete(b);
   closeEditor(); await reload(); toast(BLK[b].name + ' removed from the chain');
 }
 
@@ -1203,7 +1418,7 @@ function a2C(cfg){
 }
 const CRCT = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++){ let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[i] = c >>> 0; } return t; })();
 function crc32(u){ let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRCT[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
-function nameBytes(s){ let nm = new TextEncoder().encode(s); while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/�$/, '')); return nm; }
+function nameBytes(s){ let nm = new TextEncoder().encode(s); while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/\uFFFD$/, '')); return nm; }
 /* .nam (JSON) -> blob VXN1 con i pesi A2 Lite e/o Full, cosi' come sono nel file */
 function namToVxn(d, fname){
   if ((d.sample_rate || 48000) !== 48000) throw new Error('capture at ' + d.sample_rate + ' Hz: 48 kHz is required');
@@ -1524,7 +1739,7 @@ function refresh(){
   if (!P.length) return;
   $('#vsub').textContent = subtitle();
   if (view === 'play') renderPlay();
-  else if (view === 'chain') { if (!dragging) renderChain(); }
+  else if (view === 'chain') { if (!dragging && !DG) renderChain(); }
   else if (view === 'lib') renderLib();
   else if (view === 'setup') renderSetup();
   if (!$('#psheet').classList.contains('hid')) renderPsheet();
@@ -1548,7 +1763,7 @@ async function poll(){
     else s.v.forEach((v, i) => { const p = P[i]; if (p && p.v !== v && dragging !== p.k && !(p.k in pending)) { p.v = v; changed = true; } });
     if (s.cap && (s.cap.act !== capAct || s.cap.st !== capInfo.st || s.cap.lite !== capInfo.lite)) { loadCaps(); }
     else if (s.cap2 && (s.cap2.act !== capInfo.active2 || s.cap2.st !== capInfo.st2)) { loadCaps(); }
-    if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; changed = true; }
+    if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; kept.clear(); changed = true; }
     if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; changed = true; }
     if (s.midi !== undefined && MD && (s.midi !== MD.count || MD.ped !== s.ped || MD.learn >= 0)) midiApi('/api/midi');
     if (saveWait && s.save !== -1) { saveWait = false; toast(s.save ? 'Settings saved' : 'Save error'); }
